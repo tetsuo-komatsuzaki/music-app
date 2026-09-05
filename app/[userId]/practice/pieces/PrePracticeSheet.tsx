@@ -21,6 +21,8 @@ export type SheetVariant = {
   articulation?: string | null
   /** 個別パターン名 (音符ごとの奏法・リズムを作ったときに付けた名前)。null=標準 */
   patternName?: string | null
+  /** リズム変種 (rhythmRecipe 由来) なら true。奏法を継いでいてもパターン欄に出す (2026-09-05 カイザー No.4) */
+  rhythmPattern?: boolean | null
   /** 実体化されたパート教材 (2026-08-25 案B)。null=通し */
   partId?: string | null
   partName?: string | null
@@ -68,8 +70,14 @@ export default function PrePracticeSheet({
   const baseVariant = byArt
     ? soloVariants.find((v) => !v.articulation && !v.patternName)
     : undefined
-  const artVariants = byArt ? soloVariants.filter((v) => v.articulation) : soloVariants
-  const patternVariants = byArt ? soloVariants.filter((v) => !v.articulation && v.patternName) : []
+  // 2026-09-05 Tetsuo指摘 (カイザー No.4 のリズム別が選べない): 通し自体が奏法を持つエチュード
+  // (No.4 は奏法=slur) では、リズム変種も通しから奏法を継いで articulation=slur になる。
+  // 「奏法を持たない変種だけがパターン」と決めていたため1件も出なかった。
+  //   奏法軸   = リズム変種でない、奏法を持つ変種 (奏法レシピの変種は従来どおりここ)
+  //   パターン欄 = リズム変種は「いま選んでいる奏法と同じ奏法を継いだもの」、
+  //              奏法レシピの混合パターン (奏法なし) は従来どおり「そのまま弾く」のとき
+  const isRhythm = (v: SheetVariant) => v.rhythmPattern === true
+  const artVariants = byArt ? soloVariants.filter((v) => v.articulation && !isRhythm(v)) : soloVariants
   // 第1軸 → 変種。曲=難易度 / エチュード=奏法 (2026-08-25 Tetsuo確定)
   const byKey = new Map<string, SheetVariant>()
   for (const v of artVariants) {
@@ -98,7 +106,9 @@ export default function PrePracticeSheet({
   const sameAxis = soloVariants.filter(
     (v) => (byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")) === diff,
   )
-  const patterns = byArt ? patternVariants : sameAxis.filter((v) => v.patternName)
+  const patterns = byArt
+    ? soloVariants.filter((v) => v.patternName && (isRhythm(v) ? (v.articulation ?? "") === diff : (!v.articulation && diff === "")))
+    : sameAxis.filter((v) => v.patternName)
   const [patternId, setPatternId] = useState<string>("")
   // 軸の値がラダーのどれとも噛み合わない教材があるため、最後に「先頭の変種」へ落とす
   // (2026-08-25: カイザーNo.10ほか9件が 奏法=slur の単独グループで variant=undefined になり、

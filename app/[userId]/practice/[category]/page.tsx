@@ -198,6 +198,8 @@ export default async function CategoryPage({
       patternName: ((item.rhythmRecipe as { name?: string } | null)?.name)
         ?? ((item.articulationRecipe as { name?: string } | null)?.name)
         ?? null,
+      // リズム変種か (2026-09-05): 奏法を継いでいてもパターン欄に出すための印
+      rhythmPattern: item.rhythmRecipe != null,
       partId: item.partId ?? null,
       // 奏法別・リズム別は一覧に出さない (2026-09-01)。シートには渡す
       isVariant: !listReps.has(item.id),

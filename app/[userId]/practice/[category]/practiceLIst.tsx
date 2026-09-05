@@ -34,6 +34,8 @@ type PracticeItemDTO = {
   axisValues?: string[]
   /** 個別パターン名 (奏法・リズムレシピで付けた名前) */
   patternName?: string | null
+  /** リズム変種なら true (2026-09-05) */
+  rhythmPattern?: boolean | null
   /** 実体化されたパート教材 (2026-08-25 案B) */
   partId?: string | null
   partName?: string | null
@@ -546,6 +548,7 @@ function StarView({
               // 16音符のようなリズム登録がパターン欄に一切出なくなる。
               articulation: i.articulation ?? null,
               patternName: i.patternName ?? null,
+              rhythmPattern: i.rhythmPattern ?? null,
               partId: i.partId ?? null,
               sourceItemId: i.sourceItemId ?? null,
               partName: i.partName ?? null,

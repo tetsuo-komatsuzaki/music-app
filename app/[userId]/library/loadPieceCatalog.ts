@@ -89,6 +89,7 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       difficulty: s.difficulty,
       // 個別パターン名 (リズムパターンで付けた名前)。null=標準
       patternName: ((s.rhythmRecipe as { name?: string } | null)?.name) ?? null,
+      rhythmPattern: s.rhythmRecipe != null,
       partId: s.partId,
       // 2026-09-01: パートは切り出し元の通し変種と対で扱う (PrePracticeSheet)
       sourceItemId: ((s.variantRecipe as { sourceItemId?: string } | null)?.sourceItemId) ?? null,

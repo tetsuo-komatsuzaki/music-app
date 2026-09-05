@@ -13,14 +13,14 @@ vi.mock("./SheetSkills", () => ({ default: () => null }))
 import PrePracticeSheet, { type SheetVariant } from "./PrePracticeSheet"
 
 const v = (o: Partial<SheetVariant> & { id: string }): SheetVariant => ({
-  star: 2, difficulty: null, articulation: null, patternName: null,
+  star: 2, difficulty: null, articulation: null, patternName: null, rhythmPattern: null,
   partId: null, partName: null, sourceItemId: null, sections: [], bestScore: null, ...o,
 })
 
 // 通し / 奏法変種 / リズム変種 / それぞれのパート
 const TOSHI = v({ id: "toshi" })
 const SLUR = v({ id: "slur", articulation: "slur", patternName: "スラー" })
-const R16 = v({ id: "r16", patternName: "16音符" })
+const R16 = v({ id: "r16", patternName: "16音符", rhythmPattern: true })
 const parts = (src: string, art: string | null, pat: string | null) =>
   [1, 2, 3, 4].map((n) => v({
     id: `${src}-p${n}`, partId: `part-${n}`, partName: `Part${n}`,
@@ -92,5 +92,34 @@ describe("練習前シート (エチュード・奏法軸)", () => {
     )
     expect(optionTexts(selects()[0]).some((t) => t.includes("スラー"))).toBe(false)
     expect(optionTexts(selects()[0]).some((t) => t.includes("スタッカート"))).toBe(true)
+  })
+})
+
+// 2026-09-05 Tetsuo指摘: カイザー No.4 は通し自体が 奏法=slur。リズム変種 (パターン①〜④) は
+// 通しから奏法を継いで articulation=slur になるため、パターン欄に1件も出なかった。
+describe("練習前シート (通しが奏法を持つエチュード ・ カイザー No.4 型)", () => {
+  const T4 = v({ id: "t4", articulation: "slur" })
+  const P1 = v({ id: "p1", articulation: "slur", patternName: "パターン①", rhythmPattern: true })
+  const P2 = v({ id: "p2", articulation: "slur", patternName: "パターン②", rhythmPattern: true })
+  const g4 = {
+    title: "カイザー 練習曲 Op.20 No.4", composer: "カイザー", genre: null, coverImagePath: null,
+    variants: [T4, P1, P2, ...parts("t4", "slur", null), ...parts("p1", "slur", "パターン①")],
+  }
+  const open4 = () => render(
+    <PrePracticeSheet userId="u1" group={g4} onClose={() => {}} basePath="/practice/etude" primaryAxis="articulation" />,
+  )
+  it("奏法=スラーが既定で、リズム別がパターン欄に出る", () => {
+    open4()
+    expect(selects()[0].value).toBe("slur")
+    expect(screen.getByText("パターンを選ぶ")).toBeTruthy()
+    const pat = selects()[1]
+    expect(optionTexts(pat).some((t) => t.includes("パターン①"))).toBe(true)
+    expect(optionTexts(pat).some((t) => t.includes("パターン②"))).toBe(true)
+  })
+  it("パターンを選ぶと、そのパターンのパートが出る", () => {
+    open4()
+    fireEvent.change(selects()[1], { target: { value: "p1" } })
+    const part = selects().at(-1)!
+    expect(optionTexts(part).filter((t) => t.startsWith("Part")).length).toBe(4)
   })
 })
