@@ -230,7 +230,7 @@ def test_bundle_keys_match_reader_rules():
         return p
     a = prof("G4"); b = prof("C5", finger=2, position=3, slur=True)
     ks = bundle_keys(b, a, prev_duration_sec=0.2)
-    assert "pitch|G4|C5" in ks and "fingering|G4|C5" in ks and "position|1|3" in ks and "technique|slur|C5" in ks
+    assert "pitch|G4|C5" in ks and "fingering|G4|C5" in ks and "position|1|3|C5" in ks and "technique|slur|C5" in ks
     # 遅い・開放弦・同じ音名・直前に休符 はフィンガリングに入らない
     assert "fingering|G4|C5" not in bundle_keys(b, a, prev_duration_sec=0.5)
     assert "fingering|G4|C5" not in bundle_keys(b, prof("G4", finger=0), 0.2)
@@ -241,12 +241,12 @@ def test_bundle_keys_match_reader_rules():
     # 並びから数える: 前の音の秒は直前の行の durationSec
     rows = [{"profileKey": a["key"], "prevProfileKey": None, "durationSec": 0.2}, {"profileKey": b["key"], "prevProfileKey": a["key"], "durationSec": 1.0}]
     counts = material_bundle_counts(rows, {a["key"]: a, b["key"]: b})
-    assert counts == {"note|G4": 1, "note|C5": 1, "pitch|G4|C5": 1, "fingering|G4|C5": 1, "position|1|3": 1, "technique|slur|C5": 1}
+    assert counts == {"note|G4": 1, "note|C5": 1, "pitch|G4|C5": 1, "fingering|G4|C5": 1, "position|1|3|C5": 1, "technique|slur|C5": 1}
     # 重音は隣り合う構成音の度数の束に入る
     from lib.note_store import chord_interval_label, split_bundle_key
     ch = make_profile([{"pitch": "G3", "string": "G", "finger": 0, "noteType": "whole", "dotted": False, "durationBeats": 4.0},
                        {"pitch": "D4", "string": "D", "finger": 0, "noteType": "whole", "dotted": False, "durationBeats": 4.0}],
                       position=1, techs=[], tuplet_actual=0, tuplet_normal=0, on_beat=True, chord_cont=False, rest_before=0.0)
-    assert "chord|5度" in bundle_keys(ch, None, None)
+    assert "chord|5度|G3" in bundle_keys(ch, None, None)
     assert chord_interval_label("G4", "B4") == "3度" and chord_interval_label("G4", "G5") == "オクターブ" and chord_interval_label("G4", "A5") == "その他"
-    assert split_bundle_key("pitch|G4|C5") == ("pitch", "G4", "C5") and split_bundle_key("technique|slur|C5") == ("technique", "slur", "C5") and split_bundle_key("chord|5度") == ("chord", "", "5度")
+    assert split_bundle_key("pitch|G4|C5") == ("pitch", "G4", "C5") and split_bundle_key("technique|slur|C5") == ("technique", "slur", "C5") and split_bundle_key("chord|5度") == ("chord", "", "5度") and split_bundle_key("position|1|3|C5") == ("position", "1", "3")

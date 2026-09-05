@@ -102,7 +102,7 @@ describe("束ね方 ・ groupKeysOf / aggregate", () => {
   })
   it("ポジション移動タブは移動した音だけ。同じポジションと不明は入らない", () => {
     const rows = perf("p", [P("E4", { position: 1 }), P("B4", { position: 3 }), P("E5", { position: 3 }), P("A4", { position: -1 }), P("E4", { position: 1 })])
-    expect([...aggregate("position", rows).keys()]).toEqual(["position|1|3"])
+    expect([...aggregate("position", rows).keys()]).toEqual(["position|1|3|B4"]) // 移動先の音つき (2026-09-05)
   })
   it("フィンガリングは 0.3秒未満・指を押さえる・音名が変わる 移動だけ", () => {
     const fast = perf("p", [Fs4, Gs4, Cs5], [1], { gap: 0.125 })
@@ -168,8 +168,9 @@ describe("選び方 ・ pickWeakest", () => {
     expect(r.weakest?.key).toBe("pitch|E4|F#4"); expect(r.weakest?.target).toBe(4)
   })
   it("キーの分解", () => {
-    expect(parseKey("pitch|G4|C5")).toEqual({ tab: "pitch", a: "G4", b: "C5" })
-    expect(parseKey("technique|slur|G4")).toEqual({ tab: "technique", a: "slur", b: "G4" })
+    expect(parseKey("pitch|G4|C5")).toEqual({ tab: "pitch", a: "G4", b: "C5", c: "" })
+    expect(parseKey("technique|slur|G4")).toEqual({ tab: "technique", a: "slur", b: "G4", c: "" })
+    expect(parseKey("position|1|3|A4")).toEqual({ tab: "position", a: "1", b: "3", c: "A4" })
   })
 })
 
@@ -184,6 +185,7 @@ describe("見出し ・ focusName", () => {
   it("ポジション・わざ・フィンガリング", () => {
     expect(focusName("position|1|3")).toBe("左手を第1から第3ポジションへ移す")
     expect(focusName("position|5|1")).toBe("左手を第5以上から第1ポジションへ移す")
+    expect(focusName("position|1|3|A4")).toBe("左手を第1から第3ポジションへ移してラを弾く")
     expect(focusName("technique|slur|G4")).toBe("スラーのソ")
     expect(focusName("fingering|G4|A4")).toBe("ソ→ラ の速い切り替え")
   })

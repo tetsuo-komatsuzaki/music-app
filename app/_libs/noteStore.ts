@@ -76,7 +76,15 @@ export type Unit = {
 }
 
 export type TabKey = "pitch" | "position" | "technique" | "fingering"
-/** グループのキー。"pitch|G4|C5" / "position|1|3" / "technique|slur|G4" (わざ+音の高さ・2026-09-05 Tetsuo) / "fingering|G4|A4" */
+/**
+ * グループのキー (2026-09-05 Tetsuo: わざ・ポジション移動・重音は音の高さと組にする)
+ *   "pitch|G4|C5"          音の移動
+ *   "fingering|G4|A4"      速い指の切り替え
+ *   "technique|slur|G4"    わざ + 音
+ *   "position|1|3|A4"      ポジション移動 + 移動先の音
+ *   "chord|5度|D4"          重音 + 低い方の音
+ * 教材を探すときは二段階: まず音まで一致するもの、無ければ音を問わず (奏法 / 移動 / 度数 で合算) 探す。
+ */
 export type GroupKey = string
 export type Agg = Map<GroupKey, { target: number; miss: number }>
 
@@ -127,7 +135,8 @@ export function groupKeysOf(tab: TabKey, r: DetailRow, gapSec: number | null): G
     case "position":
       if (!prev || prev.position === POS_UNKNOWN || cur.position === POS_UNKNOWN) return []
       if (prev.position === cur.position) return []
-      return [`position|${prev.position}|${cur.position}`]
+      if (cur.pitch1 === UNKNOWN) return [] // 移動先の音と組にする。音名不明は入らない
+      return [`position|${prev.position}|${cur.position}|${cur.pitch1}`]
     case "technique":
       // わざは音の高さと組にする (2026-09-05 Tetsuo: 「スラー」だけでは教材が選べない)。音名不明の音は入らない
       if (cur.pitch1 === UNKNOWN) return []
@@ -181,9 +190,9 @@ export function pickWeakest(agg: Agg, minTarget: number): PickResult {
 }
 
 /** 束のキーを分解する */
-export function parseKey(key: GroupKey): { tab: TabKey; a: string; b: string } {
-  const [tab, a = "", b = ""] = key.split("|")
-  return { tab: tab as TabKey, a, b }
+export function parseKey(key: GroupKey): { tab: TabKey; a: string; b: string; c: string } {
+  const [tab, a = "", b = "", c = ""] = key.split("|")
+  return { tab: tab as TabKey, a, b, c }
 }
 
 // ───────────────────────── DB (差し替え可能) ─────────────────────────
@@ -275,16 +284,20 @@ async function fetchProfiles(ids: number[]): Promise<Map<number, ProfileRow>> {
 
 /** 教材側の述語。束のキーごとに SQL の条件を組む */
 function materialPredicate(key: GroupKey): Prisma.Sql {
-  const { tab, a, b } = parseKey(key)
+  const { tab, a, b, c } = parseKey(key)
   switch (tab) {
     case "pitch":
       return Prisma.sql`prev."pitch1" = ${a} AND cur."pitch1" = ${b}`
     case "position":
-      return Prisma.sql`prev."position" = ${parseInt(a, 10)} AND cur."position" = ${parseInt(b, 10)}`
+      return c
+        ? Prisma.sql`prev."position" = ${parseInt(a, 10)} AND cur."position" = ${parseInt(b, 10)} AND cur."pitch1" = ${c}`
+        : Prisma.sql`prev."position" = ${parseInt(a, 10)} AND cur."position" = ${parseInt(b, 10)}`
     case "technique": {
       const col = TECH_COLUMNS[a as Tech]
       if (!col) throw new Error(`unknown technique: ${a}`)
-      return Prisma.sql`cur.${Prisma.raw(`"${col}"`)} = true`
+      return b
+        ? Prisma.sql`cur.${Prisma.raw(`"${col}"`)} = true AND cur."pitch1" = ${b}`
+        : Prisma.sql`cur.${Prisma.raw(`"${col}"`)} = true`
     }
     case "fingering":
       // 前の音の秒 (教材の想定テンポで換算) が短く、直前に休符が無く、両方とも指を押さえる音
@@ -323,17 +336,10 @@ export const prismaSource: NoteStoreSource = {
   async findMaterial(key, star, shelves) {
     // 2026-09-05 Tetsuo: 教材側は毎回数えない。写し MaterialBundleCount を読む。
     // 写しは教材の解析時に ScoreNote と一緒に書き直される。並びとの一致は
-    // music-analyzer/scripts/rebuild_material_bundle_counts.py --check で守る
-    const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
-      SELECT mb."targetId" AS id, mb.count::int AS c
-      FROM "MaterialBundleCount" mb
-      JOIN "PracticeItem" pi ON pi.id = mb."targetId"
-      WHERE mb."bundleKey" = ${key}
-        AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
-      ORDER BY mb.count DESC, mb."targetId"
-      LIMIT 1`)
-    if (rows.length === 0) return null
-    return { itemId: rows[0].id, count: Number(rows[0].c) }
+    // music-analyzer/scripts/rebuild_material_bundle_counts.py --check で守る。
+    // 二段階: 音まで一致する教材 → 無ければ音を問わず (coarseWhere) 探す
+    const hits = await findMaterialsForKey(key, star, shelves, 1)
+    return hits[0] ?? null
   },
 }
 
@@ -372,9 +378,26 @@ export async function findMaterialsForTechnique(tech: Tech, star: number, shelve
   return rows.map((r) => ({ itemId: r.id, count: Number(r.c) }))
 }
 
-/** 束を最も多く含む ★以下の教材を上位 limit 件 (写し MaterialBundleCount)。findMaterial の複数件版 */
+/**
+ * 二段階目の条件 (音を問わない)。わざ = 同じ奏法、ポジション移動 = 同じ移動、重音 = 同じ度数。
+ * 音の移動・速い指の切り替えは音そのものが条件なので二段階目は無い (null)。
+ */
+function coarseWhere(key: GroupKey): Prisma.Sql | null {
+  const { tab, a, b, c } = parseKey(key)
+  switch (tab as string) {
+    case "technique": return b ? Prisma.sql`mb.kind = 'technique' AND mb."fromValue" = ${a}` : null
+    case "position": return c ? Prisma.sql`mb.kind = 'position' AND mb."fromValue" = ${a} AND mb."toValue" = ${b}` : null
+    case "chord": return b ? Prisma.sql`mb.kind = 'chord' AND mb."fromValue" = ${a}` : null
+    default: return null
+  }
+}
+
+/**
+ * グループの音を最も多く含む ★以下の教材を上位 limit 件 (写し MaterialBundleCount)。
+ * 二段階 (2026-09-05 Tetsuo): まず音まで一致する教材、1件も無ければ音を問わず合算して探す。
+ */
 export async function findMaterialsForKey(key: GroupKey, star: number, shelves: string[], limit: number): Promise<MaterialHit[]> {
-  const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
+  const exact = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
     SELECT mb."targetId" AS id, mb.count::int AS c
     FROM "MaterialBundleCount" mb
     JOIN "PracticeItem" pi ON pi.id = mb."targetId"
@@ -382,7 +405,30 @@ export async function findMaterialsForKey(key: GroupKey, star: number, shelves: 
       AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
     ORDER BY mb.count DESC, mb."targetId"
     LIMIT ${limit}`)
-  return rows.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+  if (exact.length > 0) return exact.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+  const where = coarseWhere(key)
+  if (!where) return []
+  const coarse = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
+    SELECT mb."targetId" AS id, sum(mb.count)::int AS c
+    FROM "MaterialBundleCount" mb
+    JOIN "PracticeItem" pi ON pi.id = mb."targetId"
+    WHERE ${where}
+      AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
+    GROUP BY mb."targetId"
+    ORDER BY sum(mb.count) DESC, mb."targetId"
+    LIMIT ${limit}`)
+  return coarse.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+}
+
+/** 検査用: その教材にそのグループが何回あるか。音まで一致 (exact) → 音を問わず (coarse) → 無し */
+export async function materialBundleCountFor(itemId: string, key: GroupKey): Promise<{ count: number; stage: "exact" | "coarse" | "none" }> {
+  const ex = await prisma.materialBundleCount.findUnique({ where: { targetId_bundleKey: { targetId: itemId, bundleKey: key } }, select: { count: true } })
+  if (ex && ex.count > 0) return { count: ex.count, stage: "exact" }
+  const where = coarseWhere(key)
+  if (!where) return { count: 0, stage: "none" }
+  const rows = await prisma.$queryRaw<{ c: number }[]>(Prisma.sql`SELECT coalesce(sum(mb.count), 0)::int AS c FROM "MaterialBundleCount" mb WHERE mb."targetId" = ${itemId} AND ${where}`)
+  const c = Number(rows[0]?.c ?? 0)
+  return { count: c, stage: c > 0 ? "coarse" : "none" }
 }
 
 /** 隣り合う構成音の度数 → 3度 4度 5度 6度 オクターブ その他 (lib/note_store.py chord_interval_label と同じ語) */
@@ -397,14 +443,15 @@ export function chordIntervalLabel(pLow: string, pHigh: string): string {
   return ({ 3: "3度", 4: "4度", 5: "5度", 6: "6度", 8: "オクターブ" } as Record<number, string>)[deg] ?? "その他"
 }
 
-/** 重音の束 "chord|5度" を演奏の明細から数える (成功率つき)。ミスは音程 */
+/** 重音のグループ "chord|5度|D4" (度数 + 低い方の音) を演奏の明細から数える (成功率つき)。ミスは音程 */
 export function aggregateChords(rows: DetailRow[]): Agg {
   const agg: Agg = new Map()
   for (const r of rows) {
     if (r.cur.noteCount <= 1) continue
     const pitches = [r.cur.pitch1, r.cur.pitch2, r.cur.pitch3, r.cur.pitch4].slice(0, r.cur.noteCount)
     for (let i = 0; i + 1 < pitches.length; i++) {
-      const k = `chord|${chordIntervalLabel(pitches[i], pitches[i + 1])}`
+      if (pitches[i] === UNKNOWN) continue
+      const k = `chord|${chordIntervalLabel(pitches[i], pitches[i + 1])}|${pitches[i]}`
       const a = agg.get(k) ?? { target: 0, miss: 0 }
       a.target += 1
       if (isMiss(r, "pitch")) a.miss += 1

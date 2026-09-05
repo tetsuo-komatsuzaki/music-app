@@ -50,8 +50,10 @@ describe("aggregateChords", () => {
     const fifth = P("D4", { noteCount: 2, pitch2: "A4" })
     const triple = P("G3", { noteCount: 3, pitch2: "D4", pitch3: "B4" }) // 5度 + 6度
     const agg = aggregateChords([row(fifth, 0), row(fifth, 1, false), row(triple, 2, null), row(P("A4"), 3, false)])
-    expect(agg.get("chord|5度")).toEqual({ target: 3, miss: 2 })
-    expect(agg.get("chord|6度")).toEqual({ target: 1, miss: 1 })
-    expect(agg.size).toBe(2)
+    // 度数 + 低い方の音 (2026-09-05)
+    expect(agg.get("chord|5度|D4")).toEqual({ target: 2, miss: 1 })
+    expect(agg.get("chord|5度|G3")).toEqual({ target: 1, miss: 1 })
+    expect(agg.get("chord|6度|D4")).toEqual({ target: 1, miss: 1 })
+    expect(agg.size).toBe(3)
   })
 })

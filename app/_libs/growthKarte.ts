@@ -1599,7 +1599,8 @@ export async function buildSkillDetail(
     }))
 
   // おすすめ練習 (2026-08-11 Tetsuo確定 → 2026-09-05 ノート属性ストア): この技術の束を最も多く含む ★以下の教材を上位2件。
-  //  わざ = 奏法で合算 (technique|<id>|<音>) / ポジション移動 = 累計で成功率が低い position|a|b / 重音 = 累計で成功率が低い chord|度数 (足切り3音)
+  //  わざ = 奏法で合算 (technique|<id>|<音>) / ポジション移動 = 累計で成功率が低い position|a|b|音 / 重音 = 累計で成功率が低い chord|度数|音 (足切り3音)
+  //  教材の探し方は二段階 (音まで一致 → 音を問わず・findMaterialsForKey)
   //  教材側は写し MaterialBundleCount。データ不足時は空 (=UIは教材一覧リンクにフォールバック)
   let recommended: SkillDetailData["recommended"] = []
   try {

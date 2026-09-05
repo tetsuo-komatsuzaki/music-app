@@ -537,7 +537,7 @@ def delete_performance_notes(cur, kind: str, performance_id: str) -> None:
 # 束の定義を変えるときは両方を同時に変え、rebuild_material_bundle_counts.py で全件作り直す。
 
 FAST_SWITCH_SEC = 0.3
-BUNDLE_VERSION = 2  # 2: わざを 奏法+音の高さ (technique|slur|G4) にした (2026-09-05 Tetsuo)
+BUNDLE_VERSION = 3  # 2: わざ+音 / 3: ポジション移動+移動先の音, 重音+低い方の音 (2026-09-05 Tetsuo)
 TECH_BUNDLE = {t: TECH_COLUMNS[t] for t in TECHS}
 _LETTERS = "CDEFGAB"
 
@@ -576,8 +576,9 @@ def bundle_keys(cur: Dict[str, Any], prev: Optional[Dict[str, Any]], prev_durati
         if (prev["finger1"] > 0 and cur["finger1"] > 0 and prev["pitch1"] != cur["pitch1"]
                 and cur["restBefore"] == 0 and prev_duration_sec is not None and prev_duration_sec < FAST_SWITCH_SEC):
             keys.append(f"fingering|{prev['pitch1']}|{cur['pitch1']}")
-    if prev is not None and prev["position"] != POS_UNKNOWN and cur["position"] != POS_UNKNOWN and prev["position"] != cur["position"]:
-        keys.append(f"position|{prev['position']}|{cur['position']}")
+    if (prev is not None and prev["position"] != POS_UNKNOWN and cur["position"] != POS_UNKNOWN
+            and prev["position"] != cur["position"] and cur["pitch1"] != UNKNOWN):
+        keys.append(f"position|{prev['position']}|{cur['position']}|{cur['pitch1']}")  # 移動先の音と組
     # わざは音の高さと組にする (2026-09-05 Tetsuo: 「スラー」だけでは教材が選べない)。音名不明の音は入らない
     if cur["pitch1"] != UNKNOWN:
         for t, col in TECH_BUNDLE.items():
@@ -587,14 +588,16 @@ def bundle_keys(cur: Dict[str, Any], prev: Optional[Dict[str, Any]], prev_durati
     if n > 1:
         pitches = [cur.get(f"pitch{i}") for i in range(1, n + 1)]
         for lo, hi in zip(pitches, pitches[1:]):
-            keys.append(f"chord|{chord_interval_label(lo, hi)}")
+            if lo != UNKNOWN:
+                keys.append(f"chord|{chord_interval_label(lo, hi)}|{lo}")  # 度数 + 低い方の音
     return keys
 
 
 def split_bundle_key(key: str) -> Tuple[str, str, str]:
-    """"pitch|G4|C5" → (kind, from, to)。2要素のキーは from = "" """
+    """"pitch|G4|C5" → (kind, from, to)。2要素のキーは from = ""。
+    4要素 "position|1|3|A4" は (position, 1, 3) で、音は bundleKey にだけ残る (二段階目の合算は kind+from+to で引く)"""
     parts = key.split("|")
-    if len(parts) == 3:
+    if len(parts) >= 3:
         return parts[0], parts[1], parts[2]
     return parts[0], "", parts[1] if len(parts) > 1 else ""
 

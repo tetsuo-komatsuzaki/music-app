@@ -24,11 +24,11 @@ const SLOTS_PER_SIDE = 2
 const TABS: TabKey[] = ["pitch", "position", "technique", "fingering"]
 
 export function bundleName(key: GroupKey): string {
-  const { tab, a, b } = parseKey(key)
+  const { tab, a, b, c } = parseKey(key)
   switch (tab) {
     case "pitch": return movementLabel(a, b)
     case "fingering": return fastSwitchLabel(a, b)
-    case "position": return positionMoveLabel(parseInt(a, 10), parseInt(b, 10))
+    case "position": return positionMoveLabel(parseInt(a, 10), parseInt(b, 10), c || undefined)
     case "technique": return techniqueLabel(a, b || undefined)
   }
 }

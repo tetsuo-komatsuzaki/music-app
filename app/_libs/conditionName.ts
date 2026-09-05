@@ -52,11 +52,11 @@ export function fastSwitchLabel(prev: string, cur: string): string {
   return `${kanaNote(prev)}→${pitchLabel(cur, prev)} の速い切り替え`
 }
 
-/** ポジション移動タブ ・ 「左手を第1から第3ポジションへ移す」 ・ いまの文言のまま */
-export function positionMoveLabel(from: number, to: number): string {
+/** ポジション移動タブ ・ 移動先の音つきなら「左手を第1から第3ポジションへ移してラを弾く」、無ければ「…へ移す」 */
+export function positionMoveLabel(from: number, to: number, pitch?: string): string {
   const f = from >= 5 ? "第5以上" : `第${from}`
   const t = to >= 5 ? "第5以上" : `第${to}`
-  return `左手を${f}から${t}ポジションへ移す`
+  return pitch ? `左手を${f}から${t}ポジションへ移して${kanaNote(pitch)}を弾く` : `左手を${f}から${t}ポジションへ移す`
 }
 
 /** わざタブ ・ 音の高さつきなら「スラーのソ」(2026-09-05 Tetsuo: わざ+音の高さ)、無ければ「スラーのところ」 */

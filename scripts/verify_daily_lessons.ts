@@ -11,7 +11,7 @@
 import "dotenv/config"
 import { prisma } from "../app/_libs/prisma"
 import { selectDailyLessons, bundleName } from "../app/_libs/dailyLessons"
-import { prismaSource, aggregate } from "../app/_libs/noteStore"
+import { prismaSource, aggregate, materialBundleCountFor } from "../app/_libs/noteStore"
 
 async function main() {
   // 直近3回の通し演奏を持つ ユーザー×曲
@@ -59,7 +59,7 @@ async function main() {
     if (rec) {
       const pin = await prisma.scoreRecPin.findUnique({ where: { userId_scoreId: { userId: pr.userId, scoreId: pr.scoreId } } })
       const key = pin?.subtaskId ?? ""
-      const cnt = key.includes("|") ? (await prisma.materialBundleCount.findUnique({ where: { targetId_bundleKey: { targetId: rec.itemId, bundleKey: key } } }))?.count ?? 0 : -1
+      const cnt = key.includes("|") ? (await materialBundleCountFor(rec.itemId, key)).count : -1
       if (cnt > 0) recOk++; else if (cnt === 0) recBad++
       recLine = `④ ${rec.label} ${rec.reason} ← ${key.includes("|") ? bundleName(key) : key} 出現${cnt < 0 ? "旧ピン" : cnt}回`
     } else recNone++

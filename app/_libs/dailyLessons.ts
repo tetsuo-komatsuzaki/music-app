@@ -186,7 +186,7 @@ const AGG_MIN_TARGET = 3 // 合算 target がこの値未満の小課題は選�
  *  ピン解決・再計算の両方で使う (旧④の出し分けと同一ロジック)。 */
 function subtaskToReason(sid: string, category: string): { reason: string; detail: string | null } {
   if (category === "double_stop") return { reason: "rec_double", detail: null }
-  // ノート属性ストア版の束のキー ("technique|slur" / "position|1|3" / "pitch|G4|C5" / "chord|5度")
+  // グループのキー ("technique|slur|G4" / "position|1|3|A4" / "pitch|G4|C5" / "chord|5度|D4")
   if (sid.includes("|")) {
     const { tab, a } = parseKey(sid)
     if (tab === "technique") return { reason: "rec_tech", detail: TECH_SUFFIX_LABEL[a] ?? "その奏法" }
@@ -222,9 +222,9 @@ function weakBundles(rows: DetailRow[]): { key: GroupKey; successPct: number; ta
 
 /** 束の見出し (④ のピンの理由に使う名前) */
 export function bundleName(key: GroupKey): string {
-  const { tab, a, b } = parseKey(key)
+  const { tab, a, b, c } = parseKey(key)
   if (tab === "technique") return techniqueLabel(a, b || undefined)
-  if ((tab as string) === "position") return positionMoveLabel(parseInt(a, 10), parseInt(b, 10))
+  if ((tab as string) === "position") return positionMoveLabel(parseInt(a, 10), parseInt(b, 10), c || undefined)
   if ((tab as string) === "fingering") return fastSwitchLabel(a, b)
   return movementLabel(a, b)
 }

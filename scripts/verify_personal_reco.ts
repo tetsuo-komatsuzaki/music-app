@@ -12,7 +12,7 @@
 import "dotenv/config"
 import { prisma } from "../app/_libs/prisma"
 import { buildPersonalReco, MIN_TARGET, TAB_CATEGORIES } from "../app/_libs/personalReco"
-import { prismaSource, aggregate, pickWeakest, countBundleInMaterial, type TabKey } from "../app/_libs/noteStore"
+import { prismaSource, aggregate, pickWeakest, materialBundleCountFor, type TabKey } from "../app/_libs/noteStore"
 import { RECO_TAB_LABELS } from "../app/_libs/personalRecoTypes"
 
 async function main() {
@@ -49,10 +49,11 @@ async function main() {
         SELECT count(*)::int AS c FROM "ScoreNote" sn WHERE sn."targetType" = 'practice' AND sn."targetId" = ${m.id}`
       const total = again[0]?.c ?? 0
       // 束がその教材に本当にあるか: その教材の並びを同じ述語で数える
-      const cnt = await countBundleInMaterial(pick.weakest!.key, m.id)
+      const hit = await materialBundleCountFor(m.id, pick.weakest!.key)
+      const cnt = hit.count
       if (cnt <= 0) bad++
       else filled++
-      console.log(`   ${label.padEnd(8)} ${t.focus.name} 成功率${t.focus.successPct}%  → ★${m.star} [${m.category}] ${m.title.slice(0, 26)}  出現${cnt}回/全${total}音${cnt <= 0 ? "  ← 束がこの教材に無い" : ""}${t.basics ? " ・基礎の案内" : ""}`)
+      console.log(`   ${label.padEnd(8)} ${t.focus.name} 成功率${t.focus.successPct}%  → ★${m.star} [${m.category}] ${m.title.slice(0, 26)}  出現${cnt}回/全${total}音${hit.stage === "coarse" ? " (音を問わず)" : ""}${cnt <= 0 ? "  ← グループがこの教材に無い" : ""}${t.basics ? " ・基礎の案内" : ""}`)
     }
     console.log()
   }
