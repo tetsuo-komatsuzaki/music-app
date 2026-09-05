@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
 import { planCountIn } from "@/app/_libs/countIn"
+import { usePress } from "@/app/_libs/usePress"
 import {
   addInterruptionListener,
   addLevelListener,
@@ -934,6 +935,13 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     }
   }, [blobRef, onRecordingComplete, retryRecording])
 
+  // 2026-09-05: 4つの操作ボタンは click ではなく「押して離した」で動かす (usePress)。
+  // iOS は指を置いたまま 0.5 秒ほど経つと click を成立させないため、「押しても反応しない」に見えていた。
+  const startPressAction = useCallback(() => { if (onIdleRecordClick?.()) return; void startCountdown() }, [onIdleRecordClick, startCountdown])
+  const startPress = usePress(startPressAction)
+  const stopPress = usePress(stopRecording)
+  const retryPress = usePress(retryRecording)
+  const submitPress = usePress(submitRecording)
 
   const continueToNext = useCallback(() => {
     if (audioUrl) URL.revokeObjectURL(audioUrl)
@@ -1050,7 +1058,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
             <button
               className={styles.mainCta}
               data-testid="recorder-start-button"
-              onClick={() => { if (onIdleRecordClick?.()) return; startCountdown() }}
+              {...startPress}
               disabled={disabled}
             >
               <span className={styles.ctaDot} />
@@ -1099,7 +1107,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           {elapsed < RECOMMENDED_DURATION && (
             <div className={styles.recHint}>推奨: {RECOMMENDED_DURATION}秒以上</div>
           )}
-          <button className={styles.stopBtn} onClick={stopRecording} data-testid="recorder-stop-button">
+          <button className={styles.stopBtn} {...stopPress} data-testid="recorder-stop-button">
             <span className={styles.stopSquare} /> 停止
           </button>
         </div>
@@ -1138,11 +1146,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
 
           {/* ボタン */}
           <div className={styles.previewActions}>
-            <button className={styles.retryBtn} onClick={retryRecording}>
+            <button className={styles.retryBtn} {...retryPress}>
               もう一度録音する
             </button>
             {qualityResult?.status !== "silent" && (
-              <button className={styles.submitBtn} onClick={submitRecording}>
+              <button className={styles.submitBtn} {...submitPress}>
                 この録音で採点する
               </button>
             )}
