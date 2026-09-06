@@ -19,7 +19,7 @@ export default async function SkillDetailPage({
     where: { supabaseUserId: userId },
     select: { id: true },
   })
-  if (!dbUser) redirect("/login")
+  if (!dbUser) redirect("/guest?gate=1")   // 未ログイン / ゲスト → ゲストホーム + シート (2026-09-06)
 
   const data = await buildSkillDetail(dbUser.id, userId, techId)
   // 不明ID or 先生なし(特典対象外) はカルテへ戻す

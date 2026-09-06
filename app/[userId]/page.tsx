@@ -20,6 +20,7 @@ export const metadata = { title: "ホーム" }
 
 type PageProps = {
   params: Promise<{ userId: string }>
+  searchParams?: Promise<{ gate?: string; returnTo?: string }>
 }
 
 // JST での "YYYY-MM-DD" 文字列を返す
@@ -59,11 +60,14 @@ function calculateStreak(dates: Date[]): number {
   return streak
 }
 
-export default async function HomePage({ params }: PageProps) {
+export default async function HomePage({ params, searchParams }: PageProps) {
   const { userId } = await params
 
   // ゲスト閲覧 (2026-09-06): 未ログインの訪問者にはゲストホーム (本人の記録は無いので別画面)
-  if (userId === GUEST_ID) return <GuestHome />
+  if (userId === GUEST_ID) {
+    const sp = (await searchParams) ?? {}
+    return <GuestHome gate={sp.gate === "1"} returnTo={sp.returnTo ?? null} />
+  }
 
   const perfStart = performance.now()
 

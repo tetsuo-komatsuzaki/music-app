@@ -1,4 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
+import { redirect } from "next/navigation"
+import { GUEST_ID } from "@/app/_libs/viewer"
 import { badgeKind } from "@/app/_libs/starProgress"
 import ScoresClient from "./ScoresClient"
 
@@ -10,6 +12,8 @@ type PageProps = {
 
 export default async function Page({ params }: PageProps) {
   const { userId } = await params
+  // ゲスト閲覧 (2026-09-06 Tetsuo確定): 自分の曲一覧はゲスト用に作らない → ゲストホームに戻してシート
+  if (userId === GUEST_ID) redirect("/guest?gate=1")
 
 
   const perfStart = performance.now()

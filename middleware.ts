@@ -81,10 +81,12 @@ export async function middleware(request: NextRequest) {
   const isUserPage = pathname.match(/^\/([a-f0-9-]{36})(\/|$)/)
 
   if (isUserPage) {
-    // 未ログイン → ログインページへ
+    // 未ログイン → ゲストホームに戻してシートを出す (2026-09-06 Tetsuo確定。以前はログイン画面)。
+    // 止められた場所を returnTo に残し、ログイン後にそこへ戻す
     if (!user) {
       const url = request.nextUrl.clone()
-      url.pathname = "/login"
+      url.pathname = "/guest"
+      url.search = `?gate=1&returnTo=${encodeURIComponent(pathname)}`
       return NextResponse.redirect(url)
     }
 

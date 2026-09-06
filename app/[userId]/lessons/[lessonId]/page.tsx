@@ -40,7 +40,7 @@ export default async function LessonDetailPage({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
+  if (!user) redirect("/guest?gate=1")   // 未ログイン → ゲストホーム + シート (2026-09-06)
   if (user.id !== userId) redirect(`/${user.id}/lessons/${lessonId}`)
 
   const dbUser = await prisma.user.findUnique({

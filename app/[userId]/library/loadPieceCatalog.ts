@@ -17,6 +17,10 @@ export type CatalogPiece = {
   bestScore?: number | null
   coverImagePath?: string | null
   genre?: string | null
+  /** 公式 = 運営 (admin) アカウントが入れた曲 ・ mine = 自分の曲 ・ shared = 共有曲 (カタログは共有曲だけ) (2026-09-06) */
+  official?: boolean
+  mine?: boolean
+  shared?: boolean
   variants: CatalogVariant[]
 }
 
@@ -49,14 +53,14 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       scores: {
         where: { isShared: true, deletedAt: null },
         orderBy: [{ star: "asc" }],
-        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true, partId: true, variantRecipe: true },
+        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true, partId: true, variantRecipe: true, createdById: true },
       },
     },
   })
 
   const allVariantIds = groups.flatMap((g) => g.scores.map((s) => s.id))
 
-  const [achievements, bestRows] = await Promise.all([
+  const [achievements, bestRows, admins] = await Promise.all([
     prisma.userScoreAchievement.findMany({
       where: { userId: dbUserId, scoreId: { in: allVariantIds } },
       select: { scoreId: true, achievedAt: true, masteredAt: true },
@@ -71,7 +75,10 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
           select: { scoreId: true, pitchAccuracy: true, timingAccuracy: true },
         })
       : Promise.resolve([]),
+    // 公式の印: 運営 (admin) アカウントの曲 (2026-09-06 Tetsuo確定。Score に印は持たせない)
+    prisma.user.findMany({ where: { role: "admin" }, select: { id: true } }),
   ])
+  const adminIds = new Set(admins.map((a) => a.id))
   const achByScore = new Map(achievements.map((a) => [a.scoreId, a]))
   const bestByScore = new Map<string, number>()
   for (const r of bestRows) {
@@ -116,6 +123,9 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       star: stars.length ? Math.min(...stars) : null,
       bestScore: bests.length ? Math.max(...bests) : null,
       badge,
+      official: g.scores.some((s) => adminIds.has(s.createdById)),
+      mine: g.scores.some((s) => s.createdById === dbUserId),
+      shared: true,
       variants,
     }
   })

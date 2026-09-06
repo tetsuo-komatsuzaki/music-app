@@ -12,12 +12,16 @@ import { GUEST_ID } from "@/app/_libs/viewer"
 import { buildSampleAchievement, buildSampleReco, pickFeaturedScore, guestHref } from "./sample"
 import ReturningHome from "./ReturningHome"
 import { KNOWN_USER_BOOT_SCRIPT } from "@/app/_libs/knownUser"
+import GateSheet from "@/app/components/guest/GateSheet"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { safeReturnPath } from "@/app/_libs/returnTo"
 import styles from "./guestHome.module.css"
 
 const SIGNUP = `/signUp?returnTo=${encodeURIComponent(`/${GUEST_ID}`)}`
 const LOGIN = `/login?returnTo=${encodeURIComponent(`/${GUEST_ID}`)}`
 
-export default async function GuestHome() {
+/** gate: 未ログインでログインが要る画面を開いた人が戻されてきたとき、この上にシートを出す (2026-09-06 Tetsuo確定) */
+export default async function GuestHome({ gate = false, returnTo = null }: { gate?: boolean; returnTo?: string | null } = {}) {
   const [featured, ach, reco] = await Promise.all([pickFeaturedScore(), buildSampleAchievement(), buildSampleReco()])
   const pieces = featured
     ? [{ id: featured.id, title: featured.title, star: featured.star, cover: featured.cover, latest: 82, recentAvg: 78, badge: null, href: guestHref(`/scores/${featured.id}`) }]
@@ -25,6 +29,7 @@ export default async function GuestHome() {
 
   return (
     <div data-guest-home>
+      {gate && <GateSheet title={GATE_TEXT.generic.title} items={[...GATE_TEXT.generic.items]} laterMode="hide" returnTo={safeReturnPath(returnTo) ?? `/${GUEST_ID}`} />}
       {/* 案B (2026-09-06): 端末に記録がある人には、未登録者向けの中身 (.unregistered) を隠し、おかえりなさい画面を出す */}
       <script dangerouslySetInnerHTML={{ __html: KNOWN_USER_BOOT_SCRIPT }} />
       <ReturningHome />

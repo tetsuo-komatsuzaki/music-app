@@ -86,6 +86,12 @@ export default function PieceCatalog({ userId, pieces, guest = false }: { userId
               >
                 <Cover badge={piece.badge} cover={piece.coverImagePath} />
                 <b style={{ fontSize: 12, display: "block", marginTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-ink)" }}>{piece.title}</b>
+                {/* 公式 (運営アカウントの曲) ・ 共有 (ほかの人が共有した曲) の見分け (2026-09-06 Tetsuo確定)。自分の曲には付けない */}
+                {(piece.official || (!piece.mine && piece.shared)) && (
+                  <span style={{ display: "inline-block", marginTop: 4, fontSize: 9, fontWeight: 900, letterSpacing: ".04em", padding: "1px 6px", borderRadius: 999, background: piece.official ? "rgba(217,169,60,.16)" : "rgba(127,164,232,.16)", color: piece.official ? "var(--gold, #d9a93c)" : "#7fa4e8" }}>
+                    {piece.official ? "公式" : "共有"}
+                  </span>
+                )}
                 {piece.star != null && (
                   <div style={{ marginTop: 3 }}>
                     <span className={ds.stars} style={{ fontSize: 10 }} aria-label={`★${piece.star}`}>

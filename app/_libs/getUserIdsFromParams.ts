@@ -30,7 +30,8 @@ export async function getUserIdsFromParams(
 ): Promise<UserIds> {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
+  // 未ログイン → ゲストホームに戻してシートを出す (2026-09-06 Tetsuo確定)。/guest/... の未対応ページもここに来る
+  if (!user) redirect("/guest?gate=1")
 
   if (params.userId !== user.id) redirect(`/${user.id}`)
 

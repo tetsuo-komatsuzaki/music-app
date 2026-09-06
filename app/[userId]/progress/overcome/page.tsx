@@ -15,7 +15,7 @@ export default async function OvercomePage({ params }: { params: Promise<{ userI
   const { userId } = await params
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
+  if (!user) redirect("/guest?gate=1")   // 未ログイン → ゲストホーム + シート (2026-09-06)
   if (user.id !== userId) redirect(`/${user.id}/progress/overcome`)
 
   const dbUser = await prisma.user.findUnique({ where: { supabaseUserId: user.id }, select: { id: true } })
