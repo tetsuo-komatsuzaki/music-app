@@ -199,6 +199,21 @@ export default function RevealMotion() {
 
     const main = () => (document.querySelector("main") ?? document.body) as HTMLElement
     const SEL = `h1, [data-anim="block"], [data-anim="rail"], .${ds.card}, .${ds.seg}, .${ds.letter}`
+
+    // React の取り付け (hydration) が終わった要素にだけ印を付ける (2026-09-06)。
+    // 取り付け前に data-rv / --rvd を書き込むと、React が「サーバーの HTML と違う」と警告する
+    // (機能は壊れないが console に hydration mismatch が出ていた真因)。
+    // React は取り付けた DOM 要素に __reactFiber$… のキーを付けるので、それを待つ。
+    // 待ちすぎて画面が隠れたままにならないよう、上限 2.5 秒で諦めて進む。
+    const isHydrated = (el: Element) => Object.keys(el).some((k) => k.startsWith("__reactFiber"))
+    const whenHydrated = (nodes: () => Element[], cb: () => void, limitMs = 2500) => {
+      const start = performance.now()
+      const tick = () => {
+        if (nodes().every(isHydrated) || performance.now() - start > limitMs) cb()
+        else requestAnimationFrame(tick)
+      }
+      tick()
+    }
     const LEAF = `.${ds.chk}, .${ds.todo}, .${ds.pill}, [data-anim="ring"], [data-anim="bar"], [data-anim="count"], .${ds.wave}`
 
     // 見えたら発火 (モック v5 と同じ流儀)
@@ -416,11 +431,13 @@ export default function RevealMotion() {
     // 隠し(opacity 0)が transition (0.62s+遅延) 越しにゆっくり効き、隠れる前に
     // reveal が来て立ち上がりが見えなくなる (2026-08-22 Tetsuo指摘の真因)
     const t0 = window.setTimeout(() => {
-      const m0 = main()
-      m0.classList.add("rv-notx")
-      prepareAll()
-      void m0.offsetWidth
-      requestAnimationFrame(() => m0.classList.remove("rv-notx"))
+      whenHydrated(() => [...main().querySelectorAll(SEL)], () => {
+        const m0 = main()
+        m0.classList.add("rv-notx")
+        prepareAll()
+        void m0.offsetWidth
+        requestAnimationFrame(() => m0.classList.remove("rv-notx"))
+      })
     }, 40)
 
     // 発火済みブロックへ後から入った中身 (fetch後の達成条件・基礎練・リング等) は
@@ -472,13 +489,16 @@ export default function RevealMotion() {
           if (host && (node.matches?.("[data-anim]") || node.querySelector?.("[data-anim]"))) hosts.add(host)
         }
       }
-      // 遅延描画のブロックも「noTx の中で隠す → 次のフレームで動きを戻す」(手順1対1)
+      // 遅延描画のブロックも「noTx の中で隠す → 次のフレームで動きを戻す」(手順1対1)。
+      // ストリーミングで後から届いた HTML は取り付け前なので、取り付けを待ってから印を付ける
       if (fresh.length) {
-        const m0 = main()
-        m0.classList.add("rv-notx")
-        fresh.forEach((b) => prepare(b))
-        void m0.offsetWidth
-        requestAnimationFrame(() => m0.classList.remove("rv-notx"))
+        whenHydrated(() => fresh.filter((b) => b.isConnected), () => {
+          const m0 = main()
+          m0.classList.add("rv-notx")
+          fresh.forEach((b) => { if (b.isConnected) prepare(b) })
+          void m0.offsetWidth
+          requestAnimationFrame(() => m0.classList.remove("rv-notx"))
+        })
       }
       hosts.forEach(replay)
     })
