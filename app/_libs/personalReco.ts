@@ -18,7 +18,7 @@
  */
 import { prisma } from "./prisma"
 import { aggregate, pickWeakest, parseKey, prismaSource, type NoteStoreSource, type TabKey, type GroupKey } from "./noteStore"
-import { movementLabel, fastSwitchLabel, positionMoveLabel, techniqueLabel } from "./conditionName"
+import { movementLabel, fastSwitchLabel, positionMoveLabel, techniqueLabel, slurMoveLabel } from "./conditionName"
 import type { PersonalReco, RecoCategory, RecoTab, RecoMaterial } from "./personalRecoTypes"
 
 /** 候補に入るのに必要な弾いた音数 ・ ホームの累計 (R4) */
@@ -40,11 +40,13 @@ export const TAB_CATEGORIES: Record<RecoCategory, string[]> = {
 /** 束のキー → 見出し */
 export function focusName(key: GroupKey): string {
   const { tab, a, b, c } = parseKey(key)
-  switch (tab as TabKey) {
+  switch (tab as TabKey | "slur") {
     case "pitch": return movementLabel(a, b)
     case "fingering": return fastSwitchLabel(a, b)
     case "position": return positionMoveLabel(parseInt(a, 10), parseInt(b, 10), c || undefined)
     case "technique": return techniqueLabel(a, b || undefined)
+    case "slur": return slurMoveLabel(parseInt(a, 10), b, c)
+    default: return key
   }
 }
 

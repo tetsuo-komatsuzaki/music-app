@@ -1743,6 +1743,9 @@ model ScoreNote {
   prevProfileId    Int?
   durationSec      Float? // 秒単位の長さ。想定テンポで換算。テンポが無ければ null
   beatOffset       Float // 小節内の位置 (拍)
+  // スラーの中の位置 (2026-09-06 Tetsuo: 何音一緒のスラーかでおすすめ教材を変える)。スラーの外は null
+  slurLen          Int? // そのスラーに入る音の数 (休符を除く)。重なるスラーは短い方
+  slurPos          Int? // スラーの何番目か (0 = 最初の音 = 弓を返す音。おすすめの束には 1 以上だけ入れる)
 
   profile     NoteProfile  @relation("cur", fields: [profileId], references: [id])
   prevProfile NoteProfile? @relation("prev", fields: [prevProfileId], references: [id])
@@ -1858,7 +1861,7 @@ model MaterialBundleCount {
   count            Int // その束に入る音の数 (展開後・演奏順)
   noteTotal        Int // 教材の音の総数 (休符を除く・展開後)。密度 = count / noteTotal
   scoreNoteVersion String // この写しを作ったときの並びの版。PracticeItem.scoreNoteVersion と違えば写しが古い
-  bundleVersion    Int // 束の定義の版。いまは 1。定義を変えたら上げて全件作り直す
+  bundleVersion    Int // 束の定義の版。いまは 4 (slur|N|prev|cur 追加 2026-09-06)。定義を変えたら上げて全件作り直す
   updatedAt        DateTime @default(now()) @updatedAt
 
   @@id([targetId, bundleKey])

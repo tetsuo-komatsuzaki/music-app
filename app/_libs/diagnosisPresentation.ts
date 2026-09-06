@@ -15,7 +15,7 @@ import {
   aggregate, parseKey, prismaSource,
   type DetailRow, type GroupKey, type MissKind, type NoteStoreSource, type TabKey, type Unit,
 } from "./noteStore"
-import { movementLabel, fastSwitchLabel, positionMoveLabel, techniqueLabel } from "./conditionName"
+import { movementLabel, fastSwitchLabel, positionMoveLabel, techniqueLabel, slurMoveLabel } from "./conditionName"
 
 /** 候補に入るのに必要な弾いた音数 ・ 演奏1回の弱点行 (R4) */
 export const DIAG_MIN_TARGET = 3
@@ -30,6 +30,8 @@ export function bundleName(key: GroupKey): string {
     case "fingering": return fastSwitchLabel(a, b)
     case "position": return positionMoveLabel(parseInt(a, 10), parseInt(b, 10), c || undefined)
     case "technique": return techniqueLabel(a, b || undefined)
+    case "slur": return slurMoveLabel(parseInt(a, 10), b, c)
+    default: return key
   }
 }
 

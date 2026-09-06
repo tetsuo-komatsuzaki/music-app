@@ -232,6 +232,29 @@ def align_written_to_karte(written: List[Dict[str, Any]], karte_seq: List[Dict[s
     return mapping, unmatched
 
 
+def slur_positions(expanded: List[Dict[str, Any]], slur_spans: List[Dict[str, int]]) -> Dict[int, Tuple[int, int]]:
+    """展開後の番号 i → (そのスラーの音数, 何番目か)。休符は数えない。重なるスラーは短い方 (内側) を取る。
+    スラーの外の音は入らない。"""
+    out: Dict[int, Tuple[int, int]] = {}
+    best_len: Dict[int, int] = {}
+    n = len(expanded)
+    for sp in slur_spans:
+        try:
+            s, e = int(sp["start"]), int(sp["end"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if s < 0 or e >= n or e < s:
+            continue
+        idxs = [i for i in range(s, e + 1) if not expanded[i].get("is_rest")]
+        if len(idxs) < 2:
+            continue
+        for pos, i in enumerate(idxs):
+            if i not in best_len or len(idxs) < best_len[i]:
+                best_len[i] = len(idxs)
+                out[i] = (len(idxs), pos)
+    return out
+
+
 def build_score_notes(
     expanded: List[Dict[str, Any]],
     expanded_to_orig: List[Optional[int]],
@@ -239,8 +262,12 @@ def build_score_notes(
     karte_notes: List[Dict[str, Any]],
     seconds_per_quarter: Optional[float],
     written: Optional[List[Dict[str, Any]]] = None,
+    slur_spans: Optional[List[Dict[str, int]]] = None,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Dict[str, Any]], str]:
     """展開後の並び (演奏順) を、記譜のカルテの属性で組む。
+
+    slur_spans          analysis.json の spanners.slurs ({"start","end"} ・ expanded と同じ番号)。
+                        2026-09-06 Tetsuo: 何音一緒のスラーかでおすすめ教材を変える → 音ごとに slurLen/slurPos を持つ
 
     expanded[i]         演奏順 i 番目の要素 (休符も含む・装飾音は含まない):
                         {"is_rest", "is_chord", "midis":[int], "names":[str],
@@ -294,6 +321,7 @@ def build_score_notes(
                 continue
         linked.append(k)
 
+    slur_of = slur_positions(expanded, slur_spans or [])
     # 2周目: 演奏順で 前の音・手のポジション・直前休符・連続重音 を決めて行を作る
     rows: List[Dict[str, Any]] = []
     profiles: Dict[str, Dict[str, Any]] = {}
@@ -362,6 +390,8 @@ def build_score_notes(
             "prevProfileKey": prev_key,
             "durationSec": dur_sec,
             "beatOffset": float(k.get("beat_offset") or 0.0),
+            "slurLen": slur_of[i][0] if i in slur_of else None,
+            "slurPos": slur_of[i][1] if i in slur_of else None,
         })
         rest_accum = 0.0
         if not is_chord_at[i]:
@@ -413,12 +443,12 @@ def save_score_notes(cur, target_type: str, target_id: str,
     key_to_id = upsert_profiles(cur, profiles)
     cur.execute('DELETE FROM "ScoreNote" WHERE "targetType" = %s::"ScoreNoteTarget" AND "targetId" = %s', (target_type, target_id))
     sql = ('INSERT INTO "ScoreNote" ("targetType","targetId","noteIndex","writtenNoteIndex","measure","pass",'
-           '"profileId","prevProfileId","durationSec","beatOffset") '
-           'VALUES (%s::"ScoreNoteTarget",%s,%s,%s,%s,%s,%s,%s,%s,%s)')
+           '"profileId","prevProfileId","durationSec","beatOffset","slurLen","slurPos") '
+           'VALUES (%s::"ScoreNoteTarget",%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)')
     for r in rows:
         cur.execute(sql, (target_type, target_id, r["noteIndex"], r["writtenNoteIndex"], r["measure"], r["pass"],
                           key_to_id[r["profileKey"]], key_to_id.get(r["prevProfileKey"]) if r["prevProfileKey"] else None,
-                          r["durationSec"], r["beatOffset"]))
+                          r["durationSec"], r["beatOffset"], r.get("slurLen"), r.get("slurPos")))
     version = score_version(rows)
     table = "Score" if target_type == "score" else "PracticeItem"
     cur.execute(f'UPDATE "{table}" SET "scoreNoteVersion" = %s WHERE id = %s', (version, target_id))
@@ -538,7 +568,7 @@ def delete_performance_notes(cur, kind: str, performance_id: str) -> None:
 # 束の定義を変えるときは両方を同時に変え、rebuild_material_bundle_counts.py で全件作り直す。
 
 FAST_SWITCH_SEC = 0.3
-BUNDLE_VERSION = 3  # 2: わざ+音 / 3: ポジション移動+移動先の音, 重音+低い方の音 (2026-09-05 Tetsuo)
+BUNDLE_VERSION = 4  # 2: わざ+音 / 3: ポジション移動+移動先の音, 重音+低い方の音 (2026-09-05 Tetsuo) / 4: スラーの中の移動 slur|N|prev|cur (2026-09-06 Tetsuo)
 TECH_BUNDLE = {t: TECH_COLUMNS[t] for t in TECHS}
 _LETTERS = "CDEFGAB"
 
@@ -566,10 +596,16 @@ def chord_interval_label(p_low: str, p_high: str) -> str:
     return {3: "3度", 4: "4度", 5: "5度", 6: "6度", 8: "オクターブ"}.get(deg, "その他")
 
 
-def bundle_keys(cur: Dict[str, Any], prev: Optional[Dict[str, Any]], prev_duration_sec: Optional[float]) -> List[str]:
+def bundle_keys(cur: Dict[str, Any], prev: Optional[Dict[str, Any]], prev_duration_sec: Optional[float],
+                slur: Optional[Tuple[Optional[int], Optional[int]]] = None) -> List[str]:
     """1音がどの束に入るか。cur/prev はかたち (profile dict)。prev_duration_sec は前の音の秒 (教材の想定テンポ)。
+    slur = (slurLen, slurPos)。スラーの 2 音目以降だけ「N 音スラーの中の 前の音→今の音」の束に入る
+    (2026-09-06 Tetsuo: 最初の音は弓を返す音なので数えない)。
     読み手 app/_libs/noteStore.ts の groupKeysOf と同じ定義。増やすときは BUNDLE_VERSION を上げる。"""
     keys: List[str] = []
+    if (slur is not None and slur[0] and slur[1] is not None and int(slur[1]) >= 1
+            and prev is not None and prev["pitch1"] != UNKNOWN and cur["pitch1"] != UNKNOWN):
+        keys.append(f"slur|{int(slur[0])}|{prev['pitch1']}|{cur['pitch1']}")
     if cur["pitch1"] != UNKNOWN:
         keys.append(f"note|{cur['pitch1']}")
     if prev is not None and prev["pitch1"] != UNKNOWN and cur["pitch1"] != UNKNOWN:
@@ -598,6 +634,8 @@ def split_bundle_key(key: str) -> Tuple[str, str, str]:
     """"pitch|G4|C5" → (kind, from, to)。2要素のキーは from = ""。
     4要素 "position|1|3|A4" は (position, 1, 3) で、音は bundleKey にだけ残る (二段階目の合算は kind+from+to で引く)"""
     parts = key.split("|")
+    if parts[0] == "slur" and len(parts) >= 4:
+        return "slur", parts[2], parts[3]  # 音数 N は bundleKey にだけ残る (from/to は 前の音/今の音)
     if len(parts) >= 3:
         return parts[0], parts[1], parts[2]
     return parts[0], "", parts[1] if len(parts) > 1 else ""
@@ -611,7 +649,7 @@ def material_bundle_counts(rows: List[Dict[str, Any]], profiles: Dict[str, Dict[
     for r in rows:
         cur = profiles[r["profileKey"]]
         prev = profiles.get(r["prevProfileKey"]) if r.get("prevProfileKey") else None
-        for k in bundle_keys(cur, prev, prev_dur):
+        for k in bundle_keys(cur, prev, prev_dur, (r.get("slurLen"), r.get("slurPos"))):
             counts[k] = counts.get(k, 0) + 1
         prev_dur = r.get("durationSec")
     return counts

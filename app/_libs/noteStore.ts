@@ -61,6 +61,9 @@ export type DetailRow = {
   expectedPitchHz?: number | null
   cur: ProfileRow
   prev: ProfileRow | null
+  /** スラーの中の位置 (2026-09-06): そのスラーの音数 と 何番目か (0 = 最初の音)。スラーの外・古い並びは null */
+  slurLen?: number | null
+  slurPos?: number | null
 }
 
 /** 単位 (§5-1) */
@@ -82,6 +85,7 @@ export type TabKey = "pitch" | "position" | "technique" | "fingering"
  *   "fingering|G4|A4"      速い指の切り替え
  *   "technique|slur|G4"    わざ + 音
  *   "position|1|3|A4"      ポジション移動 + 移動先の音
+ *   "slur|4|G4|A4"         4 音スラーの中の 前の音→今の音 (2026-09-06 Tetsuo: 何音一緒のスラーかで教材を変える。最初の音は数えない)
  *   "chord|5度|D4"          重音 + 低い方の音
  * 教材を探すときは二段階: まず音まで一致するもの、無ければ音を問わず (奏法 / 移動 / 度数 で合算) 探す。
  */
@@ -137,10 +141,21 @@ export function groupKeysOf(tab: TabKey, r: DetailRow, gapSec: number | null): G
       if (prev.position === cur.position) return []
       if (cur.pitch1 === UNKNOWN) return [] // 移動先の音と組にする。音名不明は入らない
       return [`position|${prev.position}|${cur.position}|${cur.pitch1}`]
-    case "technique":
+    case "technique": {
       // わざは音の高さと組にする (2026-09-05 Tetsuo: 「スラー」だけでは教材が選べない)。音名不明の音は入らない
       if (cur.pitch1 === UNKNOWN) return []
-      return TECHS.filter((t) => (cur as unknown as Record<string, boolean>)[TECH_COLUMNS[t]]).map((t) => `technique|${t}|${cur.pitch1}`)
+      const keys: GroupKey[] = []
+      for (const t of TECHS) {
+        if (!(cur as unknown as Record<string, boolean>)[TECH_COLUMNS[t]]) continue
+        if (t === "slur" && r.slurLen != null && r.slurPos != null) {
+          // スラーは「N 音スラーの中の 前の音→今の音」(2026-09-06 Tetsuo)。最初の音 (弓を返す音) は数えない
+          if (r.slurPos >= 1 && prev && prev.pitch1 !== UNKNOWN) keys.push(`slur|${r.slurLen}|${prev.pitch1}|${cur.pitch1}`)
+          continue
+        }
+        keys.push(`technique|${t}|${cur.pitch1}`)
+      }
+      return keys
+    }
   }
 }
 
@@ -190,9 +205,9 @@ export function pickWeakest(agg: Agg, minTarget: number): PickResult {
 }
 
 /** 束のキーを分解する */
-export function parseKey(key: GroupKey): { tab: TabKey; a: string; b: string; c: string } {
+export function parseKey(key: GroupKey): { tab: TabKey | "slur" | "chord"; a: string; b: string; c: string } {
   const [tab, a = "", b = "", c = ""] = key.split("|")
-  return { tab: tab as TabKey, a, b, c }
+  return { tab: tab as TabKey | "slur" | "chord", a, b, c }
 }
 
 // ───────────────────────── DB (差し替え可能) ─────────────────────────
@@ -258,6 +273,7 @@ type RawDetail = {
   performanceId: string; noteIndex: number; pitchOk: boolean | null; startOk: boolean | null
   evaluationStatus: string; expectedStartSec: number | null; profileId: number; prevProfileId: number | null
   noteName: string | null; pitchCentsError: number | null; expectedPitchHz: number | null
+  slurLen: number | null; slurPos: number | null
 }
 
 /** 明細 → 並び (かたちの番号だけ)。かたちの中身は別に1回で引く (行ごとの副問い合わせは重い) */
@@ -269,7 +285,7 @@ async function fetchDetailFor(kind: "score" | "practice", perfs: { id: string; t
   return prisma.$queryRaw<RawDetail[]>(Prisma.sql`
     SELECT pn."performanceId", pn."noteIndex", pn."pitchOk", pn."startOk", pn."evaluationStatus", pn."expectedStartSec",
            pn."noteName", pn."pitchCentsError", pn."expectedPitchHz",
-           sn."profileId", sn."prevProfileId"
+           sn."profileId", sn."prevProfileId", sn."slurLen", sn."slurPos"
     FROM "PerformanceNote" pn
     JOIN ${perfTable} x ON x.id = pn."performanceId"
     JOIN "ScoreNote" sn ON sn."targetType" = ${kind}::"ScoreNoteTarget" AND sn."targetId" = x.${targetCol} AND sn."noteIndex" = pn."noteIndex"
@@ -303,6 +319,11 @@ function materialPredicate(key: GroupKey): Prisma.Sql {
       // 前の音の秒 (教材の想定テンポで換算) が短く、直前に休符が無く、両方とも指を押さえる音
       return Prisma.sql`prev."pitch1" = ${a} AND cur."pitch1" = ${b} AND prev."finger1" > 0 AND cur."finger1" > 0
         AND cur."restBefore" = 0 AND s.prev_dur IS NOT NULL AND s.prev_dur < ${FAST_SWITCH_SEC}`
+    case "slur":
+      // N 音スラーの 2 音目以降で 前の音→今の音
+      return Prisma.sql`s."slurLen" = ${parseInt(a, 10)} AND s."slurPos" >= 1 AND prev."pitch1" = ${b} AND cur."pitch1" = ${c}`
+    default:
+      throw new Error(`unknown key: ${key}`)
   }
 }
 
@@ -329,6 +350,7 @@ export const prismaSource: NoteStoreSource = {
         evaluationStatus: r.evaluationStatus, expectedStartSec: r.expectedStartSec,
         noteName: r.noteName, pitchCentsError: r.pitchCentsError, expectedPitchHz: r.expectedPitchHz,
         cur, prev: r.prevProfileId !== null ? profiles.get(r.prevProfileId) ?? null : null,
+        slurLen: r.slurLen, slurPos: r.slurPos,
       })
     }
     return out
@@ -383,15 +405,33 @@ export async function findMaterialsForTechnique(tech: Tech, star: number, shelve
  * 音の移動・速い指の切り替えは音そのものが条件なので二段階目は無い (null)。
  */
 function coarseWhere(key: GroupKey): Prisma.Sql | null {
-  const { tab, a, b } = parseKey(key)
+  const { tab, a, b, c } = parseKey(key)
   // 音の無い旧形式のキー ("technique|slur" / "position|1|3" / "chord|5度"・音を足す前のピンに残る) も
   // 二段階目の条件で引けるようにする (音を問わない条件そのものなので同じ where で足りる)
   switch (tab as string) {
     case "technique": return Prisma.sql`mb.kind = 'technique' AND mb."fromValue" = ${a}`
     case "position": return b ? Prisma.sql`mb.kind = 'position' AND mb."fromValue" = ${a} AND mb."toValue" = ${b}` : null
     case "chord": return Prisma.sql`mb.kind = 'chord' AND mb."fromValue" = ${a}`
+    case "slur": return Prisma.sql`mb.kind = 'slur' AND mb."fromValue" = ${b} AND mb."toValue" = ${c}`   // 音数を問わずスラーの中の同じ移動
     default: return null
   }
+}
+
+/**
+ * 段階的に緩める (2026-09-06 Tetsuo確定): スラーの束は 同じ音数 → 前後 1 音 → スラーの中の同じ移動 (coarseWhere) → 移動だけ (pitch|prev|cur)。
+ * 戻り値 = 完全一致の次に試す bundleKey の組 (順に)。他の束は空
+ */
+export function relaxedKeys(key: GroupKey): GroupKey[][] {
+  const { tab, a, b, c } = parseKey(key)
+  if (tab !== "slur") return []
+  const n = parseInt(a, 10)
+  const near = [n - 1, n + 1].filter((x) => x >= 2).map((x) => `slur|${x}|${b}|${c}`)
+  return [near]
+}
+/** 二段階目でも無いときの最後の束 (スラー → 移動だけ) */
+export function fallbackKey(key: GroupKey): GroupKey | null {
+  const { tab, b, c } = parseKey(key)
+  return tab === "slur" ? `pitch|${b}|${c}` : null
 }
 
 /**
@@ -399,15 +439,23 @@ function coarseWhere(key: GroupKey): Prisma.Sql | null {
  * 二段階 (2026-09-05 Tetsuo): まず音まで一致する教材、1件も無ければ音を問わず合算して探す。
  */
 export async function findMaterialsForKey(key: GroupKey, star: number, shelves: string[], limit: number): Promise<MaterialHit[]> {
-  const exact = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
-    SELECT mb."targetId" AS id, mb.count::int AS c
+  const byKeys = async (keys: GroupKey[]) => prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
+    SELECT mb."targetId" AS id, sum(mb.count)::int AS c
     FROM "MaterialBundleCount" mb
     JOIN "PracticeItem" pi ON pi.id = mb."targetId"
-    WHERE mb."bundleKey" = ${key}
+    WHERE mb."bundleKey" = ANY(${keys})
       AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
-    ORDER BY mb.count DESC, mb."targetId"
+    GROUP BY mb."targetId"
+    ORDER BY sum(mb.count) DESC, mb."targetId"
     LIMIT ${limit}`)
+  const exact = await byKeys([key])
   if (exact.length > 0) return exact.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+  // 段階的に緩める (スラー: 前後 1 音の音数)
+  for (const keys of relaxedKeys(key)) {
+    if (keys.length === 0) continue
+    const near = await byKeys(keys)
+    if (near.length > 0) return near.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+  }
   const where = coarseWhere(key)
   if (!where) return []
   const coarse = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
@@ -419,7 +467,12 @@ export async function findMaterialsForKey(key: GroupKey, star: number, shelves: 
     GROUP BY mb."targetId"
     ORDER BY sum(mb.count) DESC, mb."targetId"
     LIMIT ${limit}`)
-  return coarse.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+  if (coarse.length > 0) return coarse.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+  // 最後: 移動だけ (スラーの外でも同じ 前の音→今の音 を含む教材)
+  const fb = fallbackKey(key)
+  if (!fb) return []
+  const last = await byKeys([fb])
+  return last.map((r) => ({ itemId: r.id, count: Number(r.c) }))
 }
 
 /** 検査用: その教材にそのグループが何回あるか。音まで一致 (exact) → 音を問わず (coarse) → 無し */

@@ -1382,6 +1382,7 @@ try:
         _ns_rows, _ns_profiles, _ns_status = build_score_notes(
             _ns_expanded, expanded_to_orig, len(orig_ordinal),
             karte_payload["notes"], SECONDS_PER_QUARTER, written=_ns_written,
+            slur_spans=slurs_out,   # スラーの中の位置 (2026-09-06)
         )
         if not _ns_status.startswith("ok"):
             clear_score_notes(cur, _ns_target_type, _ns_target_id, _ns_status)

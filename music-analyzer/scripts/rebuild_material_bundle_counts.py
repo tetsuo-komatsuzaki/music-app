@@ -30,19 +30,19 @@ def main() -> None:
     profiles = {row[0]: dict(zip(PROFILE_COLS, row)) for row in cur.fetchall()}
     cur.execute('SELECT id, "scoreNoteVersion" FROM "PracticeItem"')
     versions = dict(cur.fetchall())
-    cur.execute('''SELECT "targetId", "noteIndex", "profileId", "prevProfileId", "durationSec"
+    cur.execute('''SELECT "targetId", "noteIndex", "profileId", "prevProfileId", "durationSec", "slurLen", "slurPos"
                    FROM "ScoreNote" WHERE "targetType" = 'practice' ORDER BY "targetId", "noteIndex"''')
     by_item: dict = collections.defaultdict(list)
-    for tid, ni, pid, ppid, dsec in cur.fetchall():
-        by_item[tid].append((ni, pid, ppid, dsec))
+    for tid, ni, pid, ppid, dsec, slen, spos in cur.fetchall():
+        by_item[tid].append((ni, pid, ppid, dsec, slen, spos))
     print(f"教材 {len(by_item)}件 ・ かたち {len(profiles)}種 ({'書く' if APPLY else 'check' if CHECK else 'dry-run'})")
     total_rows = 0; diff_items = 0
     for tid, rows in by_item.items():
         counts: dict = {}
         prev_dur = None
-        for ni, pid, ppid, dsec in rows:
+        for ni, pid, ppid, dsec, slen, spos in rows:
             curp = profiles[pid]; prevp = profiles.get(ppid) if ppid is not None else None
-            for k in bundle_keys(curp, prevp, prev_dur):
+            for k in bundle_keys(curp, prevp, prev_dur, (slen, spos)):
                 counts[k] = counts.get(k, 0) + 1
             prev_dur = dsec
         total_rows += len(counts)

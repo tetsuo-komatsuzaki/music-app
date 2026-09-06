@@ -8,7 +8,7 @@ import { formatKey } from "@/app/_libs/musicNotation"
 /** 曲の文脈 (④のピン再計算で★を引くのに使う)。旧 weaknessRecommendation.RecommendContext を取り込み (段5) */
 type RecommendContext = { star: number | null; keyTonic: string | null; keyMode: string | null; tempo: number | null; positions: number[] | null }
 import { prismaSource, aggregate, bundleHitsByItem, parseKey, type TabKey, type GroupKey, type DetailRow } from "./noteStore"
-import { movementLabel, positionMoveLabel, techniqueLabel, fastSwitchLabel } from "./conditionName"
+import { movementLabel, positionMoveLabel, techniqueLabel, fastSwitchLabel, slurMoveLabel } from "./conditionName"
 
 const MASTER_RECENT = 5
 const MASTER_AVG = 90
@@ -190,6 +190,7 @@ function subtaskToReason(sid: string, category: string): { reason: string; detai
   if (sid.includes("|")) {
     const { tab, a } = parseKey(sid)
     if (tab === "technique") return { reason: "rec_tech", detail: TECH_SUFFIX_LABEL[a] ?? "その奏法" }
+    if ((tab as string) === "slur") return { reason: "rec_tech", detail: TECH_SUFFIX_LABEL["slur"] ?? "スラー" }   // スラーの中の移動 (2026-09-06)
     if ((tab as string) === "position") return { reason: "rec_posshift", detail: null }
     if ((tab as string) === "pitch" || (tab as string) === "fingering") return { reason: "rec_interval", detail: null }
     if ((tab as string) === "chord") return { reason: "rec_double", detail: null }
@@ -224,6 +225,7 @@ function weakBundles(rows: DetailRow[]): { key: GroupKey; successPct: number; ta
 export function bundleName(key: GroupKey): string {
   const { tab, a, b, c } = parseKey(key)
   if (tab === "technique") return techniqueLabel(a, b || undefined)
+  if ((tab as string) === "slur") return slurMoveLabel(parseInt(a, 10), b, c)
   if ((tab as string) === "position") return positionMoveLabel(parseInt(a, 10), parseInt(b, 10), c || undefined)
   if ((tab as string) === "fingering") return fastSwitchLabel(a, b)
   return movementLabel(a, b)
