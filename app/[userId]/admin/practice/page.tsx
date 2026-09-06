@@ -7,6 +7,7 @@ import AdminPractice from "../adminPractice"
 import { pickRepresentatives, toRepresentativeInput } from "@/app/_libs/materialRepresentative"
 import { uploadPracticeItem } from "@/app/actions/uploadPracticeItem"
 import { uploadScore } from "@/app/actions/uploadScore"
+import { listAuthoredIds } from "@/app/actions/authorScore"
 
 export const metadata = { title: "教材管理" }
 
@@ -41,7 +42,7 @@ export default async function AdminPracticePage({
   })
 
   // 登録済み教材 (PracticeItem + Score) を並列で取得
-  const [items, scores, techniqueTags] = await Promise.all([
+  const [items, scores, techniqueTags, authoredIds] = await Promise.all([
     prisma.practiceItem.findMany({
       orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
       include: {
@@ -86,6 +87,7 @@ export default async function AdminPracticePage({
       orderBy: [{ category: "asc" }, { name: "asc" }],
       select: { id: true, category: true, name: true, nameEn: true },
     }),
+    listAuthoredIds(),
   ])
 
   // 教材グループ一覧 (Phase B: 「既存グループに変種を追加」の選択肢用)
@@ -198,6 +200,7 @@ export default async function AdminPracticePage({
       groups={groups}
       uploadAction={uploadPracticeItem}
       uploadScoreAction={uploadScore}
+      authoredIds={authoredIds}
     />
   )
 }

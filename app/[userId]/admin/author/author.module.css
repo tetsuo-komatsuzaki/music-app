@@ -1,0 +1,60 @@
+/* スコアを自分で作る ・ 画面 (要件 10 見やすい画面)。配色は案 1: 構造 ・ 操作 = ネイビー、金は成果のみ */
+.page { position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: auto 1fr auto; height: 100dvh; background: #f4f6fa; color: #1d2430; font-size: 13.5px; }
+.top { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: #16294f; color: #fff; flex-wrap: wrap; }
+.top h1 { font-size: 15px; margin: 0; font-weight: 700; letter-spacing: .02em; }
+.top input, .top select { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 6px; padding: 5px 8px; font-size: 13px; }
+.top input::placeholder { color: rgba(255,255,255,.55); }
+.top select option { color: #1d2430; }
+.topRight { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.btn { border: 1px solid #2b5bc4; background: #fff; color: #2b5bc4; border-radius: 7px; padding: 6px 11px; font-size: 13px; cursor: pointer; line-height: 1.2; }
+.btn:hover { background: #eaf0fb; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btnPri { background: #2b5bc4; color: #fff; }
+.btnPri:hover { background: #244da6; }
+.btnGhost { border-color: rgba(255,255,255,.4); background: transparent; color: #fff; }
+.btnGhost:hover { background: rgba(255,255,255,.12); }
+.btnOn { background: #16294f; color: #fff; border-color: #16294f; }
+.btnSm { padding: 4px 8px; font-size: 12.5px; border-radius: 6px; }
+.body { display: grid; grid-template-columns: 1fr 360px; min-height: 0; }
+.staffWrap { overflow: auto; padding: 14px 10px 24px; background: #fff; border-right: 1px solid #dfe4ee; }
+.staffTools { display: flex; align-items: center; gap: 10px; padding: 0 10px 8px; color: #4b5568; font-size: 12.5px; flex-wrap: wrap; }
+.side { overflow: auto; background: #f9fafc; display: flex; flex-direction: column; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px 0; border-bottom: 1px solid #dfe4ee; background: #fff; position: sticky; top: 0; z-index: 2; }
+.tab { border: none; background: transparent; padding: 7px 9px; font-size: 13px; color: #4b5568; cursor: pointer; border-bottom: 2px solid transparent; }
+.tabOn { color: #16294f; font-weight: 700; border-bottom-color: #2b5bc4; }
+.panel { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.group { background: #fff; border: 1px solid #e3e8f1; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.group h3 { margin: 0; font-size: 12px; color: #4b5568; letter-spacing: .06em; font-weight: 700; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.row label { font-size: 12.5px; color: #4b5568; }
+.chip { border: 1px solid #c9d3e6; background: #fff; color: #1d2430; border-radius: 999px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; }
+.chip:hover { border-color: #2b5bc4; }
+.chipOn { background: #16294f; color: #fff; border-color: #16294f; }
+.chipWarn { border-color: #d9a93c; }
+.field { display: flex; flex-direction: column; gap: 3px; }
+.field label { font-size: 12px; color: #4b5568; }
+.field input, .field select, .field textarea { border: 1px solid #c9d3e6; border-radius: 6px; padding: 6px 8px; font-size: 13px; background: #fff; color: #1d2430; font-family: inherit; }
+.field textarea { min-height: 64px; resize: vertical; }
+.num { width: 64px; }
+.hint { color: #6b7385; font-size: 12px; margin: 0; line-height: 1.5; }
+.kbd { display: inline-block; border: 1px solid #c9d3e6; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: 11px; background: #fff; color: #1d2430; font-family: ui-monospace, monospace; }
+.bottom { display: flex; gap: 10px; align-items: flex-start; padding: 8px 14px; background: #fff; border-top: 1px solid #dfe4ee; max-height: 120px; overflow: auto; }
+.problems { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.problems li { font-size: 12.5px; display: flex; gap: 8px; align-items: baseline; cursor: pointer; }
+.problems li:hover { text-decoration: underline; }
+.pErr { color: #b3261e; }
+.pWarn { color: #8a6a12; }
+.pOk { color: #2a6b3a; font-size: 12.5px; }
+.pill { display: inline-block; border-radius: 999px; padding: 1px 7px; font-size: 11px; font-weight: 700; }
+.pillErr { background: #fbe4e2; color: #b3261e; }
+.pillWarn { background: #fbf1d6; color: #8a6a12; }
+.status { font-size: 12.5px; color: #4b5568; min-width: 220px; }
+.modalBack { position: fixed; inset: 0; background: rgba(22,41,79,.45); display: flex; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
+.modal { background: #fff; border-radius: 12px; width: min(1100px, 100%); max-height: 92vh; overflow: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.modal h2 { margin: 0; font-size: 16px; color: #16294f; }
+.done { background: #fff; border: 1px solid #e3e8f1; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.done a { color: #2b5bc4; }
+.gold { color: #b8860b; font-weight: 700; }
+.sub { font-size: 12px; color: #6b7385; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 980px) { .body { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .side { max-height: 45vh; border-top: 1px solid #dfe4ee; } }

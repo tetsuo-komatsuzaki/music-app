@@ -37,7 +37,6 @@ import {
 import ScoreVariantDialog from "./ScoreVariantDialog"
 import ArticulationVariantDialog from "./ArticulationVariantDialog"
 import RhythmVariantDialog from "./RhythmVariantDialog"
-import ScoreAuthorDialog from "./ScoreAuthorDialog"
 import PartsDialog from "./PartsDialog"
 import styles from "./admin.module.css"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
@@ -89,6 +88,8 @@ type Props = {
   uploadAction: (formData: FormData) => Promise<any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   uploadScoreAction: (formData: FormData) => Promise<any>
+  /** この画面 (スコアを自分で作る) で作った教材の id。一覧に「直す」を出す */
+  authoredIds?: string[]
 }
 
 const categoryLabels: Record<string, string> = {
@@ -123,7 +124,9 @@ export default function AdminPractice({
   groups,
   uploadAction,
   uploadScoreAction,
+  authoredIds = [],
 }: Props) {
+  const authoredSet = new Set(authoredIds)
   const [items, setItems] = useState<ItemDTO[]>(initialItems)
   const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -219,8 +222,6 @@ export default function AdminPractice({
   const [artVariantItemId, setArtVariantItemId] = useState<string | null>(null)
   const [rhythmItemId, setRhythmItemId] = useState<string | null>(null)
   // 自作スコア登録 (2026-09-06): ファイル無しで音階などを組み立てる。作ったら閉じるときに一覧を読み直す
-  const [authorOpen, setAuthorOpen] = useState(false)
-  const [authorMade, setAuthorMade] = useState(false)
   const [partsTarget, setPartsTarget] = useState<{ id: string; kind: "practice" | "score" } | null>(null)
   // 削除中の id (二重実行防止 + ボタン無効化)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -591,9 +592,9 @@ export default function AdminPractice({
           >
             曲リクエスト →
           </Link>
-          <button className={styles.primaryBtn} onClick={() => setAuthorOpen(true)}>
+          <Link href={missingItemsHref.replace(/\/missing-items$/, "/author")} className={styles.primaryBtn}>
             スコアを自分で作る
-          </button>
+          </Link>
           <button className={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
             {showForm ? "閉じる" : "新規登録"}
           </button>
@@ -1235,6 +1236,15 @@ export default function AdminPractice({
                             変種
                           </button>
                         )}
+                        {item.type === "practice" && authoredSet.has(item.id) && (
+                          <Link
+                            href={`${missingItemsHref.replace(/\/missing-items$/, "/author")}?item=${item.id}`}
+                            className={styles.secondaryBtn}
+                            title="この画面で作ったスコアを直す"
+                          >
+                            直す
+                          </Link>
+                        )}
                         {item.type === "practice" && item.buildStatus === "done" && (
                           <button
                             type="button"
@@ -1302,9 +1312,6 @@ export default function AdminPractice({
       )}
       {artVariantItemId && (
         <ArticulationVariantDialog itemId={artVariantItemId} onClose={() => setArtVariantItemId(null)} />
-      )}
-      {authorOpen && (
-        <ScoreAuthorDialog onCreated={() => setAuthorMade(true)} onClose={() => { setAuthorOpen(false); if (authorMade) window.location.reload() }} />
       )}
       {rhythmItemId && (
         <RhythmVariantDialog itemId={rhythmItemId} onClose={() => setRhythmItemId(null)} />
