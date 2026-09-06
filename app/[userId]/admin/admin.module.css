@@ -370,3 +370,6 @@
   .techModal { max-width: 100%; width: 100%; max-height: 88vh; border-radius: 14px 14px 0 0; }
   .techModalOverlay { align-items: flex-end; padding: 0; }
 }
+
+/* 調の自動認識の「変更する」など、文字だけの小ボタン (2026-09-06) */
+.linkBtn { background: none; border: none; padding: 0; color: var(--accent, #2b5bc4); font-size: var(--fs-body); font-weight: 700; cursor: pointer; text-decoration: underline; }
