@@ -431,7 +431,8 @@ export default function RevealMotion() {
     // 隠し(opacity 0)が transition (0.62s+遅延) 越しにゆっくり効き、隠れる前に
     // reveal が来て立ち上がりが見えなくなる (2026-08-22 Tetsuo指摘の真因)
     const t0 = window.setTimeout(() => {
-      whenHydrated(() => [...main().querySelectorAll(SEL)], () => {
+      // ブロックだけでなく、印を付ける中身 (直下の項目 ・ 葉) まで取り付け済みになるのを待つ
+      whenHydrated(() => [...main().querySelectorAll("*")].filter((e) => !e.closest("[id^='osmd']")), () => {
         const m0 = main()
         m0.classList.add("rv-notx")
         prepareAll()
@@ -492,7 +493,7 @@ export default function RevealMotion() {
       // 遅延描画のブロックも「noTx の中で隠す → 次のフレームで動きを戻す」(手順1対1)。
       // ストリーミングで後から届いた HTML は取り付け前なので、取り付けを待ってから印を付ける
       if (fresh.length) {
-        whenHydrated(() => fresh.filter((b) => b.isConnected), () => {
+        whenHydrated(() => fresh.filter((b) => b.isConnected).flatMap((b) => [b, ...b.querySelectorAll("*")]), () => {
           const m0 = main()
           m0.classList.add("rv-notx")
           fresh.forEach((b) => { if (b.isConnected) prepare(b) })
