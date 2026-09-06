@@ -1,15 +1,32 @@
 """
-benchmark_runner.py
-Usage: python tests/benchmark_runner.py
+benchmark_runner.py — 解析器の回帰ベンチマーク
+Usage: python tests/benchmark_runner.py [--case CASE_ID] [--no-onset]
 
-tests/cases/*/ を全件評価してメトリクスを算出し、
-Markdownレポートと履歴JSONを出力する。
+tests/cases/*/ を全件、本番と同じ経路 (tests/audit/offline_analyzer.py) で解析し、
+expected.json と突き合わせてメトリクスを出す。Markdown レポートと履歴 JSON を残す。
+
+これが測るもの / 測らないもの (2026-09-06 監査で整理):
+  - 測るもの: 「前回と同じ出力が出るか」。expected.json は解析器の過去の出力から
+    自動生成されたもの (confidence: auto_generated) なので、これは正解との一致ではなく
+    基準線との一致。解析器を変えたとき、意図しない変化を検知するためのもの。
+  - 測らないもの: 検出の正しさ。それは tests/audit/ (既知量シフト・合成音) が担う。
+    人の耳で検証した expected.json (confidence: reviewed) が揃えば、この数字も
+    正しさの尺度になる。
+
+2026-09-06 以前はこのスクリプトは一度も動いていなかった。
+  - `from analyze_performance import analyze_performance` という関数は存在しない
+  - analyze_performance.py は import 時に DB へ接続する
+  - 失敗すると comparison_result.json (= expected.json の生成元) に黙って倒れ、
+    「自分の過去の出力と自分の過去の出力」を比べていた
+今は offline_analyzer 経由で本体の関数をそのまま呼ぶ。解析に失敗したケースは
+スキップとして明示し、黙って代替しない。
 """
 
+import argparse
 import json
 import pathlib
 import sys
-import math
+import traceback
 from datetime import datetime, timezone
 
 import numpy as np
@@ -21,13 +38,9 @@ CASES_DIR    = TESTS_DIR / "cases"
 HISTORY_DIR  = TESTS_DIR / "history"
 HISTORY_DIR.mkdir(exist_ok=True)
 
-# ─── analyze_performance のインポート（同階層想定）─────────────
-sys.path.insert(0, str(ANALYZER_DIR))
-try:
-    from analyze_performance import analyze_performance
-    ANALYZER_AVAILABLE = True
-except ImportError:
-    ANALYZER_AVAILABLE = False
+sys.path.insert(0, str(TESTS_DIR / "audit"))
+from _cache import local_case            # noqa: E402
+from offline_analyzer import analyze_case  # noqa: E402
 
 
 # ─── ピッチ → MIDI ────────────────────────────────────────────
@@ -42,491 +55,301 @@ def pitch_to_midi(pitch_str: str) -> int:
         return -1
 
 
-def midi_to_cents(midi: int) -> float:
-    return float(midi) * 100.0
+# ─── 判定ポリシー適用 ─────────────────────────────────────────
 
-
-# ─── テンポ正規化 ─────────────────────────────────────────────
-
-def tempo_normalize_onsets(
-    detected_starts: list[float],
-    expected_starts: list[float],
-) -> list[float]:
+def apply_policy(notes_out: list[dict], policy: dict, tolerance: dict) -> list[dict]:
     """
-    演奏全体の平均速度差を正規化してから onset_error を返す。
-    ratio = mean(detected) / mean(expected) で全体スケールを補正。
-    """
-    if not detected_starts or not expected_starts:
-        return []
-    ratio = (sum(detected_starts) / len(detected_starts)) / max(
-        sum(expected_starts) / len(expected_starts), 1e-9
-    )
-    normalized = [d / ratio for d in detected_starts]
-    return normalized
+    expected.json の evaluation_policy / tolerance で各音符を判定する。
+    追加するフィールド: pitch_ok, start_ok, onset_error_ms, pitch_error_cents
 
-
-# ─── evaluation_policy 適用 ──────────────────────────────────
-
-def apply_policy(
-    notes_out: list[dict],
-    policy: dict,
-    tolerance: dict,
-) -> list[dict]:
+    pitch_error_cents は解析器が返す実測セント (pitch_cents_error) を優先する。
+    旧実装は音名同士の差 (100 セント刻み) しか見ておらず、pitch_mae が半音単位でしか
+    出なかった。
     """
-    evaluation_policy に基づいて各音符の評価結果を算出する。
-    notes_out は analyze_performance の出力（またはそれに準じる辞書リスト）。
-    返すリストには以下を追加する:
-      - pitch_ok, start_ok, evaluation_status
-      - onset_error_ms, pitch_error_cents
-    """
-    onset_ms  = tolerance.get("onset_ms",   120)
-    offset_ms = tolerance.get("offset_ms",  180)
+    onset_ms    = tolerance.get("onset_ms",   120)
     pitch_cents = tolerance.get("pitch_cents", 35)
-
-    onset_mode         = policy.get("onset_mode",         "relative")
-    alignment_mode     = policy.get("alignment_mode",     "monotonic")
+    alignment_mode      = policy.get("alignment_mode",      "monotonic")
     tempo_normalization = policy.get("tempo_normalization", True)
 
-    # テンポ正規化
-    detected_starts  = [n.get("detected_start_sec", 0.0) for n in notes_out if n.get("detected_start_sec") is not None]
-    expected_starts  = [n.get("expected_start_sec",  0.0) for n in notes_out if n.get("expected_start_sec")  is not None]
-
+    detected_starts = [n["detected_start_sec"] for n in notes_out if n.get("detected_start_sec") is not None]
+    expected_starts = [n["expected_start_sec"] for n in notes_out if n.get("expected_start_sec") is not None]
     if tempo_normalization and len(detected_starts) == len(expected_starts) and expected_starts:
-        ratio = (sum(detected_starts) / len(detected_starts)) / max(
-            sum(expected_starts) / len(expected_starts), 1e-9
-        )
+        ratio = (sum(detected_starts) / len(detected_starts)) / max(sum(expected_starts) / len(expected_starts), 1e-9)
     else:
         ratio = 1.0
 
     evaluated = []
     last_matched_idx = -1
     duplicate_match_count = 0
-
-    for i, note_entry in enumerate(notes_out):
-        det_start = note_entry.get("detected_start_sec")
-        exp_start = note_entry.get("expected_start_sec")
-        det_pitch = note_entry.get("detected_pitch", "")
-        exp_pitch = note_entry.get("expected_pitch", "")
-
-        onset_error_ms  = None
+    for i, n in enumerate(notes_out):
+        det_start = n.get("detected_start_sec")
+        exp_start = n.get("expected_start_sec")
+        onset_error_ms = None
         pitch_error_cents = None
         pitch_ok = False
         start_ok = False
 
         if det_start is not None and exp_start is not None:
-            det_norm = det_start / max(ratio, 1e-9)
-            onset_error_ms = abs(det_norm - exp_start) * 1000.0
+            onset_error_ms = abs(det_start / max(ratio, 1e-9) - exp_start) * 1000.0
             start_ok = onset_error_ms <= onset_ms
-
-            # monotonic 制約チェック
             if alignment_mode == "monotonic":
                 if i <= last_matched_idx:
                     duplicate_match_count += 1
                 else:
                     last_matched_idx = i
 
-        if det_pitch and exp_pitch:
-            det_midi = pitch_to_midi(det_pitch)
-            exp_midi = pitch_to_midi(exp_pitch)
-            if det_midi >= 0 and exp_midi >= 0:
-                pitch_error_cents = abs(det_midi - exp_midi) * 100.0
+        if n.get("pitch_cents_error") is not None:
+            pitch_error_cents = abs(float(n["pitch_cents_error"]))
+            pitch_ok = pitch_error_cents <= pitch_cents
+        elif n.get("detected_pitch") and n.get("expected_pitch"):
+            dm, em = pitch_to_midi(n["detected_pitch"]), pitch_to_midi(n["expected_pitch"])
+            if dm >= 0 and em >= 0:
+                pitch_error_cents = abs(dm - em) * 100.0
                 pitch_ok = pitch_error_cents <= pitch_cents
 
-        result = {**note_entry,
-                  "pitch_ok":           pitch_ok,
-                  "start_ok":           start_ok,
-                  "onset_error_ms":     onset_error_ms,
-                  "pitch_error_cents":  pitch_error_cents,
-                  "_duplicate":         False}
-        evaluated.append(result)
-
-    evaluated[0]["_duplicate_match_count"] = duplicate_match_count  # 先頭に集約
+        evaluated.append({**n, "pitch_ok": pitch_ok, "start_ok": start_ok,
+                          "onset_error_ms": onset_error_ms, "pitch_error_cents": pitch_error_cents})
+    if evaluated:
+        evaluated[0]["_duplicate_match_count"] = duplicate_match_count
     return evaluated
 
 
 # ─── 1ケース評価 ─────────────────────────────────────────────
 
-def evaluate_case(case_dir: pathlib.Path) -> dict | None:
-    """
-    1ケースを評価してメトリクス辞書を返す。
-    スキップ条件を満たす場合は {"skip": True, "reason": "..."} を返す。
-    """
-    case_id      = case_dir.name
+def evaluate_case(case_dir: pathlib.Path, use_onset: bool | None = None) -> dict:
+    case_id = case_dir.name
     expected_path = case_dir / "expected.json"
-    wav_path      = case_dir / "recording.wav"
-    meta_path     = case_dir / "meta.json"
-
-    # スキップ判定
     if not expected_path.exists():
-        return {"skip": True, "reason": "expected.json が存在しません", "case_id": case_id}
-    if not wav_path.exists():
-        return {"skip": True, "reason": "recording.wav が存在しません", "case_id": case_id}
+        return {"skip": True, "reason": "expected.json がない", "case_id": case_id}
+    if not (case_dir / "recording.wav").exists():
+        return {"skip": True, "reason": "recording.wav がない", "case_id": case_id}
 
     expected = json.loads(expected_path.read_text(encoding="utf-8"))
-    meta      = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
-
+    meta_path = case_dir / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
     policy    = expected.get("evaluation_policy", {})
     tolerance = expected.get("tolerance", {})
     exp_notes = expected.get("notes", [])
+    provenance = expected.get("confidence", "unknown")
 
-    dataset_split = meta.get("dataset_split", "train")
-    difficulty    = meta.get("difficulty",    "medium")
-    tags_meta     = []
-    if meta.get("has_shift"):            tags_meta.append("shift")
-    if meta.get("has_rest"):             tags_meta.append("rest")
-    if meta.get("has_string_crossing"):  tags_meta.append("string_crossing")
-    max_pitch_midi = pitch_to_midi(meta.get("max_pitch", ""))
-    if max_pitch_midi >= 76:             tags_meta.append("high_position")
+    tags_meta = []
+    if meta.get("has_shift"):           tags_meta.append("shift")
+    if meta.get("has_rest"):            tags_meta.append("rest")
+    if meta.get("has_string_crossing"): tags_meta.append("string_crossing")
+    if pitch_to_midi(meta.get("max_pitch", "")) >= 76: tags_meta.append("high_position")
 
-    # 分析実行（analyze_performance が使えない場合は comparison_result.json を流用）
-    cr_path = case_dir / "comparison_result.json"
-    if ANALYZER_AVAILABLE:
-        try:
-            mxl_path = case_dir / "score.mxl"
-            raw_results = analyze_performance(str(wav_path), str(mxl_path))
-            notes_out = raw_results.get("notes", raw_results.get("results", []))
-        except Exception as e:
-            if cr_path.exists():
-                cr = json.loads(cr_path.read_text(encoding="utf-8"))
-                notes_out = cr.get("notes", cr.get("results", []))
-            else:
-                return {"skip": True, "reason": f"analyze_performance 失敗: {e}", "case_id": case_id}
-    else:
-        if not cr_path.exists():
-            return {"skip": True, "reason": "comparison_result.json が存在しません（分析エンジン未利用時）", "case_id": case_id}
-        cr = json.loads(cr_path.read_text(encoding="utf-8"))
-        notes_out = cr.get("notes", cr.get("results", []))
+    # 解析 (本番経路・ローカル写し)
+    try:
+        res = analyze_case(local_case(case_dir), use_onset=use_onset)
+    except Exception as e:
+        return {"skip": True, "case_id": case_id,
+                "reason": f"解析失敗: {type(e).__name__}: {str(e)[:120]}",
+                "traceback": traceback.format_exc()}
+    by_index = {int(r["note_index"]): r for r in res["results"] if r.get("note_index") is not None}
+    # expected.json の時刻は楽譜基準 (time_reference: score)。解析結果は録音基準なので
+    # 位置合わせ量 global_shift を引いて同じ基準に揃える。
+    gs = float(res["summary"]["global_shift"])
+    if expected.get("time_reference", "score") != "score":
+        gs = 0.0
 
-    # expected と notes_out をマージ（expected の pitch/timing を正解とする）
     merged = []
     for i, exp_n in enumerate(exp_notes):
         if not exp_n.get("should_exist", True):
             continue
-        det = notes_out[i] if i < len(notes_out) else {}
+        det = by_index.get(int(exp_n.get("note_index", i)), {})
+        ds = det.get("detected_start_sec")
         merged.append({
-            "expected_pitch":    exp_n.get("expected_pitch",    ""),
-            "expected_start_sec": exp_n.get("expected_start_sec", 0.0),
-            "expected_end_sec":  exp_n.get("expected_end_sec",  0.0),
-            "detected_pitch":    det.get("detected_pitch",  det.get("pitch", "")),
-            "detected_start_sec": det.get("detected_start_sec", det.get("start_sec")),
-            "evaluation_status": det.get("evaluation_status", "not_detected"),
-            "confidence_level":  det.get("confidence_level", ""),
-            "start_ok":          det.get("start_ok",  False),
-            "pitch_ok":          det.get("pitch_ok",  False),
+            "note_index":         exp_n.get("note_index", i),
+            "expected_pitch":     exp_n.get("expected_pitch", ""),
+            "expected_start_sec": exp_n.get("expected_start_sec"),
+            "expected_end_sec":   exp_n.get("expected_end_sec"),
+            "detected_pitch_hz":  det.get("detected_pitch_hz"),
+            "detected_start_sec": (float(ds) - gs) if ds is not None else None,
+            "pitch_cents_error":  det.get("pitch_cents_error"),
+            "evaluation_status":  det.get("evaluation_status", "not_detected"),
+            "match_confidence":   det.get("match_confidence", ""),
         })
-
     evaluated = apply_policy(merged, policy, tolerance)
-
-    # ── メトリクス算出 ──
-    total_notes = len(evaluated)
-    if total_notes == 0:
+    total = len(evaluated)
+    if total == 0:
         return {"skip": True, "reason": "音符が0件", "case_id": case_id}
 
-    detected      = [n for n in evaluated if n["evaluation_status"] != "not_detected"]
-    wrong_notes   = [n for n in evaluated if n["evaluation_status"] == "wrong_note"]
-    pitch_ok_list = [n for n in detected  if n.get("pitch_ok", False)]
+    detected     = [n for n in evaluated if n["evaluation_status"] not in ("not_detected", "section_missing")]
+    wrong_notes  = [n for n in evaluated if n["evaluation_status"] == "wrong_note"]
+    pitch_ok     = [n for n in detected if n["pitch_ok"]]
+    onset_errors = [n["onset_error_ms"] for n in detected if n["onset_error_ms"] is not None]
+    pitch_errors = [n["pitch_error_cents"] for n in evaluated if n["pitch_error_cents"] is not None]
 
-    onset_errors  = [n["onset_error_ms"]   for n in detected if n.get("onset_error_ms")    is not None]
-    offset_errors: list[float] = []  # offset情報は現行スキーマに含まれないため空
-    pitch_errors  = [n["pitch_error_cents"] for n in evaluated if n.get("pitch_error_cents") is not None]
-
-    note_detection_rate  = len(detected)     / total_notes
-    pitch_accuracy_rate  = len(pitch_ok_list) / max(len(detected), 1)
-    false_positive_rate  = len(wrong_notes)  / total_notes
-    onset_mae            = sum(onset_errors) / len(onset_errors)  if onset_errors else 0.0
-    offset_mae           = sum(offset_errors) / len(offset_errors) if offset_errors else 0.0
-    pitch_mae            = sum(pitch_errors) / len(pitch_errors)  if pitch_errors else 0.0
-
-    # cascade_failure_count
-    cascade_failures = 0
-    run = 0
-    in_cascade = False
+    cascade_failures, run = 0, 0
     for n in evaluated:
-        if n["evaluation_status"] in ("not_detected", "wrong_note"):
+        if n["evaluation_status"] in ("not_detected", "wrong_note", "section_missing"):
             run += 1
-            if run == 3 and not in_cascade:
+            if run == 3:
                 cascade_failures += 1
-                in_cascade = True
         else:
             run = 0
-            in_cascade = False
-        # run が 3 超でも同一カスケード
-        if run > 3:
-            in_cascade = True
-
-    skipped_note_count  = total_notes - len(detected)
-    dup_count           = evaluated[0].get("_duplicate_match_count", 0) if evaluated else 0
 
     return {
-        "skip":                  False,
-        "case_id":               case_id,
-        "dataset_split":         dataset_split,
-        "difficulty":            difficulty,
-        "tags":                  tags_meta,
-        "total_notes":           total_notes,
-        "note_detection_rate":   note_detection_rate,
-        "pitch_accuracy_rate":   pitch_accuracy_rate,
-        "false_positive_rate":   false_positive_rate,
-        "onset_mae_ms":          onset_mae,
-        "offset_mae_ms":         offset_mae,
-        "pitch_mae_cents":       pitch_mae,
-        "alignment_success_rate": pitch_accuracy_rate,  # pitchOK = alignment OK と近似
+        "skip": False, "case_id": case_id,
+        "dataset_split": meta.get("dataset_split", "train"),
+        "difficulty": meta.get("difficulty", "medium"),
+        "tags": tags_meta, "provenance": provenance,
+        "total_notes": total,
+        "note_detection_rate":  len(detected) / total,
+        "pitch_accuracy_rate":  len(pitch_ok) / max(len(detected), 1),
+        "false_positive_rate":  len(wrong_notes) / total,
+        "onset_mae_ms":         float(np.mean(onset_errors)) if onset_errors else 0.0,
+        "pitch_mae_cents":      float(np.mean(pitch_errors)) if pitch_errors else 0.0,
         "cascade_failure_count": cascade_failures,
-        "skipped_note_count":    skipped_note_count,
-        "duplicate_match_count": dup_count,
-        "_onset_errors":         onset_errors,
-        "_pitch_errors":         pitch_errors,
+        "analyzer_summary": res["summary"],
+        "notes_source": res.get("notes_source", {}),
+        "_onset_errors": onset_errors, "_pitch_errors": pitch_errors,
     }
 
 
-# ─── p95 算出 ────────────────────────────────────────────────
+# ─── 集計 / レポート ─────────────────────────────────────────
 
-def p95(values: list[float]) -> float:
-    if not values:
-        return 0.0
-    return float(np.percentile(values, 95))
+def p95(values):
+    return float(np.percentile(values, 95)) if values else 0.0
 
 
-# ─── レポート生成 ────────────────────────────────────────────
-
-def format_pct(v: float) -> str:
+def pct(v):
     return f"{v * 100:.1f}%"
 
 
-def build_report(
-    ts: str,
-    skipped: list[dict],
-    results: list[dict],
-    summary: dict,
-    split_summary: dict,
-    tag_summary: dict,
-    overfitting_warning: str | None,
-) -> str:
-    lines = [
-        f"# Benchmark Report — {ts}",
-        "",
-    ]
-
-    # スキップ
-    lines += ["## スキップ", "| case_id | 理由 |", "|---|---|"]
-    for s in skipped:
-        lines.append(f"| {s['case_id']} | {s['reason']} |")
-    lines += [f"\nスキップ: {len(skipped)}件", ""]
-
-    # 過学習警告
-    if overfitting_warning:
-        lines += [f"> **[WARNING]** {overfitting_warning}", ""]
-
-    # 全体サマリー
-    lines += [
-        "## 全体サマリー",
-        "| メトリクス | スコア |",
-        "|---|---|",
-        f"| note_detection_rate    | {format_pct(summary['detection'])} |",
-        f"| pitch_accuracy_rate    | {format_pct(summary['pitch'])} |",
-        f"| false_positive_rate    | {format_pct(summary['false_positive'])} |",
-        f"| onset_mae              | {summary['onset_mae']:.1f}ms |",
-        f"| onset_p95              | {summary['onset_p95']:.1f}ms |",
-        f"| pitch_mae              | {summary['pitch_mae']:.1f}cent |",
-        f"| pitch_p95              | {summary['pitch_p95']:.1f}cent |",
-        f"| alignment_success_rate | {format_pct(summary['alignment'])} |",
-        f"| cascade_failure_count  | {summary['cascade_failures']}件 |",
-        f"| 評価ケース数            | {summary['case_count']}件 |",
-        f"| スキップ数              | {len(skipped)}件 |",
-        "",
-    ]
-
-    # dataset_split 別サマリー
-    lines += [
-        "## dataset_split別サマリー",
-        "| split | ケース数 | detection | pitch | onset_mae | onset_p95 |",
-        "|-------|---------|-----------|-------|-----------|-----------|",
-    ]
-    for split, sv in split_summary.items():
-        lines.append(
-            f"| {split} | {sv['count']}件 | {format_pct(sv['detection'])} | "
-            f"{format_pct(sv['pitch'])} | {sv['onset_mae']:.1f}ms | {sv['onset_p95']:.1f}ms |"
-        )
-    lines.append("")
-
-    # ケース別詳細
-    lines += [
-        "## ケース別詳細",
-        "| case_id | detection | pitch | fpr | onset_mae | onset_p95 | cascade | tags |",
-        "|---------|-----------|-------|-----|-----------|-----------|---------|------|",
-    ]
+def build_report(ts, skipped, results, summary, split_summary, tag_summary):
+    L = [f"# Benchmark Report — {ts}", ""]
+    auto = sum(1 for r in results if r["provenance"] == "auto_generated")
+    L += ["> **読み方**: これは基準線との一致率であり、正解との一致率ではない。",
+          f"> expected.json {auto}/{len(results)} 件が解析器の過去出力から自動生成 (auto_generated)。",
+          "> 検出の正しさは tests/audit/ の既知量シフト・合成音プローブで測る。", ""]
+    L += ["## 全体サマリー", "| メトリクス | 値 |", "|---|---|",
+          f"| note_detection_rate | {pct(summary['detection'])} |",
+          f"| pitch_accuracy_rate | {pct(summary['pitch'])} |",
+          f"| false_positive_rate | {pct(summary['false_positive'])} |",
+          f"| onset_mae | {summary['onset_mae']:.1f}ms |",
+          f"| onset_p95 | {summary['onset_p95']:.1f}ms |",
+          f"| pitch_mae | {summary['pitch_mae']:.1f}cent |",
+          f"| pitch_p95 | {summary['pitch_p95']:.1f}cent |",
+          f"| cascade_failures | {summary['cascade_failures']} |",
+          f"| case_count | {summary['case_count']} |", ""]
+    L += ["## ケース別", "| case | split | notes | detection | pitch_ok | pitch_mae | onset_mae | not_detected | global_shift |",
+          "|---|---|---:|---:|---:|---:|---:|---:|---:|"]
     for r in results:
-        op95 = p95(r["_onset_errors"])
-        lines.append(
-            f"| {r['case_id']} | {format_pct(r['note_detection_rate'])} | "
-            f"{format_pct(r['pitch_accuracy_rate'])} | {format_pct(r['false_positive_rate'])} | "
-            f"{r['onset_mae_ms']:.1f}ms | {op95:.1f}ms | "
-            f"{r['cascade_failure_count']} | {', '.join(r['tags']) or '–'} |"
-        )
-    lines.append("")
+        s = r["analyzer_summary"]
+        L.append(f"| {r['case_id']} | {r['dataset_split']} | {r['total_notes']} | {pct(r['note_detection_rate'])} | "
+                 f"{pct(r['pitch_accuracy_rate'])} | {r['pitch_mae_cents']:.1f}c | {r['onset_mae_ms']:.0f}ms | "
+                 f"{s['not_detected']} | {s['global_shift']:.2f}s |")
+    L.append("")
+    if split_summary:
+        L += ["## split 別", "| split | count | detection | pitch |", "|---|---:|---:|---:|"]
+        for sp, v in split_summary.items():
+            L.append(f"| {sp} | {v['count']} | {pct(v['detection'])} | {pct(v['pitch'])} |")
+        L.append("")
+    if tag_summary:
+        L += ["## タグ別", "| tag | count | detection | pitch |", "|---|---:|---:|---:|"]
+        for tg, v in tag_summary.items():
+            L.append(f"| {tg} | {v['count']} | {pct(v['detection'])} | {pct(v['pitch'])} |")
+        L.append("")
+    L += ["## スキップ", "| case | 理由 |", "|---|---|"]
+    for s in skipped:
+        L.append(f"| {s['case_id']} | {s['reason']} |")
+    L += [f"\nスキップ: {len(skipped)}件", ""]
+    return "\n".join(L)
 
-    # タグ別集計
-    lines += [
-        "## タグ別集計",
-        "| tag | detection | pitch | fpr | ケース数 |",
-        "|-----|-----------|-------|-----|---------|",
-    ]
-    for tag, tv in tag_summary.items():
-        lines.append(
-            f"| {tag} | {format_pct(tv['detection'])} | "
-            f"{format_pct(tv['pitch'])} | {format_pct(tv['fpr'])} | {tv['count']}件 |"
-        )
-
-    return "\n".join(lines)
-
-
-# ─── メイン処理 ──────────────────────────────────────────────
 
 def main():
-    ts       = datetime.now().strftime("%Y%m%d_%H%M%S")
-    ts_iso   = datetime.now(timezone.utc).isoformat()
-    ts_date  = datetime.now().strftime("%Y%m%d")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--case", default="", help="1ケースだけ実行する場合の case_id")
+    ap.add_argument("--no-onset", action="store_true", help="USE_ONSET_DETECTION=false で実行")
+    args = ap.parse_args()
 
-    case_dirs = sorted([d for d in CASES_DIR.iterdir() if d.is_dir()])
+    ts      = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ts_iso  = datetime.now(timezone.utc).isoformat()
+    ts_date = datetime.now().strftime("%Y%m%d")
+
+    case_dirs = sorted(d for d in CASES_DIR.iterdir() if d.is_dir())
+    if args.case:
+        case_dirs = [d for d in case_dirs if d.name == args.case]
     if not case_dirs:
         print("[WARN] tests/cases/ にケースがありません")
         return
+    print(f"評価対象: {len(case_dirs)} ケース", flush=True)
 
-    print(f"評価対象: {len(case_dirs)} ケース")
-
-    skipped = []
-    results = []
-    all_onset_errors: list[float] = []
-    all_pitch_errors: list[float] = []
-
-    for case_dir in case_dirs:
-        res = evaluate_case(case_dir)
-        if res is None:
-            continue
-        if res.get("skip"):
-            print(f"  [SKIP] {res['case_id']}: {res['reason']}")
-            skipped.append(res)
+    skipped, results = [], []
+    all_onset, all_pitch = [], []
+    for d in case_dirs:
+        r = evaluate_case(d, use_onset=(False if args.no_onset else None))
+        if r.get("skip"):
+            print(f"  [SKIP] {r['case_id']}: {r['reason']}", flush=True)
+            if r.get("traceback"):
+                print("         " + r["traceback"].strip().splitlines()[-1], flush=True)
+            skipped.append(r)
         else:
-            print(f"  [OK]   {res['case_id']}: detection={res['note_detection_rate']:.1%} pitch={res['pitch_accuracy_rate']:.1%}")
-            results.append(res)
-            all_onset_errors.extend(res["_onset_errors"])
-            all_pitch_errors.extend(res["_pitch_errors"])
+            s = r["analyzer_summary"]
+            print(f"  [OK]   {r['case_id']}: detection={r['note_detection_rate']:.1%} "
+                  f"pitch={r['pitch_accuracy_rate']:.1%} pitch_mae={r['pitch_mae_cents']:.1f}c "
+                  f"not_detected={s['not_detected']}/{s['notes']} shift={s['global_shift']:.2f}s", flush=True)
+            results.append(r)
+            all_onset.extend(r["_onset_errors"])
+            all_pitch.extend(r["_pitch_errors"])
 
     if not results:
         print("[WARN] 評価できたケースが0件でした")
         return
 
-    # ── 全体サマリー ──
     n = len(results)
-    onset_p95_val = p95(all_onset_errors)
-    pitch_p95_val = p95(all_pitch_errors)
-
     summary = {
-        "detection":       sum(r["note_detection_rate"]   for r in results) / n,
-        "pitch":           sum(r["pitch_accuracy_rate"]   for r in results) / n,
-        "false_positive":  sum(r["false_positive_rate"]   for r in results) / n,
-        "onset_mae":       sum(r["onset_mae_ms"]          for r in results) / n,
-        "onset_p95":       onset_p95_val,
-        "pitch_mae":       sum(r["pitch_mae_cents"]       for r in results) / n,
-        "pitch_p95":       pitch_p95_val,
-        "alignment":       sum(r["alignment_success_rate"] for r in results) / n,
+        "detection":      sum(r["note_detection_rate"] for r in results) / n,
+        "pitch":          sum(r["pitch_accuracy_rate"] for r in results) / n,
+        "false_positive": sum(r["false_positive_rate"] for r in results) / n,
+        "onset_mae":      sum(r["onset_mae_ms"] for r in results) / n,
+        "onset_p95":      p95(all_onset),
+        "pitch_mae":      sum(r["pitch_mae_cents"] for r in results) / n,
+        "pitch_p95":      p95(all_pitch),
         "cascade_failures": sum(r["cascade_failure_count"] for r in results),
-        "case_count":      n,
+        "case_count":     n,
     }
-
-    # ── dataset_split 別集計 ──
-    split_groups: dict[str, list[dict]] = {}
+    split_groups, tag_groups = {}, {}
     for r in results:
-        sp = r.get("dataset_split", "train")
-        split_groups.setdefault(sp, []).append(r)
+        split_groups.setdefault(r["dataset_split"], []).append(r)
+        for tg in r["tags"]:
+            tag_groups.setdefault(tg, []).append(r)
 
-    split_summary = {}
-    for sp, rs in split_groups.items():
-        sp_onset = [e for r in rs for e in r["_onset_errors"]]
-        split_summary[sp] = {
-            "count":     len(rs),
-            "detection": sum(r["note_detection_rate"] for r in rs) / len(rs),
-            "pitch":     sum(r["pitch_accuracy_rate"] for r in rs) / len(rs),
-            "onset_mae": sum(r["onset_mae_ms"]        for r in rs) / len(rs),
-            "onset_p95": p95(sp_onset),
-        }
+    def agg(rs):
+        return {"count": len(rs),
+                "detection": sum(x["note_detection_rate"] for x in rs) / len(rs),
+                "pitch": sum(x["pitch_accuracy_rate"] for x in rs) / len(rs)}
+    split_summary = {k: agg(v) for k, v in split_groups.items()}
+    tag_summary   = {k: agg(v) for k, v in tag_groups.items()}
 
-    # ── 過学習チェック ──
-    overfitting_warning = None
-    if "train" in split_summary and "eval" in split_summary:
-        diff = split_summary["train"]["detection"] - split_summary["eval"]["detection"]
-        if diff > 0.10:
-            overfitting_warning = (
-                f"過学習の可能性があります  "
-                f"train: {split_summary['train']['detection']:.1%}  "
-                f"eval: {split_summary['eval']['detection']:.1%}  "
-                f"差: {diff:.1%}"
-            )
-            print(f"\n[WARNING] {overfitting_warning}")
-
-    # ── タグ別集計 ──
-    tag_groups: dict[str, list[dict]] = {}
-    for r in results:
-        for tag in r.get("tags", []):
-            tag_groups.setdefault(tag, []).append(r)
-
-    tag_summary = {}
-    for tag, rs in tag_groups.items():
-        tag_summary[tag] = {
-            "count":     len(rs),
-            "detection": sum(r["note_detection_rate"]  for r in rs) / len(rs),
-            "pitch":     sum(r["pitch_accuracy_rate"]  for r in rs) / len(rs),
-            "fpr":       sum(r["false_positive_rate"]  for r in rs) / len(rs),
-        }
-
-    # ── レポート出力 ──
-    report_path = TESTS_DIR / f"report_{ts}.md"
-    report_text = build_report(ts, skipped, results, summary, split_summary, tag_summary, overfitting_warning)
-    report_path.write_text(report_text, encoding="utf-8")
+    report_path = HISTORY_DIR / f"benchmark_{ts}.md"
+    report_path.write_text(build_report(ts, skipped, results, summary, split_summary, tag_summary), encoding="utf-8")
     print(f"\n[OK] レポート: {report_path}")
 
-    # ── 履歴JSON ──
     history = {
-        "timestamp":  ts_iso,
-        "case_count": n,
-        "metrics": {
-            "detection":       round(summary["detection"],      4),
-            "pitch":           round(summary["pitch"],          4),
-            "false_positive":  round(summary["false_positive"], 4),
-            "onset_mae":       round(summary["onset_mae"],      2),
-            "onset_p95":       round(onset_p95_val,             2),
-            "pitch_mae":       round(summary["pitch_mae"],      2),
-            "pitch_p95":       round(pitch_p95_val,             2),
-            "alignment":       round(summary["alignment"],      4),
-            "cascade_failures": summary["cascade_failures"],
-        },
-        "split": {
-            sp: {
-                "detection": round(sv["detection"], 4),
-                "pitch":     round(sv["pitch"],     4),
-            }
-            for sp, sv in split_summary.items()
-        },
+        "timestamp": ts_iso, "case_count": n,
+        "metrics": {k: (round(v, 4) if isinstance(v, float) else v) for k, v in summary.items()},
+        "cases": {r["case_id"]: {
+            "provenance": r["provenance"],
+            "detection": round(r["note_detection_rate"], 4),
+            "pitch": round(r["pitch_accuracy_rate"], 4),
+            "pitch_mae": round(r["pitch_mae_cents"], 2),
+            "onset_mae": round(r["onset_mae_ms"], 2),
+            "analyzer": r["analyzer_summary"],
+        } for r in results},
+        "skipped": [{"case_id": s["case_id"], "reason": s["reason"]} for s in skipped],
     }
     history_path = HISTORY_DIR / f"benchmark_{ts_date}.json"
     history_path.write_text(json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[OK] 履歴JSON: {history_path}")
 
-    # ── サマリー表示 ──
-    print(f"\n── 全体サマリー ──────────────────────────")
+    print("\n── 全体サマリー ──────────────────────────")
     print(f"  note_detection_rate:  {summary['detection']:.1%}")
     print(f"  pitch_accuracy_rate:  {summary['pitch']:.1%}")
-    print(f"  false_positive_rate:  {summary['false_positive']:.1%}")
-    print(f"  onset_mae:            {summary['onset_mae']:.1f}ms  (p95: {onset_p95_val:.1f}ms)")
-    print(f"  pitch_mae:            {summary['pitch_mae']:.1f}cent (p95: {pitch_p95_val:.1f}cent)")
-    print(f"  cascade_failures:     {summary['cascade_failures']}件")
-    print(f"  評価ケース: {n}件 / スキップ: {len(skipped)}件")
-
-    if split_summary:
-        print(f"\n── dataset_split 別 ──────────────────────")
-        for sp, sv in split_summary.items():
-            print(f"  {sp}: detection={sv['detection']:.1%}  pitch={sv['pitch']:.1%}  "
-                  f"onset_mae={sv['onset_mae']:.1f}ms  onset_p95={sv['onset_p95']:.1f}ms  ({sv['count']}件)")
+    print(f"  pitch_mae:            {summary['pitch_mae']:.1f}c  (p95: {summary['pitch_p95']:.1f}c)")
+    print(f"  onset_mae:            {summary['onset_mae']:.1f}ms  (p95: {summary['onset_p95']:.1f}ms)")
+    print(f"  cascade_failures:     {summary['cascade_failures']}")
 
 
 if __name__ == "__main__":
