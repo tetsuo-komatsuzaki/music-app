@@ -206,10 +206,12 @@ export default function RevealMotion() {
     // React は取り付けた DOM 要素に __reactFiber$… のキーを付けるので、それを待つ。
     // 待ちすぎて画面が隠れたままにならないよう、上限 2.5 秒で諦めて進む。
     const isHydrated = (el: Element) => Object.keys(el).some((k) => k.startsWith("__reactFiber"))
-    const whenHydrated = (nodes: () => Element[], cb: () => void, limitMs = 2500) => {
+    // React が持たない要素 (この演出が作る .rv-star ・ 楽譜エンジン OSMD の中 ・ 外部ライブラリの描画) は待たない
+    const ownedByReact = (el: Element) => !el.classList.contains("rv-star") && !el.closest("[id^='osmd'], [data-rv-foreign]")
+    const whenHydrated = (nodes: () => Element[], cb: () => void, limitMs = 4000) => {
       const start = performance.now()
       const tick = () => {
-        if (nodes().every(isHydrated) || performance.now() - start > limitMs) cb()
+        if (nodes().filter(ownedByReact).every(isHydrated) || performance.now() - start > limitMs) cb()
         else requestAnimationFrame(tick)
       }
       tick()
