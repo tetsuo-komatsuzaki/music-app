@@ -155,7 +155,15 @@ export default function SymbolGuide({
 
   // 目印は譜面ラッパー(安定要素)にぶら下げる。#osmd-container は OSMD が
   // 再描画で innerHTML='' するため、そこへ React portal を挿すとクラッシュする。
-  const overlayEl = getHost()
+  // 差し込み先は描画中に探さず、取り付け (hydration) が終わってから探す (2026-09-07)。
+  // 描画中に document を見ると、サーバー (無し) とブラウザの最初の描画 (有り) で結果が違い、
+  // React が「Hydration failed」を出して譜面の部分を描き直していた (真因)。
+  const [overlayEl, setOverlayEl] = useState<HTMLElement | null>(null)
+  useEffect(() => {
+    // 取り付け直後の同期 setState は避け、次のティックで差し込み先を決める
+    const t = window.setTimeout(() => setOverlayEl(getHost()), 0)
+    return () => window.clearTimeout(t)
+  }, [noteElementsVersion])
 
   // 位置は state に持たず、ref コールバックで直接 style を書く
   // (再描画のたびに state 更新が走るのを避けるため)。
