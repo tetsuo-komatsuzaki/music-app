@@ -41,7 +41,10 @@ function Radar({ cmp }: { cmp: PowersComparison }) {
   )
 }
 
-function Bars({ cmp }: { cmp: PowersComparison }) {
+/** 棒グラフの下に足す 2 行 (A9): ずれる音 と 基礎練の回数。相手が無ければ null */
+export type PowersExtras = { worst: { past: string | null; now: string | null }; basics: { past: number | null; now: number | null } }
+
+function Bars({ cmp, extras }: { cmp: PowersComparison; extras: PowersExtras | null }) {
   const L = SCALE_LABEL[cmp.scale]
   const { now, past, missing } = cmp.chart
   const cell: React.CSSProperties = { height: 9, borderRadius: 5, background: "rgba(150,175,225,.12)", overflow: "hidden" }
@@ -65,11 +68,23 @@ function Bars({ cmp }: { cmp: PowersComparison }) {
           </div>
         )
       })}
+      {extras && (
+        <>
+          <span style={{ fontWeight: 800, color: "var(--text-ink)" }}>ずれる音</span>
+          <span style={{ color: "var(--text-sub)" }}>{extras.worst.past ?? "ー"}</span>
+          <span style={{ color: "#e8a78f", fontWeight: 800 }}>{extras.worst.now ?? "ー"}</span>
+          <span />
+          <span style={{ fontWeight: 800, color: "var(--text-ink)" }}>基礎練</span>
+          <span style={{ color: "var(--text-sub)" }}>{extras.basics.past != null ? `${extras.basics.past} 回` : "ー"}</span>
+          <span style={{ color: "var(--gold)", fontWeight: 800 }}>{extras.basics.now != null ? `${extras.basics.now} 回` : "ー"}</span>
+          <span />
+        </>
+      )}
     </div>
   )
 }
 
-export default function FivePowersCard({ cmp, practiceBase }: { cmp: PowersComparison; practiceBase: string | null }) {
+export default function FivePowersCard({ cmp, practiceBase, extras = null }: { cmp: PowersComparison; practiceBase: string | null; extras?: PowersExtras | null }) {
   const [view, setView] = useState<"radar" | "bars">("radar")
   const L = SCALE_LABEL[cmp.scale]
   const target = cmp.conclusion.weakest
@@ -94,7 +109,7 @@ export default function FivePowersCard({ cmp, practiceBase }: { cmp: PowersCompa
             <span><i style={{ display: "inline-block", width: 14, height: 3, background: GOLD, verticalAlign: "middle", marginRight: 4, borderRadius: 2 }} />{L.now}</span>
           </div>
         </>
-      ) : <Bars cmp={cmp} />}
+      ) : <Bars cmp={cmp} extras={extras} />}
       <div style={{ fontSize: 11.5, color: "var(--text-ink)", marginTop: 12, background: "var(--card-in)", borderRadius: 10, padding: "9px 11px", lineHeight: 1.6 }}>
         {cmp.conclusion.text}
       </div>

@@ -154,7 +154,12 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
         })}
       </div>
 
-      {powers && <FivePowersCard cmp={powers} practiceBase={practiceBase} />}
+      {powers && (
+        <FivePowersCard cmp={powers} practiceBase={practiceBase} extras={{
+          worst: { past: pastLens ? `${pastLens.kana}${pastLens.string ? ` ・ ${pastLens.string}` : ""}` : null, now: lens ? `${lens.kana}${lens.string ? ` ・ ${lens.string}` : ""}` : null },
+          basics: { past: dPast?.balance ? dPast.balance.basic : null, now: d.balance ? d.balance.basic : null },
+        }} />
+      )}
 
       {empty ? (
         <div className={ds.card} style={{ padding: "13px 15px" }}>
