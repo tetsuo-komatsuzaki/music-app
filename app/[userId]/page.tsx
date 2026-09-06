@@ -1,7 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
-import { SKILL_SUB_DEFS } from "@/app/_libs/growthKarte"
+import { SKILL_SUB_DEFS, SKILL_DEFS } from "@/app/_libs/growthKarte"
 import { buildSubMap } from "@/app/_libs/growthLine"
 import {
   badgeKind,
@@ -672,6 +672,19 @@ export default async function HomePage({ params, searchParams }: PageProps) {
     skillLits = rows.map((r) => ({ key: `${r.tagType}:${r.tagKey}`, label: r.tagKey }))
   } catch { skillLits = [] }
 
+  // カルテへの導線 (2026-09-06 Tetsuo確定 案3): わざの詳細は最近点灯したわざ、無ければ技術マップ
+  let skillHref = `/${userId}/progress/skills`
+  try {
+    const last = await prisma.userLessonClear.findFirst({
+      where: { userId: internalUserId },
+      orderBy: { clearedAt: "desc" },
+      select: { tagType: true, tagKey: true },
+    })
+    const def = last ? SKILL_DEFS.find((d) => d.tagType === last.tagType && d.tagKeys.includes(last.tagKey)) : null
+    if (def) skillHref = `/${userId}/progress/skill/${def.id}`
+  } catch { /* 表が無くても導線は技術マップへ */ }
+  const karteLinks = { analysis: `/${userId}/progress/numbers`, skill: skillHref }
+
   // 「アルコと最初の1周」ガイド (2026-08-29 本番接続)。
   // 出す: 未完了かつ未スキップの全ユーザー (既存ユーザー含む)。先生ロールには出さない。
   // 進行はDB保存 (UserGuideState)。テーブル読取は防御的に (migrate前でも落とさない)
@@ -810,7 +823,7 @@ export default async function HomePage({ params, searchParams }: PageProps) {
       basicPracticeCards,
       recentPieces,
       nextPieceRecommendations,
-      rankCard: { ...rankCard, gallery: galleryData },
+      rankCard: { ...rankCard, gallery: galleryData, links: karteLinks },
       favorites,
   }
   return (

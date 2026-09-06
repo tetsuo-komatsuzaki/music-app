@@ -94,6 +94,8 @@ type Props = {
     stamps: { scoreId: string; title: string; best: number | null; achievedAt: string | null; href: string }[]
     /** ギャラリー3棚 (点灯時のみ非null。軌跡シートを差し替える) */
     gallery?: import("@/app/_libs/treasureEngine").GalleryData | null
+    /** カルテへの導線 (2026-09-06 案3): 記録の分析 と わざの詳細 */
+    links?: { analysis: string; skill: string } | null
   }
   /** お気に入り (曲/教材) */
   favorites: FavoriteEntry[]

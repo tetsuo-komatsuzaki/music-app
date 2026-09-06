@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import Link from "next/link"
 import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
 import RankEmblem from "./RankEmblem"
@@ -12,8 +13,10 @@ export default function MyRankCard(props: RankCardData & {
   flashAt?: number
   /** ギャラリー3棚 (報酬体系点灯時のみ・軌跡シートを差し替える) */
   gallery?: { coins: GalleryCoin[]; treasures: GalleryTreasure[] } | null
+  /** カルテへの導線 (2026-09-06 Tetsuo確定 案3): 記録の分析 と わざの詳細 をランクカードの足元に */
+  links?: { analysis: string; skill: string } | null
 }) {
-  const { currentStar, required, achievedCount, flashAt, gallery } = props
+  const { currentStar, required, achievedCount, flashAt, gallery, links } = props
   // タップで即ギャラリーのシートを開く (2026-08-31 Tetsuo確定・演奏の軌跡ビュー廃止)
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -87,6 +90,13 @@ export default function MyRankCard(props: RankCardData & {
           <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 7, ["--w" as string]: `${currentStar >= 10 ? 100 : barPct}%` }}>
             <i style={{ width: `${currentStar >= 10 ? 100 : barPct}%`, transition: "width .5s ease" }} />
           </div>
+          {/* カルテへの導線 (2026-09-06 Tetsuo確定 案3)。カード本体はギャラリーを開くので、ここだけ伝播を止める */}
+          {links && (
+            <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+              <Link href={links.analysis} className={`${ds.pill} ${ds.ink}`} style={{ textDecoration: "none" }} data-guide="home-rank-analysis">記録の分析 →</Link>
+              <Link href={links.skill} className={`${ds.pill} ${ds.ink}`} style={{ textDecoration: "none" }} data-guide="home-rank-skill">わざの詳細 →</Link>
+            </div>
+          )}
           {/* コイン着地の金フラッシュ (モック aFlash の移植)。
               ？上達のしくみは使い方ページへ移籍 (2026-08-31 Tetsuo指示) */}
           <style>{`@keyframes rankFlash { 30% { box-shadow: 0 0 0 3px rgba(232,178,60,.8), 0 0 30px rgba(232,178,60,.5); } 100% { box-shadow: 0 0 0 3px rgba(232,178,60,0); } }`}</style>

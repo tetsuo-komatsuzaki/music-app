@@ -103,7 +103,7 @@ export interface ExprMapData {
 
 // 技術定義: 登録star は §2-2b 確定値 ([[project_technique_star_source_of_truth]])
 // tagKeys = UserLessonClear/UserTagAcquisition の tagKey 候補 (v72改名等の揺れを吸収)
-const SKILL_DEFS: Array<{
+export const SKILL_DEFS: Array<{
   id: string; label: string; lane: "bow" | "left"; star: number
   tagType: "technique" | "position" | "double_stop"
   tagKeys: string[]
