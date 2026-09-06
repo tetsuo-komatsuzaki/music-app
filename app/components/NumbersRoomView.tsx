@@ -13,6 +13,8 @@ import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
 import type { FastSwitchData } from "@/app/_libs/fastSwitch"
 import ds from "@/app/components/ds.module.css"
+import FivePowersCard from "@/app/components/FivePowersCard"
+import { SCALE_LABEL, type CompareScale, type PowersComparison } from "@/app/_libs/fivePowersCore"
 
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
@@ -25,7 +27,7 @@ function inkColor(pct: number) {
 }
 
 /** バー行 (奏法べつ/ポジション移動べつ共通)。href付きなら行末に練習へ */
-function BarRow({ label, sub, pct, on, href }: { label: string; sub?: string; pct: number; on: boolean; href?: string | null }) {
+function BarRow({ label, sub, pct, on, href, delta = null }: { label: string; sub?: string; pct: number; on: boolean; href?: string | null; delta?: number | null }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9 }}>
       <span style={{ width: 104, flex: "none", fontSize: 12, fontWeight: 800, color: "var(--text-ink)" }}>
@@ -34,6 +36,7 @@ function BarRow({ label, sub, pct, on, href }: { label: string; sub?: string; pc
       </span>
       <div className="naBar"><i style={{ width: on ? `${pct}%` : 0, background: fillColor(pct) }} /></div>
       <b style={{ ...tnum, width: 38, flex: "none", textAlign: "right", fontSize: 12, fontWeight: 900, color: inkColor(pct) }}>{pct}%</b>
+      {delta != null && <span style={{ ...tnum, fontSize: 10, fontWeight: 900, width: 28, flex: "none", color: delta >= 0 ? "#a8c97f" : "#e8a78f" }}>{delta >= 0 ? `+${delta}` : delta}</span>}
       {href && (
         <Link href={href} className="naGo pressable">練習へ</Link>
       )}
@@ -41,9 +44,16 @@ function BarRow({ label, sub, pct, on, href }: { label: string; sub?: string; pc
   )
 }
 
-export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [], practiceBase = null, fastSwitch = null }: {
+export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [], practiceBase = null, fastSwitch = null, scale = "w", powers = null, dPast = null, fastSwitchPast = null }: {
   d: NumbersRoomData
   period: KartePeriod
+  /** 比べる尺度 (2026-09-06 Tetsuo確定): 期間タブの代わり。下の箱はこの尺度の「いま」の窓で描く */
+  scale?: CompareScale
+  /** 5 つの力 (いま と 相手)。null なら出さない */
+  powers?: PowersComparison | null
+  /** 相手の窓で集計した下の箱 (2026-09-06): ずれる音 ・ クセ ・ 平均 ・ バランス を「相手 → いま」で描く。null = 相手に録音なし */
+  dPast?: NumbersRoomData | null
+  fastSwitchPast?: FastSwitchData | null
   /** 期間切替リンクの土台 (例: /uid/progress/numbers) */
   baseHref: string
   backHref: string
@@ -65,6 +75,13 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
 
   const empty = d.curve.length === 0 && d.worstNotes.length === 0 && d.posShifts.length === 0 && d.articulations.length === 0
   const lens = d.worstNotes[0] ?? null
+  const L = SCALE_LABEL[scale]
+  const arrow = `${L.past} → ${L.now}`
+  const pastLens = dPast?.worstNotes[0] ?? null
+  const pastBiasLabel = dPast?.centsBias == null ? null
+    : Math.abs(dPast.centsBias) < 5 ? "ぴったり" : dPast.centsBias < 0 ? `ぶら下がりぎみ ${dPast.centsBias}セント` : `上ずりぎみ +${dPast.centsBias}セント`
+  const avgDelta = d.current && dPast?.current ? d.current.avg - dPast.current.avg : null
+  const pastBand = (label: string) => fastSwitchPast?.bands.find((b) => b.label === label)?.pitchPct ?? null
 
   // クセメーターの針: セント偏差を±70度へ (±28セントで振り切り)
   const needleAngle = d.centsBias == null ? 0 : Math.max(-70, Math.min(70, d.centsBias * 2.5))
@@ -117,12 +134,13 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
       </Link>
       <h1 className={ds.t} style={{ paddingTop: 0 }}>記録の分析</h1>
 
-      {/* 期間セグ (原本: 7日/30日/すべて ・ TRAJセグ様式) */}
+      {/* 比べる尺度 (2026-09-06 Tetsuo確定: 期間タブ 7日/30日/すべて を置き換える) */}
       <div style={{ display: "flex", gap: 4, background: "#0e1830", border: "1px solid rgba(150,175,225,.1)", borderRadius: 10, padding: 3, marginTop: 10 }}>
-        {([["7d", "7日"], ["30d", "30日"], ["all", "すべて"]] as const).map(([pp, label]) => {
-          const active = period === pp
+        {(["w", "m", "f"] as const).map((sc) => {
+          const active = scale === sc
+          const label = SCALE_LABEL[sc].seg
           return (
-            <Link key={pp} href={`${baseHref}${pp === "30d" ? "" : `?period=${pp}`}`} scroll={false}
+            <Link key={sc} href={`${baseHref}${sc === "w" ? "" : `?scale=${sc}`}`} scroll={false}
               style={{
                 flex: 1, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 800, padding: "7px 0", borderRadius: 8,
                 textDecoration: "none",
@@ -136,9 +154,11 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
         })}
       </div>
 
+      {powers && <FivePowersCard cmp={powers} practiceBase={practiceBase} />}
+
       {empty ? (
         <div className={ds.card} style={{ padding: "13px 15px" }}>
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", lineHeight: 1.8 }}>この期間の録音がまだ少ないよ。録音がたまると、クセ・のび・奏法ごとの数字がここに並びます。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", lineHeight: 1.8 }}>{SCALE_LABEL[scale].now}の録音がまだ少ないよ。録音がたまると、クセ・のび・奏法ごとの数字がここに並びます。</div>
         </div>
       ) : (
         <>
@@ -147,7 +167,7 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
             <div className={ds.card} style={{ padding: "13px 15px" }}>
               <div className={ds.lab}>音程マップ</div>
               <div style={{ fontSize: 10, color: "var(--text-muted)", margin: "4px 0 9px" }}>
-                期間タブと連動{fbMarks.length > 0 ? " ・ 橙の旗 = 先生の「気をつける音」" : " ・ 先生の「気をつける音」も出る"}
+                {arrow}{fbMarks.length > 0 ? " ・ 橙の旗 = 先生の「気をつける音」" : " ・ 先生の「気をつける音」も出る"}
               </div>
               <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
                 emptyText={`この期間はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつくよ。`} />
@@ -156,6 +176,7 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
                   <span style={{ flex: 1 }}>
                     いちばんずれやすいのは <b style={{ color: "var(--text-ink)" }}>{lens.kana}{lens.string ? ` ・ ${lens.string}` : ""}</b> ・ 成功 <b style={{ ...tnum, color: inkColor(lens.pct) }}>{lens.pct}%</b>
                     {lens.cents != null && Math.abs(lens.cents) >= 15 && <>・{lens.cents < 0 ? `ぶら下がり ${lens.cents}` : `上ずり +${lens.cents}`}セント</>}
+                    {pastLens && <>・{L.past}は <b style={{ color: "var(--text-sub)" }}>{pastLens.kana}{pastLens.string ? ` ・ ${pastLens.string}` : ""}</b></>}
                   </span>
                   {practiceBase && <Link href={practiceBase} className="naCta pressable">処方の基礎練へ</Link>}
                 </div>
@@ -184,12 +205,12 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
                       <circle cx="60" cy="56" r="5" fill="#edf1fa" />
                     </svg>
                     {biasLabel && <div style={{ fontSize: 11, fontWeight: 900, color: biasLabel.color }}>{biasLabel.text}</div>}
-                    <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 2 }}>左=ぶら下がり ・ 右=上ずり</div>
+                    <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 2 }}>{pastBiasLabel ? `${L.past}は ${pastBiasLabel}` : "左=ぶら下がり ・ 右=上ずり"}</div>
                   </>
                 )}
               </div>
               <div style={{ flex: 1, textAlign: "center", borderLeft: "1px solid rgba(150,175,225,.12)", paddingLeft: 12 }}>
-                <div className={ds.lab}>いまの平均</div>
+                <div className={ds.lab}>平均</div>
                 {d.current == null ? (
                   <div style={{ fontSize: 10.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 24, lineHeight: 1.8 }}>集計中<br />曲を2回採点すると出るよ</div>
                 ) : (
@@ -197,10 +218,12 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
                     <div style={{ ...tnum, fontSize: 30, fontWeight: 900, color: "var(--gold)", marginTop: 14, lineHeight: 1 }}>
                       {d.current.avg}<span style={{ fontSize: 12, color: "var(--text-muted)" }}>点</span>
                     </div>
-                    {d.current.delta != null && (
-                      <div style={{ ...tnum, fontSize: 10.5, fontWeight: 900, marginTop: 5, color: d.current.delta >= 0 ? "#a8c97f" : "#e8a78f" }}>
-                        {d.current.delta >= 0 ? `▲ +${d.current.delta}` : `▼ ${d.current.delta}`} この{period === "7d" ? "7日" : period === "all" ? "期間" : "30日"}
+                    {avgDelta != null ? (
+                      <div style={{ ...tnum, fontSize: 10.5, fontWeight: 900, marginTop: 5, color: avgDelta >= 0 ? "#a8c97f" : "#e8a78f" }}>
+                        {avgDelta >= 0 ? `▲ +${avgDelta}` : `▼ ${avgDelta}`} {L.past}より
                       </div>
+                    ) : (
+                      <div style={{ fontSize: 10.5, fontWeight: 900, marginTop: 5, color: "var(--text-muted)" }}>{dPast ? `${L.past}は採点が 2 回未満` : `${L.past}は録音なし`}</div>
                     )}
                     <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 3 }}>直近5回の演奏スコア</div>
                   </>
@@ -225,7 +248,12 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
           {/* 練習バランス */}
           {d.balance && (
             <div className={`${ds.card} naCockpit`} style={{ padding: "13px 15px" }}>
-              <div className={ds.lab}>練習バランス</div>
+              <div style={{ display: "flex", alignItems: "center" }}><div className={ds.lab}>練習バランス</div><span style={{ marginLeft: "auto", fontSize: 10, color: "var(--text-muted)", fontWeight: 800 }}>{arrow}</span></div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                <span className={`${ds.pill} ${ds.mute}`}>{dPast?.balance ? `曲 ${dPast.balance.songPct}% ・ 基礎 ${dPast.balance.basicPct}%` : `${L.past}は録音なし`}</span>
+                <span style={{ color: "var(--text-muted)" }}>→</span>
+                <span className={`${ds.pill} ${ds.gold}`}>曲 {d.balance.songPct}% ・ 基礎 {d.balance.basicPct}%</span>
+              </div>
               <div className="naSplit">
                 <i style={{ width: on ? `${d.balance.songPct}%` : 0, background: "linear-gradient(180deg,#3d5da8,#2c4a86)", color: "#c6d6f5" }}>曲 {d.balance.songPct}%</i>
                 <i style={{ width: on ? `${d.balance.basicPct}%` : 0, background: "linear-gradient(180deg,#c99a35,#8a6a1a)", color: "#fff3dc" }}>基礎 {d.balance.basicPct}%</i>
@@ -253,7 +281,7 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
               開放弦と同音連続は除く (どちらも指を替えないため) */}
           {fastSwitch && fastSwitch.bands.some((b) => b.pitchPct != null) && (
             <div className={ds.card} style={{ padding: "13px 15px" }}>
-              <div className={ds.lab}>速い指の切り替え <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>指を替える猶予べつ ・ 音程</span></div>
+              <div className={ds.lab}>速い指の切り替え <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>指を替える猶予べつ ・ 音程 ・ {arrow}</span></div>
               {fastSwitch.bands.map((b) => (
                 b.pitchPct == null
                   ? (
@@ -263,7 +291,8 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
                     </div>
                   )
                   : <BarRow key={b.label} label={b.label} sub={`${b.notes}音${b.timingPct != null ? ` ・ タイミング${b.timingPct}%` : ""}`}
-                      pct={b.pitchPct} on={on} href={practiceBase ? `${practiceBase}/bowing` : null} />
+                      pct={b.pitchPct} on={on} href={practiceBase ? `${practiceBase}/bowing` : null}
+                      delta={pastBand(b.label) != null ? b.pitchPct - (pastBand(b.label) as number) : null} />
               ))}
               <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>※ 開放弦と、同じ音が続くところは数えていないよ</div>
             </div>

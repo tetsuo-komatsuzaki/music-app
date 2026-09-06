@@ -1090,18 +1090,21 @@ export interface NumbersRoomData {
 
 export async function buildNumbersRoom(
   userId: string, period: KartePeriod,
+  /** 窓の指定 (2026-09-06 比べる尺度): あれば period より優先。until は含まない */
+  range?: { since: Date; until?: Date },
 ): Promise<NumbersRoomData> {
-  const since = periodSince(period)
+  const since = range?.since ?? periodSince(period)
+  const untilWhere = range?.until ? { lt: range.until } : {}
   const [perfsRaw, pracsRaw] = await Promise.all([
     prisma.performance.findMany({
-      where: { userId, uploadedAt: { gte: since } },
+      where: { userId, uploadedAt: { gte: since, ...untilWhere } },
       select: {
         id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true,
         score: { select: { keyTonic: true, keyMode: true, defaultTempo: true } },
       },
     }),
     prisma.practicePerformance.findMany({
-      where: { userId, uploadedAt: { gte: since } },
+      where: { userId, uploadedAt: { gte: since, ...untilWhere } },
       select: {
         id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true,
         practiceItem: { select: { keyTonic: true, keyMode: true, articulation: true } },

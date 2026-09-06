@@ -11,7 +11,7 @@
 // データ源 (2026-09-05 ノート属性ストア 段4-4 で切替): 明細 (PerformanceNote → ScoreNote → NoteProfile)。
 //   expectedStartSec / noteName / pitchOk / startOk は演奏の行、弦上の位置は かたち (string1 / pitch1) から。
 //   ストレージのファイル直読みはやめた。集計は指板とは別なので aggregate.ts には混ぜない。
-import { prismaSource, type DetailRow } from "./noteStore"
+import { prismaSource, type DetailRow, type Unit } from "./noteStore"
 import { profileCell } from "./fingerboard/aggregate"
 
 export type SwitchBand = {
@@ -69,4 +69,8 @@ export function fastSwitchRows(rows: DetailRow[]): FastSwitchData {
 export async function buildFastSwitch(userId: string, sinceDays: number, maxPerfs = 30): Promise<FastSwitchData> {
   const since = new Date(Date.now() - sinceDays * 864e5)
   return fastSwitchRows(await prismaSource.fetchDetail({ userId, since, lastN: maxPerfs * 2 }))
+}
+/** 単位 (窓 ・ 最初の N 回) を指定する版 (2026-09-06 比べる尺度) */
+export async function buildFastSwitchUnit(unit: Unit): Promise<FastSwitchData> {
+  return fastSwitchRows(await prismaSource.fetchDetail(unit))
 }
