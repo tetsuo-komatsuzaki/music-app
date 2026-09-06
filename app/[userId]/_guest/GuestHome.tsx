@@ -10,6 +10,8 @@ import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import PersonalRecoCard from "@/app/components/PersonalRecoCard"
 import { GUEST_ID } from "@/app/_libs/viewer"
 import { buildSampleAchievement, buildSampleReco, pickFeaturedScore, guestHref } from "./sample"
+import ReturningHome from "./ReturningHome"
+import { KNOWN_USER_BOOT_SCRIPT } from "@/app/_libs/knownUser"
 import styles from "./guestHome.module.css"
 
 const SIGNUP = `/signUp?returnTo=${encodeURIComponent(`/${GUEST_ID}`)}`
@@ -23,6 +25,10 @@ export default async function GuestHome() {
 
   return (
     <div data-guest-home>
+      {/* 案B (2026-09-06): 端末に記録がある人には、未登録者向けの中身 (.unregistered) を隠し、おかえりなさい画面を出す */}
+      <script dangerouslySetInnerHTML={{ __html: KNOWN_USER_BOOT_SCRIPT }} />
+      <ReturningHome />
+      <div className={styles.unregistered}>
       <div className={`${ds.card} ${styles.hero}`}>
         <div className={styles.eyebrow}>ARCODA</div>
         <div className={styles.lead}>バイオリンの練習を録音すると、<br />音程とリズムをその場で採点。</div>
@@ -74,6 +80,7 @@ export default async function GuestHome() {
       </div>
 
       <div className={styles.hint}>見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます</div>
+      </div>
     </div>
   )
 }

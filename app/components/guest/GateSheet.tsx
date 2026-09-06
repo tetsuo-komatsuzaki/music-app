@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { setReturnToCookie } from "@/app/_libs/returnTo"
+import { readKnownUser } from "@/app/_libs/knownUser"
 import styles from "./GateSheet.module.css"
 
 import type { GateItem } from "./gateText"
@@ -37,6 +38,10 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
   const pathname = usePathname()
   const [open, setOpen] = useState(true)
   const dest = returnTo ?? pathname ?? "/guest"
+  // 案B (2026-09-06): 端末に記録がある人 (登録済み・未ログイン) は主ボタンをログインに、1 行目も「ログインが必要です」に
+  const [known, setKnown] = useState(false)
+  useEffect(() => { setKnown(readKnownUser() != null) }, [])
+  const shownTitle = known ? title.replace("登録かログイン", "ログイン") : title
 
   useEffect(() => {
     if (!open) return
@@ -65,7 +70,7 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle} />
         <div className={styles.eyebrow}>ARCODA</div>
-        <b className={styles.title}>{title}</b>
+        <b className={styles.title}>{shownTitle}</b>
         <div className={styles.list}>
           {items.map((it) => (
             <div key={it.title} className={styles.row}>
@@ -74,8 +79,17 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
             </div>
           ))}
         </div>
-        <Link href={`${SIGNUP}${q}`} className={styles.primary} onClick={remember}>{primaryLabel}</Link>
-        <Link href={`${LOGIN}${q}`} className={styles.secondary} onClick={remember}>ログイン</Link>
+        {known ? (
+          <>
+            <Link href={`${LOGIN}${q}`} className={styles.primary} onClick={remember}>ログイン</Link>
+            <Link href={`${SIGNUP}${q}`} className={styles.secondary} onClick={remember}>アカウントがない人は無料で登録</Link>
+          </>
+        ) : (
+          <>
+            <Link href={`${SIGNUP}${q}`} className={styles.primary} onClick={remember}>{primaryLabel}</Link>
+            <Link href={`${LOGIN}${q}`} className={styles.secondary} onClick={remember}>ログイン</Link>
+          </>
+        )}
         <button type="button" className={styles.later} onClick={later}>あとで</button>
       </div>
     </div>

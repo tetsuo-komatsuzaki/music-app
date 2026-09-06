@@ -50,11 +50,20 @@ export default async function Page({
   if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
   if (!score) return <div>この曲は見つからなかったよ</div>
 
+  // 登録済み・未ログインの人が「前回の画面」から自分の曲を開いたときもここに来る (2026-09-06)。
+  // 中身は出さず、ゲートだけ出す (ログイン後は returnTo で本人の曲ページへ戻る)
+  if (guest && !score.isShared) {
+    const g = GATE_TEXT.generic
+    return (
+      <GuestGate title={g.title} items={g.items}>
+        <div style={{ minHeight: "60vh" }} />
+      </GuestGate>
+    )
+  }
   // アクセス制御
   if (score.createdById !== dbUser.id && !score.isShared) {
     return <div>この曲はいま見られないよ</div>
   }
-  if (guest && !score.isShared) return <div>この曲はいま見られないよ</div>
 
   // ランク出し分け用 (2026-08-10): ★4+(中級者以上) では記号ガイドの基礎読譜記号を省く
   const starProgress = await prisma.userStarProgress.findUnique({

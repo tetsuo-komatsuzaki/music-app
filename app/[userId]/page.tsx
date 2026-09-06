@@ -10,6 +10,7 @@ import {
 } from "@/app/_libs/starProgress"
 import HomeClient from "./home"
 import GuestHome from "./_guest/GuestHome"
+import KnownUserRecorder from "@/app/components/guest/KnownUserRecorder"
 import { GUEST_ID } from "@/app/_libs/viewer"
 
 // C-6b (2026-07-11): 旧レコメンド(UserSkillTaskCard/UserGrade.progressData)経路は撤去。
@@ -783,30 +784,36 @@ export default async function HomePage({ params }: PageProps) {
     } catch { personalReco = null }
   }
 
+  // 案B (2026-09-06): ホームの描画データは HomeClient と、端末に写しを残す KnownUserRecorder の両方に渡す
+  const homeProps = {
+      guide,
+      personalReco,
+      questProgress,
+      homeQuestClears,
+      coinQueue,
+      treasureQueue,
+      teacherAssignments,
+      teacherSummary,
+      analysisNotices,
+      skillLits,
+      exprShelf,
+      starterPick,
+      userName: dbUser.name ?? "",
+      streak,
+      weeklyDays,
+      arcoMessage,
+      gradeData,
+      basicPracticeCards,
+      recentPieces,
+      nextPieceRecommendations,
+      rankCard: { ...rankCard, gallery: galleryData },
+      favorites,
+  }
   return (
-    <HomeClient
-      guide={guide}
-      personalReco={personalReco}
-      questProgress={questProgress}
-      homeQuestClears={homeQuestClears}
-      coinQueue={coinQueue}
-      treasureQueue={treasureQueue}
-      teacherAssignments={teacherAssignments}
-      teacherSummary={teacherSummary}
-      analysisNotices={analysisNotices}
-      skillLits={skillLits}
-      exprShelf={exprShelf}
-      starterPick={starterPick}
-      userName={dbUser.name ?? ""}
-      streak={streak}
-      weeklyDays={weeklyDays}
-      arcoMessage={arcoMessage}
-      gradeData={gradeData}
-      basicPracticeCards={basicPracticeCards}
-      recentPieces={recentPieces}
-      nextPieceRecommendations={nextPieceRecommendations}
-      rankCard={{ ...rankCard, gallery: galleryData }}
-      favorites={favorites}
-    />
+    <>
+    <HomeClient {...homeProps} />
+      {/* 案B (2026-09-06): ホームの写しを端末に残す (ログアウト後に「前回の画面」として描く) */}
+      <KnownUserRecorder name={dbUser.name ?? ""} snapshot={homeProps as unknown as Record<string, unknown>} />
+    </>
   )
 }

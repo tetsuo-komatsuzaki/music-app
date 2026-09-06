@@ -7,6 +7,8 @@ import styles from "../[userId]/homeBlocks.module.css"
 import ds from "./ds.module.css"
 import GoalTracker, { goalHeadline, type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
+import { GUEST_ID } from "@/app/_libs/viewer"
+import { readAchCache, writeAchCache } from "@/app/_libs/knownUser"
 
 type Piece = {
   id: string; title: string; star: number | null; cover: string | null; latest: number; recentAvg: number | null
@@ -27,7 +29,8 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus, p
   void basics
   const [active, setActive] = useState(0)
   const piece = pieces[active] ?? pieces[0] ?? null
-  const [ach, setAch] = useState<AchievementStatus | null>(preset)
+  // ログアウト後の「前回の画面」(2026-09-06): API は呼べないので、ログイン中に残した達成状況の写しを使う
+  const [ach, setAch] = useState<AchievementStatus | null>(() => preset ?? (userId === GUEST_ID && piece ? readAchCache<AchievementStatus>(piece.id) : null))
 
   // コイン演出: 対象曲のタブへ自動切替 (Q6)
   useEffect(() => {
@@ -39,11 +42,12 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus, p
 
   useEffect(() => {
     if (!piece || preset) return   // 見本は固定データのまま (取得しない)
+    if (userId === GUEST_ID) { setAch(readAchCache<AchievementStatus>(piece.id)); return }   // ログアウト中は写しだけ
     let aborted = false
     setAch(null)
     fetch(`/api/scores/${piece.id}/achievement-status`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { if (!aborted) setAch(j) })
+      .then((j) => { if (!aborted) { setAch(j); if (j) writeAchCache(piece.id, j) } })
       .catch(() => {})
     return () => { aborted = true }
   }, [piece?.id])
@@ -132,7 +136,7 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus, p
         {shownAch ? (
           <GoalTracker achv={shownAch} userId={userId} scoreId={piece.id} />
         ) : (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>読み込み中…</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>{userId === GUEST_ID ? "ログインすると最新の状況が出ます" : "読み込み中…"}</div>
         )}
 
         </div>
@@ -142,7 +146,7 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus, p
         {ach ? (
           <DailyLessons lessons={ach.dailyLessons ?? []} userId={userId} />
         ) : (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>読み込み中…</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>{userId === GUEST_ID ? "ログインすると最新の状況が出ます" : "読み込み中…"}</div>
         )}
         </div>
         </div>

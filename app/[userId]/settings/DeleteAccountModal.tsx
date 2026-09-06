@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { requestAccountDeletion } from "@/app/actions/requestAccountDeletion"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
+import { clearKnownUser } from "@/app/_libs/knownUser"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -45,6 +46,7 @@ export default function DeleteAccountModal({ open, onClose }: Props) {
       if (result.success) {
         const supabase = createBrowserSupabaseClient()
         await supabase.auth.signOut({ scope: "local" })
+        clearKnownUser()   // 端末に残した「この端末でログインした人」の記録も消す (案B)
         window.location.href = "/login?deleted=1"
       } else {
         setError(result.error ?? "予期しないエラー")

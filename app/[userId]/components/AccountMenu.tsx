@@ -90,8 +90,9 @@ export default function AccountMenu({ role }: { role?: string }) {
     const supabase = createBrowserSupabaseClient()
     const { error } = await supabase.auth.signOut({ scope: "local" })
     if (error) console.error("ログアウト失敗:", error)
-    // hard redirect でクライアント状態を完全クリア
-    window.location.href = "/login"
+    // hard redirect でクライアント状態を完全クリア。
+    // 案B (2026-09-06): 着地はログイン画面ではなく、ゲストホーム (端末に記録があれば おかえりなさい画面)
+    window.location.href = "/guest?loggedOut=1"
   }
 
   return (
