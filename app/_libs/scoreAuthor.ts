@@ -28,8 +28,8 @@ export const AUTHOR_ARTS: { id: AuthorArt; label: string }[] = [
 ]
 export const LENGTHS: { ql: number; label: string }[] = [{ ql: 1, label: "4分" }, { ql: 0.5, label: "8分" }, { ql: 0.25, label: "16分" }]
 
-/** ポジションごとの半音のずれ (近似。第 2 = 全音上、第 3 = 3 度上 …) */
-const POS_SHIFT: Record<number, number> = { 1: 0, 2: 2, 3: 4, 4: 5, 5: 7 }
+/** ポジションごとの半音のずれ (近似。第 3 = 1 指が第 1 ポジションの 3 指の場所 = +3 半音、第 4 = +5、第 5 = +7) */
+const POS_SHIFT: Record<number, number> = { 1: 0, 2: 2, 3: 3, 4: 5, 5: 7 }
 /** 第 1 ポジションの 開放弦からの半音 → 指 */
 const FIRST_FINGER: Record<number, number> = { 0: 0, 1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3, 7: 4 }
 /** 指板で指を置くときの既定 (全音 ・ 全音 ・ 半音 ・ 全音) */
@@ -188,7 +188,7 @@ function typeOf(ql: number): string {
 
 export type BuildInput = { title: string; tonic: string; keyMode: "major" | "minor"; beats: number; notes: AuthorNote[] }
 
-/** 入力から MusicXML を組み立てる。小節をまたぐ音はタイで割る */
+/** 入力から MusicXML を組み立てる。小節をまたぐ音はタイで割り、最後の小節の残りは休符で埋める */
 export function buildMusicXml(input: BuildInput): string {
   const flats = usesFlats(input.tonic, input.keyMode)
   const fifths = fifthsOf(input.tonic, input.keyMode)
@@ -217,6 +217,11 @@ export function buildMusicXml(input: BuildInput): string {
       first = false
       if (acc >= input.beats - 1e-9) { acc = 0; if (rest > 1e-9 || n !== input.notes[input.notes.length - 1]) measures.push([]) }
     }
+  }
+  // 最後の小節が埋まらないときは休符で埋める (音階の音数は小節と合わないのがふつう)
+  if (acc > 1e-9) {
+    const rest = input.beats - acc
+    measures[measures.length - 1].push(`<note><rest/><duration>${Math.round(rest * DIVISIONS)}</duration><voice>1</voice><type>${typeOf(rest)}</type></note>`)
   }
   if (measures[measures.length - 1].length === 0) measures.pop()
   const attrs = `<attributes><divisions>${DIVISIONS}</divisions><key><fifths>${fifths}</fifths><mode>${input.keyMode}</mode></key><time><beats>${input.beats}</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>`

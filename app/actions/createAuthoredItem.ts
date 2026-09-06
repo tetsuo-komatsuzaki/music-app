@@ -42,10 +42,7 @@ export async function createAuthoredItem(input: CreateAuthoredInput): Promise<{ 
   ).map((n) => ({ ...n, art: n.art ?? "" }))
   if (notes.length === 0) return { ok: false, error: "音がありません" }
   if (notes.length > 400) return { ok: false, error: "音が多すぎます (400 まで)" }
-  const total = totalBeats(notes)
-  if (Math.abs(total / beats - Math.round(total / beats)) > 1e-6) {
-    return { ok: false, error: `小節がぴったり埋まっていません (${total} 拍 ・ ${beats} 拍ずつ)` }
-  }
+  void totalBeats   // 小節の端数は MusicXML 側で休符に埋めるので、ここでは拍の合計を縛らない
 
   const xml = buildMusicXml({ title, tonic: input.keyTonic, keyMode: input.keyMode, beats, notes })
   const fd = new FormData()

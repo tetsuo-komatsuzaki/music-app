@@ -29,7 +29,7 @@ describe("並べる", () => {
   it("型の文字列 (ポジション付き) を音にする", () => {
     const n = parseShorthand("A1 3p A1", 1)
     expect(n[0]).toMatchObject({ str: "A", fin: 1, pos: 1, midi: 71 })
-    expect(n[1]).toMatchObject({ str: "A", fin: 1, pos: 3, midi: 75 })
+    expect(n[1]).toMatchObject({ str: "A", fin: 1, pos: 3, midi: 74 })   // 第 3 ポジションの 1 指 = D5
   })
   it("五線譜の段は調の隣の音", () => {
     expect(stepInKey(67, 1, "G", "major")).toBe(69)   // G4 → A4
@@ -53,6 +53,12 @@ describe("MusicXML", () => {
     const xml = buildMusicXml({ title: "t", tonic: "C", keyMode: "major", beats: 4, notes })
     expect((xml.match(/<measure /g) ?? []).length).toBe(2)
     expect(xml).toContain('<tie type="start"/>'); expect(xml).toContain('<tie type="stop"/>')
+  })
+  it("最後の小節の残りは休符で埋める", () => {
+    const seq = generateSequence({ tonic: "G", mode: "major", octaves: 2, shape: "updown", ql: 0.5 })   // 29 音 = 14.5 拍
+    const xml = buildMusicXml({ title: "t", tonic: "G", keyMode: "major", beats: 4, notes: seq })
+    expect((xml.match(/<measure /g) ?? []).length).toBe(4)
+    expect(xml).toContain("<rest/><duration>6</duration>")   // 1.5 拍の休符
   })
   it("短調は平行長調の調号 ・ フラット系の綴り", () => {
     expect(fifthsOf("D", "minor")).toBe(-1)

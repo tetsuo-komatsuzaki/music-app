@@ -43,7 +43,8 @@ export default function ScoreAuthorDialog({ onClose, onCreated }: { onClose: () 
   const keyMode = MODE_DEF[mode].keyMode
   const flats = usesFlats(tonic, keyMode)
   const total = totalBeats(notes)
-  const fit = notes.length > 0 && Math.abs(total / beats - Math.round(total / beats)) < 1e-6
+  const fit = notes.length > 0
+  const remainder = Math.round((total % beats) * 1000) / 1000
 
   const generate = () => {
     if (isScale) {
@@ -143,7 +144,7 @@ export default function ScoreAuthorDialog({ onClose, onCreated }: { onClose: () 
           : <AuthorStaff notes={notes} beats={beats} flats={flats} selected={sel} onSelect={setSel} onDrag={movePitch} />}
         <div style={{ ...S.row, marginTop: 5, fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>
           <span>音符の上 = 弦 (G D A E) ・ 下 = 指 ・ 薄い黄色 = 選んでいる音</span>
-          <span style={{ marginLeft: "auto", fontWeight: 700, color: fit ? "#8FD3B0" : "var(--text-sub)" }}>{notes.length} 音 ・ {(total / beats).toFixed(2).replace(/\.00$/, "")} 小節{fit ? " ・ 作成できます" : notes.length ? " ・ 小節がぴったり埋まると作成できます" : ""}</span>
+          <span style={{ marginLeft: "auto", fontWeight: 700, color: fit ? "#8FD3B0" : "var(--text-sub)" }}>{notes.length} 音 ・ {(total / beats).toFixed(2).replace(/\.00$/, "")} 小節{fit ? (remainder > 0 ? ` ・ 最後の小節の残り ${beats - remainder} 拍は休符で埋めます` : " ・ 作成できます") : ""}</span>
         </div>
 
         {n && (
