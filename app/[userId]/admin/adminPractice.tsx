@@ -1,6 +1,8 @@
 "use client"
 
 import { useMemo, useState, useTransition } from "react"
+import { detectKeyFromMusicXml, browserInflate } from "@/app/_libs/musicxmlKey"
+import { formatKey } from "@/app/_libs/musicNotation"
 import { Palette } from "lucide-react"
 import {
   SUB_TASK_IDS,
@@ -153,6 +155,9 @@ export default function AdminPractice({
   const [stdArticulations, setStdArticulations] = useState(false)
   const [keyTonic, setKeyTonic] = useState("G")
   const [keyMode, setKeyMode] = useState("major")
+  // 調の自動認識 (2026-09-06 Tetsuo: 手で選ばない)。ファイルを選んだ時点で読み、認識できたら選択欄を畳む
+  const [keyAuto, setKeyAuto] = useState<{ ok: boolean; label?: string } | null>(null)
+  const [keyManual, setKeyManual] = useState(false)
   const [tempoMin, setTempoMin] = useState("")
   const [tempoMax, setTempoMax] = useState("")
   const [positions, setPositions] = useState<string[]>([])
@@ -598,7 +603,16 @@ export default function AdminPractice({
             <div className={styles.field}>
               <label>MusicXML ファイル *</label>
               <input type="file" accept=".musicxml,.mxl,.xml"
-                onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                onChange={async (e) => {
+                  const f = e.target.files?.[0] || null
+                  setFile(f); setKeyAuto(null); setKeyManual(false)
+                  if (!f) return
+                  try {
+                    const k = await detectKeyFromMusicXml(new Uint8Array(await f.arrayBuffer()), browserInflate)
+                    if (k) { setKeyTonic(k.keyTonic); setKeyMode(k.keyMode); setKeyAuto({ ok: true, label: formatKey(k.keyTonic, k.keyMode) }) }
+                    else { setKeyAuto({ ok: false }); setKeyManual(true) }
+                  } catch { setKeyAuto({ ok: false }); setKeyManual(true) }
+                }} />
             </div>
 
             <div className={styles.field}>
@@ -747,16 +761,29 @@ export default function AdminPractice({
             {!isScoreCategory && (
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>調 *</label>
-                  <div className={styles.inlineGroup}>
-                    <select value={keyTonic} onChange={(e) => setKeyTonic(e.target.value)}>
-                      {tonicOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                    <select value={keyMode} onChange={(e) => setKeyMode(e.target.value)}>
-                      <option value="major">長調</option>
-                      <option value="minor">短調</option>
-                    </select>
-                  </div>
+                  <label>調 ・ ファイルから自動認識</label>
+                  {keyAuto?.ok && !keyManual ? (
+                    <div className={styles.inlineGroup} style={{ alignItems: "center", gap: 10 }}>
+                      <b>{keyAuto.label}</b>
+                      <button type="button" className={styles.linkBtn} onClick={() => setKeyManual(true)}>変更する</button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.inlineGroup}>
+                        <select value={keyTonic} onChange={(e) => setKeyTonic(e.target.value)}>
+                          {tonicOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <select value={keyMode} onChange={(e) => setKeyMode(e.target.value)}>
+                          <option value="major">長調</option>
+                          <option value="minor">短調</option>
+                        </select>
+                        {keyAuto?.ok && <button type="button" className={styles.linkBtn} onClick={() => setKeyManual(false)}>自動認識に戻す ・ {keyAuto.label}</button>}
+                      </div>
+                      <p className={styles.hint}>
+                        {keyAuto?.ok === false ? "ファイルから調を読めませんでした。手で選んでください" : file ? "" : "ファイルを選ぶと自動で認識します"}
+                      </p>
+                    </>
+                  )}
                   {["scale", "arpeggio", "fingering"].includes(category) && (
                     <label style={{ display: "block", marginTop: 8, fontSize: "var(--fs-body)" }}>
                       <input

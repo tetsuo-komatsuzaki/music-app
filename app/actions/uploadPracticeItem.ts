@@ -13,6 +13,8 @@ import { isDifficulty, isArticulation } from "@/app/_libs/materialVariant"
 import { Prisma, type PracticeCategory, type MaterialKind } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
 import { isPracticeCategory } from "@/app/_libs/practiceConstants"
+import { detectKeyFromMusicXml } from "@/app/_libs/musicxmlKey"
+import { inflateRawSync } from "node:zlib"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -128,8 +130,15 @@ export async function uploadPracticeItem(formData: FormData) {
   const title = (formData.get("title") as string | null)?.trim() ?? ""
   const composer = (formData.get("composer") as string | null)?.trim() || null
   const category = (formData.get("category") as string | null)?.trim() ?? ""
-  const keyTonic = (formData.get("keyTonic") as string | null)?.trim() ?? ""
-  const keyMode = (formData.get("keyMode") as string | null)?.trim() ?? ""
+  let keyTonic = (formData.get("keyTonic") as string | null)?.trim() ?? ""
+  let keyMode = (formData.get("keyMode") as string | null)?.trim() ?? ""
+  // 調の自動認識 (2026-09-06 Tetsuo: 手で選ばない)。画面で認識できなかった/送られなかったときはここで読む
+  if (file && (!keyTonic || !keyMode)) {
+    try {
+      const detected = await detectKeyFromMusicXml(new Uint8Array(await file.arrayBuffer()), async (d) => new Uint8Array(inflateRawSync(d)))
+      if (detected) { keyTonic = detected.keyTonic; keyMode = detected.keyMode }
+    } catch { /* 読めなければ下の必須チェックで止める */ }
+  }
   const tempoMin = parseInt(formData.get("tempoMin") as string) || null
   const tempoMax = parseInt(formData.get("tempoMax") as string) || null
   const positions = JSON.parse(formData.get("positions") as string || "[]")
@@ -166,8 +175,11 @@ export async function uploadPracticeItem(formData: FormData) {
       )
     : []
 
-  if (!file || !title || !category || !keyTonic || !keyMode) {
+  if (!file || !title || !category) {
     return { error: "必須項目が不足しています" }
+  }
+  if (!keyTonic || !keyMode) {
+    return { error: "調をファイルから自動認識できませんでした。調を手で選んでください" }
   }
 
   // category ランタイム検証 (2026-05-31: 基礎練6 + エチュード / 2026-07-14: 学びレッスン追加)。
