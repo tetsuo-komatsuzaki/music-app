@@ -65,7 +65,7 @@ export default async function LibraryPage({
       select: { plan: true, planStatus: true, createdAt: true },
     }),
     // 曲タブ = 曲カタログ (2026-08-21 曲をさがす統合)
-    loadPieceCatalog(dbUserId),
+    loadPieceCatalog(dbUserId, { officialOnly: guest }),   // ゲストは公式曲だけ (Q2)
   ])
 
   const canUpload = !guest && me

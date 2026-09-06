@@ -14,6 +14,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { setReturnToCookie } from "@/app/_libs/returnTo"
 import { readKnownUser } from "@/app/_libs/knownUser"
+import { recordGuestEvent } from "@/app/actions/recordGuestEvent"
+import { placeOf } from "@/app/_libs/guestEvents"
 import styles from "./GateSheet.module.css"
 
 import type { GateItem } from "./gateText"
@@ -41,6 +43,9 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
   // 案B (2026-09-06): 端末に記録がある人 (登録済み・未ログイン) は主ボタンをログインに、1 行目も「ログインが必要です」に
   const [known, setKnown] = useState(false)
   useEffect(() => { setKnown(readKnownUser() != null) }, [])
+  // 計測 (2026-09-06): シートが出た場所と、そこから進んだか去ったか。場所は URL から決める
+  const place = placeOf(pathname ?? "")
+  useEffect(() => { void recordGuestEvent("gate_shown", place, pathname) }, [place, pathname])
   const shownTitle = known ? title.replace("登録かログイン", "ログイン") : title
 
   useEffect(() => {
@@ -51,8 +56,8 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const remember = () => setReturnToCookie(dest)
-  const later = () => { setOpen(false); onLater?.() }
+  const remember = (kind: "gate_signup" | "gate_login") => () => { setReturnToCookie(dest); void recordGuestEvent(kind, place, pathname) }
+  const later = () => { setOpen(false); onLater?.(); void recordGuestEvent("gate_later", place, pathname) }
   const q = `?returnTo=${encodeURIComponent(dest)}`
 
   if (!open) {
@@ -81,13 +86,13 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
         </div>
         {known ? (
           <>
-            <Link href={`${LOGIN}${q}`} className={styles.primary} onClick={remember}>ログイン</Link>
-            <Link href={`${SIGNUP}${q}`} className={styles.secondary} onClick={remember}>アカウントがない人は無料で登録</Link>
+            <Link href={`${LOGIN}${q}`} className={styles.primary} onClick={remember("gate_login")}>ログイン</Link>
+            <Link href={`${SIGNUP}${q}`} className={styles.secondary} onClick={remember("gate_signup")}>アカウントがない人は無料で登録</Link>
           </>
         ) : (
           <>
-            <Link href={`${SIGNUP}${q}`} className={styles.primary} onClick={remember}>{primaryLabel}</Link>
-            <Link href={`${LOGIN}${q}`} className={styles.secondary} onClick={remember}>ログイン</Link>
+            <Link href={`${SIGNUP}${q}`} className={styles.primary} onClick={remember("gate_signup")}>{primaryLabel}</Link>
+            <Link href={`${LOGIN}${q}`} className={styles.secondary} onClick={remember("gate_login")}>ログイン</Link>
           </>
         )}
         <button type="button" className={styles.later} onClick={later}>あとで</button>

@@ -4,6 +4,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { parseParts } from "@/app/_libs/materialParts"
 import { badgeKind } from "@/app/_libs/starProgress"
+import { getOfficialUserIds } from "@/app/_libs/officialUsers"
 import type { SheetSection, SheetVariant } from "../practice/pieces/PrePracticeSheet"
 
 export type CatalogVariant = SheetVariant & { badge: "mastered" | "achieved" | null }
@@ -43,7 +44,8 @@ function parseSections(v: unknown): SheetSection[] {
   return out
 }
 
-export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]> {
+/** officialOnly: ゲストには運営の公式曲だけ見せる (2026-09-06 Tetsuo確定 Q2) */
+export async function loadPieceCatalog(dbUserId: string, opts: { officialOnly?: boolean } = {}): Promise<CatalogPiece[]> {
   const groups = await prisma.materialGroup.findMany({
     where: { kind: "SONG", scores: { some: { isShared: true, deletedAt: null } } },
     orderBy: [{ title: "asc" }],
@@ -76,9 +78,9 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
         })
       : Promise.resolve([]),
     // 公式の印: 運営 (admin) アカウントの曲 (2026-09-06 Tetsuo確定。Score に印は持たせない)
-    prisma.user.findMany({ where: { role: "admin" }, select: { id: true } }),
+    getOfficialUserIds(),
   ])
-  const adminIds = new Set(admins.map((a) => a.id))
+  const adminIds = admins
   const achByScore = new Map(achievements.map((a) => [a.scoreId, a]))
   const bestByScore = new Map<string, number>()
   for (const r of bestRows) {
@@ -87,7 +89,7 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
     if (cur == null || s > cur) bestByScore.set(r.scoreId, s)
   }
 
-  return groups.map((g) => {
+  return groups.filter((g) => !opts.officialOnly || g.scores.some((s) => adminIds.has(s.createdById))).map((g) => {
     // パートはグループ単位。個々の変種の sections より優先する (2026-08-25 確定)
     const groupParts = parseParts(g.parts ?? [])
     const variants = g.scores.map((s) => ({

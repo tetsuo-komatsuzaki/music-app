@@ -13,6 +13,7 @@ import { buildSampleAchievement, buildSampleReco, pickFeaturedScore, guestHref }
 import ReturningHome from "./ReturningHome"
 import { KNOWN_USER_BOOT_SCRIPT } from "@/app/_libs/knownUser"
 import GateSheet from "@/app/components/guest/GateSheet"
+import GuestVisitPing from "@/app/components/guest/GuestVisitPing"
 import { GATE_TEXT } from "@/app/components/guest/gateText"
 import { safeReturnPath } from "@/app/_libs/returnTo"
 import styles from "./guestHome.module.css"
@@ -29,6 +30,7 @@ export default async function GuestHome({ gate = false, returnTo = null }: { gat
 
   return (
     <div data-guest-home>
+      <GuestVisitPing />
       {gate && <GateSheet title={GATE_TEXT.generic.title} items={[...GATE_TEXT.generic.items]} laterMode="hide" returnTo={safeReturnPath(returnTo) ?? `/${GUEST_ID}`} />}
       {/* 案B (2026-09-06): 端末に記録がある人には、未登録者向けの中身 (.unregistered) を隠し、おかえりなさい画面を出す */}
       <script dangerouslySetInnerHTML={{ __html: KNOWN_USER_BOOT_SCRIPT }} />

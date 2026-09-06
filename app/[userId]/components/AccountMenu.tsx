@@ -137,6 +137,12 @@ export default function AccountMenu({ role }: { role?: string }) {
                 <span className={styles.chip}>切替</span>
               </Link>
             )}
+            {isAdmin && (
+              <Link href={`${base}/admin/guest-stats`} className={`${styles.item} ${styles.gold}`} onClick={close} role="menuitem">
+                <span className={styles.ic}><Wrench size={17} /></span>
+                <span className={styles.label}>ゲストの計測</span>
+              </Link>
+            )}
 
             <div className={styles.sep} />
 

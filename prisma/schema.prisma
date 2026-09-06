@@ -1865,3 +1865,15 @@ model MaterialBundleCount {
   @@index([bundleKey, count])
   @@index([kind, toValue])
 }
+
+/// ゲストの計測 (2026-09-06 Tetsuo確定: 自前で記録)。個人には紐付けない
+model GuestEvent {
+  id        String   @id @default(cuid())
+  kind      String // visit / gate_shown / gate_signup / gate_login / gate_later
+  place     String // home / returning / song / item / lesson / karte / teacher / upload / contact / generic
+  path      String? // 出た場所の URL (/guest/… だけ ・ クエリは落とす)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([kind, place])
+}

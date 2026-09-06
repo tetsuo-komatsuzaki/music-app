@@ -1,6 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import GuestGate from "@/app/components/guest/GuestGate"
 import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { getOfficialUserIds } from "@/app/_libs/officialUsers"
 import { GUEST_DB_PLACEHOLDER, GUEST_ID } from "@/app/_libs/viewer"
 import { badgeKind } from "@/app/_libs/starProgress"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
@@ -52,7 +53,7 @@ export default async function Page({
 
   // 登録済み・未ログインの人が「前回の画面」から自分の曲を開いたときもここに来る (2026-09-06)。
   // 中身は出さず、ゲートだけ出す (ログイン後は returnTo で本人の曲ページへ戻る)
-  if (guest && !score.isShared) {
+  if (guest && (!score.isShared || !(await getOfficialUserIds()).has(score.createdById))) {   // Q2: 公式曲だけ
     const g = GATE_TEXT.generic
     return (
       <GuestGate title={g.title} items={g.items}>
