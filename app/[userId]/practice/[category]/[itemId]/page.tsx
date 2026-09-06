@@ -1,7 +1,10 @@
 import { prisma } from "@/app/_libs/prisma"
 import { ARTICULATIONS } from "@/app/_libs/materialVariant"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
-import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { resolveViewer } from "@/app/_libs/resolveViewer"
+import { GUEST_DB_PLACEHOLDER } from "@/app/_libs/viewer"
+import GuestGate from "@/app/components/guest/GuestGate"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
@@ -29,7 +32,11 @@ export default async function PracticeDetailPage({
   searchParams: Promise<{ from?: string }>
 }) {
   const p = await params
-  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+  // ゲスト閲覧 (2026-09-06): 公式教材の詳細を本人の記録なしで描き、上にゲートを重ねる
+  const viewer = await resolveViewer(p)
+  const guest = viewer.kind === "guest"
+  const authUserId = viewer.authUserId
+  const dbUserId = viewer.dbUserId ?? GUEST_DB_PLACEHOLDER
   const { category, itemId } = p
 
   // 曲詳細から来た場合 (?from=scoreId) は「曲にもどる」導線を出す (2026-08-02 ループ動線)。
@@ -240,7 +247,7 @@ export default async function PracticeDetailPage({
     }))
   } catch { teacherKartes = [] }
 
-  return (
+  const body = (
     <div>
       {/* 先生の練習ポイント (宿題ではない・おすすめ教材への一言) */}
       {teacherNote && (
@@ -283,4 +290,9 @@ export default async function PracticeDetailPage({
       />
     </div>
   )
+  if (guest) {
+    const g = GATE_TEXT.item(item.title)
+    return <GuestGate title={g.title} items={g.items}>{body}</GuestGate>
+  }
+  return body
 }

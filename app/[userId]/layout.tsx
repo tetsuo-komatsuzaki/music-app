@@ -10,6 +10,7 @@ import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
+import { GUEST_ID } from "@/app/_libs/viewer"
 import UserShell from "./userShell"
 
 export default async function UserLayout({
@@ -25,6 +26,12 @@ export default async function UserLayout({
   const {
     data: { user: sessionUser },
   } = await supabase.auth.getUser()
+
+  // ゲスト閲覧 (2026-09-06): /guest/... はログインなしで一覧を見せる。ログイン中の人が来たら自分の URL へ。
+  if (userId === GUEST_ID) {
+    if (sessionUser) redirect(`/${sessionUser.id}`)
+    return <UserShell>{children}</UserShell>
+  }
 
   // 本人閲覧時のみ role を取得し、先生モード切替UIの表示判定に渡す (別シェル /teacher へのゲート)。
   let viewerRole: string | undefined

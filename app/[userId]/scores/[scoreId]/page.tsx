@@ -1,4 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
+import GuestGate from "@/app/components/guest/GuestGate"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GUEST_DB_PLACEHOLDER, GUEST_ID } from "@/app/_libs/viewer"
 import { badgeKind } from "@/app/_libs/starProgress"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
@@ -36,8 +39,10 @@ export default async function Page({
 
   // dbUser と score を並列で取得
   // 修正1: findFirst を使用 (findUnique では where に deletedAt 等の非unique条件を入れられないため)
+  // ゲスト閲覧 (2026-09-06): 共有曲の詳細を、本人の記録なし (存在しない ID) で描き、上にゲートを重ねる
+  const guest = userId === GUEST_ID
   const [dbUser, score] = await Promise.all([
-    prisma.user.findUnique({ where: { supabaseUserId: userId } }),
+    guest ? Promise.resolve({ id: GUEST_DB_PLACEHOLDER }) : prisma.user.findUnique({ where: { supabaseUserId: userId } }),
     prisma.score.findFirst({ where: { id: scoreId, deletedAt: null } }),
   ])
   console.log(`[PERF] scores/detail step1_dbUser+score: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -49,6 +54,7 @@ export default async function Page({
   if (score.createdById !== dbUser.id && !score.isShared) {
     return <div>この曲はいま見られないよ</div>
   }
+  if (guest && !score.isShared) return <div>この曲はいま見られないよ</div>
 
   // ランク出し分け用 (2026-08-10): ★4+(中級者以上) では記号ガイドの基礎読譜記号を省く
   const starProgress = await prisma.userStarProgress.findUnique({
@@ -290,6 +296,29 @@ export default async function Page({
     }))
   } catch { teacherKartes = [] }
 
+  if (guest) {
+    const g = GATE_TEXT.song(score.title)
+    return (
+      <GuestGate title={g.title} items={g.items}>
+        <ScoreDetail
+          score={{ id: score.id, title: score.title, badge: null }}
+          userId={userId}
+          rewardLit={false}
+          analysis={analysisData}
+          uploadAction={uploadRecord}
+          parts={groupParts}
+          buildUrl={buildUrl}
+          performanceCount={0}
+          latestPitchAccuracy={null}
+          currentStar={1}
+          initialFavorite={false}
+          teacherKartes={[]}
+          fingerNotes={fingerNotes}
+          songHeatmap={null}
+        />
+      </GuestGate>
+    )
+  }
   return (
     <>
       {pendingLessons.length > 0 && (

@@ -9,6 +9,8 @@ import {
   STAR_UP_ACHIEVEMENTS,
 } from "@/app/_libs/starProgress"
 import HomeClient from "./home"
+import GuestHome from "./_guest/GuestHome"
+import { GUEST_ID } from "@/app/_libs/viewer"
 
 // C-6b (2026-07-11): 旧レコメンド(UserSkillTaskCard/UserGrade.progressData)経路は撤去。
 // ★/グレード/バッジは新判定体系 (UserStarProgress/UserScoreAchievement) から。
@@ -58,6 +60,9 @@ function calculateStreak(dates: Date[]): number {
 
 export default async function HomePage({ params }: PageProps) {
   const { userId } = await params
+
+  // ゲスト閲覧 (2026-09-06): 未ログインの訪問者にはゲストホーム (本人の記録は無いので別画面)
+  if (userId === GUEST_ID) return <GuestHome />
 
   const perfStart = performance.now()
 

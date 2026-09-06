@@ -10,6 +10,8 @@ import { User, Settings, GraduationCap, Wrench, BookOpen, LifeBuoy, LogOut } fro
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { getUserRole } from "@/app/actions/getUserRole"
 import { openHelp } from "../_onboarding/helpBus"
+import { GUEST_ID } from "@/app/_libs/viewer"
+import { setReturnToCookie } from "@/app/_libs/returnTo"
 import styles from "./AccountMenu.module.css"
 
 export default function AccountMenu({ role }: { role?: string }) {
@@ -32,6 +34,51 @@ export default function AccountMenu({ role }: { role?: string }) {
 
   const base = `/${userId}`
   const close = () => setOpen(false)
+
+  // ゲスト閲覧 (2026-09-06): 右上はアバターではなく「ログイン」。項目は 無料で登録 ・ ログイン ・ 使い方 ・ サポート の 4 つ
+  if (userId === GUEST_ID) {
+    const rt = `?returnTo=${encodeURIComponent(`/${GUEST_ID}`)}`
+    return (
+      <div className={styles.root} ref={rootRef}>
+        <button
+          type="button"
+          className={styles.trigger}
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label="ログインメニュー"
+          data-guest-login
+          style={{ width: "auto", padding: "0 12px", fontSize: "var(--fs-caption)", fontWeight: 800, fontFamily: "inherit", color: "var(--text-ink)" }}
+        >
+          ログイン
+        </button>
+        {open && (
+          <>
+            <div className={styles.veil} onClick={close} aria-hidden />
+            <div className={styles.menu} role="menu">
+              <Link href={`/signUp${rt}`} className={`${styles.item} ${styles.gold}`} onClick={() => { close(); setReturnToCookie(`/${GUEST_ID}`) }} role="menuitem">
+                <span className={styles.ic}><User size={17} /></span>
+                <span className={styles.label}>無料で登録</span>
+              </Link>
+              <Link href={`/login${rt}`} className={styles.item} onClick={() => { close(); setReturnToCookie(`/${GUEST_ID}`) }} role="menuitem">
+                <span className={styles.ic}><LogOut size={17} style={{ transform: "scaleX(-1)" }} /></span>
+                <span className={styles.label}>ログイン</span>
+              </Link>
+              <div className={styles.sep} />
+              <button type="button" className={styles.item} onClick={() => { close(); openHelp() }} role="menuitem">
+                <span className={styles.ic}><BookOpen size={17} /></span>
+                <span className={styles.label}>使い方</span>
+              </button>
+              <Link href={`${base}/support`} className={styles.item} onClick={close} role="menuitem">
+                <span className={styles.ic}><LifeBuoy size={17} /></span>
+                <span className={styles.label}>サポート</span>
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
 
   const logout = async () => {
     // 録音中ガードは旧サイドバーの実装を踏襲する (Recorder が window.__arcodaIsRecording を更新)

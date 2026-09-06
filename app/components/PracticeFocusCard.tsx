@@ -16,8 +16,10 @@ type Basic = { id: string; title: string; category: string; href: string; recent
 
 // 毎日の基礎練は achievement-status API の dailyLessons(4教材) に一本化 (2026-07-25)。
 // basics(旧・履歴ベースの3チップ) は当面プロップに残すが未使用。
-export default function PracticeFocusCard({ pieces, basics, userId, coinFocus }: {
+export default function PracticeFocusCard({ pieces, basics, userId, coinFocus, preset = null }: {
   pieces: Piece[]; basics: Basic[]; userId: string
+  /** ゲストホームの見本 (2026-09-06): API を叩かず、この達成状況をそのまま描く */
+  preset?: AchievementStatus | null
   /** 達成コイン演出 (2026-08-30): 対象曲へタブを自動切替し、rewind中は達成前の見た目に巻き戻す。
    *  trigger = 最後にそろった条件 (その行だけを未了に戻す・Tetsuo指定) */
   coinFocus?: { scoreId: string; rewind: boolean; trigger?: "run" | "lesson" | "etude" } | null
@@ -25,7 +27,7 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus }:
   void basics
   const [active, setActive] = useState(0)
   const piece = pieces[active] ?? pieces[0] ?? null
-  const [ach, setAch] = useState<AchievementStatus | null>(null)
+  const [ach, setAch] = useState<AchievementStatus | null>(preset)
 
   // コイン演出: 対象曲のタブへ自動切替 (Q6)
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus }:
   }, [coinFocus?.scoreId])
 
   useEffect(() => {
-    if (!piece) return
+    if (!piece || preset) return   // 見本は固定データのまま (取得しない)
     let aborted = false
     setAch(null)
     fetch(`/api/scores/${piece.id}/achievement-status`)

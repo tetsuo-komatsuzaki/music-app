@@ -27,6 +27,8 @@ export default async function LessonDetailPage({
   searchParams: Promise<{ return?: string }>
 }) {
   const { userId, lessonId } = await params
+  // ゲスト閲覧 (2026-09-06): 動画はゲート。一覧の上にシートを出す
+  if (userId === "guest") redirect(`/guest/lessons?gate=${lessonId}`)
   const sp = await searchParams
   // 「曲にもどる」復帰先 (UI要件v1.1 §4)。オープンリダイレクト防止で自ユーザー配下のみ許可
   const returnUrl =

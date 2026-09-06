@@ -1,0 +1,39 @@
+/* ゲストホーム (2026-09-06 Tetsuo確定): これは何か → できること → 本物のカードを見本として。
+   カードは ds.card。見本は「見本」の金チップ帯 + 破線枠 + 薄い透かしで本物と区別する。
+   記号 (絵文字風) は使わない。アイコンは線画 SVG。 */
+.hero { padding: 0; overflow: hidden; margin-top: 6px; }
+.eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; color: var(--gold); padding: 14px 15px 0; }
+.lead { font-size: 19px; font-weight: 900; line-height: 1.35; color: var(--text-ink); padding: 6px 15px 0; }
+.sub { font-size: var(--fs-caption); color: var(--text-sub); padding: 6px 15px 0; line-height: 1.7; }
+.heroActions { padding: 12px 15px 15px; }
+.cta {
+  display: block; text-align: center; text-decoration: none;
+  background: var(--accent); color: var(--text-on-accent); border-radius: 14px; padding: 13px;
+  font-size: 14px; font-weight: 900;
+}
+.linkline { display: block; text-align: center; margin-top: 9px; font-size: 11px; font-weight: 800; color: var(--text-link); text-decoration: none; }
+
+.rowIcon { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.rowIcon svg { width: 13px; height: 13px; }
+.gold { background: rgba(232, 178, 60, 0.16); color: var(--gold); }
+.teal { background: rgba(127, 196, 196, 0.16); color: var(--teal); }
+.green { background: rgba(168, 201, 127, 0.16); color: var(--green-soft); }
+
+.samplebox {
+  margin-top: 14px; padding: 6px;
+  border: 1.5px dashed rgba(232, 178, 60, 0.55); border-radius: 22px;
+  background: rgba(232, 178, 60, 0.05);
+}
+.samplehead { display: flex; align-items: center; gap: 8px; font-size: var(--fs-caption); color: var(--text-sub); padding: 4px 6px 8px; line-height: 1.5; }
+.samplechip {
+  flex: none; font-size: var(--fs-label); font-weight: 900; letter-spacing: 0.08em; color: #201604;
+  background: linear-gradient(180deg, #E8B23C, #D2992C); border-radius: 999px; padding: 2px 9px;
+}
+.sampleBody { position: relative; }
+/* 中のカード (ds.card) は margin-top を持つので打ち消す */
+.sampleBody > * { margin-top: 0 !important; }
+.watermark {
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+  font-size: 56px; font-weight: 900; letter-spacing: 0.2em; color: rgba(232, 178, 60, 0.14); transform: rotate(-14deg);
+}
+.hint { margin-top: 12px; text-align: center; font-size: var(--fs-caption); color: var(--text-sub); }

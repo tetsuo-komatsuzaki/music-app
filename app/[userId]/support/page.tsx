@@ -1,4 +1,4 @@
-import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { resolveViewer } from "@/app/_libs/resolveViewer"
 import Link from "next/link"
 import { HelpCircle, ScrollText, Lock, Mail, type LucideIcon } from "lucide-react"
 import styles from "./Support.module.css"
@@ -13,7 +13,7 @@ export default async function SupportPage({
   params: Promise<{ userId: string }>
 }) {
   const p = await params
-  const { authUserId } = await getUserIdsFromParams(p)
+  const { authUserId } = await resolveViewer(p)   // ゲスト閲覧 (2026-09-06): ヘルプ・規約はゲストも見られる
 
   const items: { href: string; Icon: LucideIcon; title: string; desc: string }[] = [
     {

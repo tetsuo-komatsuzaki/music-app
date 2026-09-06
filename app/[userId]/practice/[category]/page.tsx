@@ -1,7 +1,8 @@
 import { prisma } from "@/app/_libs/prisma"
 import { parseParts } from "@/app/_libs/materialParts"
 import { pickRepresentatives, toRepresentativeInput } from "@/app/_libs/materialRepresentative"
-import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { resolveViewer } from "@/app/_libs/resolveViewer"
+import { GUEST_DB_PLACEHOLDER } from "@/app/_libs/viewer"
 import PracticeList from "./practiceLIst"
 import { getPracticeStats } from "@/app/lib/practice/getPracticeStats"
 import {
@@ -46,7 +47,11 @@ export default async function CategoryPage({
   searchParams: Promise<{ key?: string; position?: string }>
 }) {
   const p = await params
-  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+  // ゲスト閲覧 (2026-09-06): 一覧は見せる。本人の記録 (点・未練習・★ロック) は存在しない ID で引いて空にする
+  const viewer = await resolveViewer(p)
+  const guest = viewer.kind === "guest"
+  const authUserId = viewer.authUserId
+  const dbUserId = viewer.dbUserId ?? GUEST_DB_PLACEHOLDER
   const { category } = p
   const sp = await searchParams
   const dbCategory = normalizeCat(category)
@@ -256,6 +261,7 @@ export default async function CategoryPage({
       stats={stats}
       userStar={userStar}
       weakTechniques={weakTechniques}
+      guest={guest}
     />
   )
 }

@@ -5,6 +5,7 @@
 // カード = 132px ・ サムネ58px角丸11 (ジャケット写真 or 紺グラデ♪) + 題12px + ★10px。
 // タップで練習前シート (難易度・パートのフルラダー)。
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Crown } from "lucide-react"
 import ds from "@/app/components/ds.module.css"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
@@ -52,12 +53,20 @@ function groupByGenre(pieces: CatalogPiece[]): { label: string; pieces: CatalogP
   return groups
 }
 
-export default function PieceCatalog({ userId, pieces }: { userId: string; pieces: CatalogPiece[] }) {
+export default function PieceCatalog({ userId, pieces, guest = false }: { userId: string; pieces: CatalogPiece[]; guest?: boolean }) {
   const [sheet, setSheet] = useState<CatalogPiece | null>(null)
+  const router = useRouter()
   const genreGroups = groupByGenre([...pieces].sort((a, b) => a.title.localeCompare(b.title, "ja")))
 
   const handleTap = (p: CatalogPiece) => {
-    if (p.variants.length > 0) setSheet(p)
+    if (p.variants.length === 0) return
+    if (guest) {
+      // ゲスト閲覧 (2026-09-06): 通しの変種 (パート無し) の詳細へ進み、その画面の上でゲート
+      const v = p.variants.find((x) => !x.partId) ?? p.variants[0]
+      router.push(`/${userId}/scores/${v.id}`)
+      return
+    }
+    setSheet(p)
   }
 
   return (

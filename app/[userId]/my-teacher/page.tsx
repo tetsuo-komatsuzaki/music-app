@@ -8,6 +8,9 @@ import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { resolveObsTag } from "@/app/_libs/observationCatalog"
 import MyTeacherClient from "./MyTeacherClient"
+import GuestGate from "@/app/components/guest/GuestGate"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GUEST_ID } from "@/app/_libs/viewer"
 
 export const metadata = { title: "先生とのやりとり" }
 
@@ -17,6 +20,32 @@ export default async function MyTeacherPage({
   params: Promise<{ userId: string }>
 }) {
   const { userId } = await params
+  // ゲスト閲覧 (2026-09-06): 見本データで本物の画面を描き、上にゲートを重ねる (先生とつながると何が届くかを見せる)
+  if (userId === GUEST_ID) {
+    const g = GATE_TEXT.teacher
+    return (
+      <GuestGate title={g.title} items={[...g.items]}>
+        <MyTeacherClient
+          userId={userId}
+          teacherName="山田"
+          since="2026/7/28"
+          timeline={[
+            { when: "2026/9/4", kind: "comment", text: "先生：ラの音が高め。3の指を少し手前に。・メヌエット の演奏へ" },
+            { when: "2026/9/2", kind: "hw", text: "宿題「メヌエット」第1〜8小節 ×3" },
+          ]}
+          homework={[
+            { id: "sample-hw-1", title: "メヌエット", detail: "×3 ・ ♩=80", comment: "ゆっくり正確に", dueDate: null, goalType: "score", targetScore: 80, achieved: false, mastered: false, done: false, submitted: false, submittedScore: null, date: "2026/9/2", href: `/${userId}/library` },
+            { id: "sample-hw-2", title: "ト長調の音階", detail: "×5", comment: null, dueDate: null, goalType: null, targetScore: null, achieved: false, mastered: false, done: false, submitted: false, submittedScore: null, date: "2026/8/30", href: `/${userId}/library?tab=basics` },
+          ]}
+          karteItems={[{ when: "2026-09-04T00:00:00.000Z", title: "メヌエット", href: `/${userId}/library`, body: "ラの音が高め。3の指を少し手前に。" }]}
+          passedItems={[]}
+          feedbacks={[]}
+          lessons={{ open: [], booked: [] }}
+          nextLessonLabel="木曜 17:00"
+        />
+      </GuestGate>
+    )
+  }
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.id !== userId) redirect(`/${userId}`)

@@ -18,6 +18,8 @@ import PieceCatalog from "./PieceCatalog"
 import type { CatalogPiece } from "./loadPieceCatalog"
 import ds from "@/app/components/ds.module.css"
 import ArcoMotion from "@/app/components/ArcoMotion"
+import GateSheet from "@/app/components/guest/GateSheet"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
 
 export type LibraryPiece = {
   id: string
@@ -39,7 +41,7 @@ const TABS: { key: Tab; label: string }[] = [
 ]
 
 export default function LibraryClient({
-  userId, initialTab, pieces, catalog, categories, lessonTotal, ownScoreCount, canUpload = false,
+  userId, initialTab, pieces, catalog, categories, lessonTotal, ownScoreCount, canUpload = false, guest = false,
 }: {
   userId: string
   initialTab: Tab
@@ -51,6 +53,8 @@ export default function LibraryClient({
   ownScoreCount: number
   /** 有料プランかどうか。false ならアップロードは案内のみ */
   canUpload?: boolean
+  /** ゲスト閲覧 (2026-09-06): 曲カードは曲の詳細 (ゲート) へ、アップロードはその場でゲート */
+  guest?: boolean
 }) {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>(initialTab)
@@ -75,13 +79,16 @@ export default function LibraryClient({
   // 2026-09-02 Tetsuo確定: 無料ユーザーが押したときは黙って無視せず、プランの案内を出す。
   // 以前はボタンを出しておいて何も起きず、壊れているように見えていた。
   const [planModal, setPlanModal] = useState(false)
+  const [gate, setGate] = useState(false)
   const onUpload = () => {
-    if (canUpload) router.push(`${base}/scores?upload=1`)
+    if (guest) setGate(true)
+    else if (canUpload) router.push(`${base}/scores?upload=1`)
     else setPlanModal(true)
   }
 
   return (
     <div className={styles.root}>
+      {gate && <GateSheet key="upload" title={GATE_TEXT.upload.title} items={[...GATE_TEXT.upload.items]} laterMode="hide" onLater={() => setGate(false)} />}
       {planModal && (
         <div role="dialog" aria-modal="true" aria-label="アルコプラスの案内"
           onClick={() => setPlanModal(false)}
@@ -196,7 +203,7 @@ export default function LibraryClient({
               cta={null}
             />
           ) : (
-            <PieceCatalog userId={userId} pieces={starFiltered} />
+            <PieceCatalog userId={userId} pieces={starFiltered} guest={guest} />
           )}
         </section>
       )}
@@ -263,7 +270,7 @@ export default function LibraryClient({
           </button>
 
           {/* PLAN_NOTICE (原本 04): 無料プランには常設 */}
-          {!canUpload && (
+          {!canUpload && !guest && (
             <div className={ds.card} style={{ padding: "14px 15px", borderColor: "rgba(232,178,60,.3)" }} role="status">
               <b style={{ fontSize: 13.5, color: "var(--gold)" }}>楽譜のアップロードはプラス限定の機能です</b>
               <span style={{ display: "block", fontSize: 11.5, color: "var(--text-sub)", marginTop: 6, lineHeight: 1.8 }}>

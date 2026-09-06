@@ -2,7 +2,8 @@
 // 弾くものを選ぶ場所として、曲 / 基礎練 / マイ楽譜 を1画面のセグメントで束ねる。
 // 旧・練習メニュー (/practice) の役割を吸収する。既存ルートは残置。
 import { prisma } from "@/app/_libs/prisma"
-import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { resolveViewer } from "@/app/_libs/resolveViewer"
+import { GUEST_DB_PLACEHOLDER } from "@/app/_libs/viewer"
 import { BASIC_PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import type { PracticeCategory } from "@/app/generated/prisma"
 import { LESSON_TOTAL } from "@/app/[userId]/lessons/_lib/content"
@@ -24,7 +25,11 @@ export default async function LibraryPage({
 }) {
   const p = await params
   const sp = await searchParams
-  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+  // ゲスト閲覧 (2026-09-06): 一覧は見せる。本人の記録 (ベスト・達成・自分の曲) は存在しない ID で引いて空にする
+  const viewer = await resolveViewer(p)
+  const guest = viewer.kind === "guest"
+  const authUserId = viewer.authUserId
+  const dbUserId = viewer.dbUserId ?? GUEST_DB_PLACEHOLDER
 
   const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }
 
@@ -63,7 +68,7 @@ export default async function LibraryPage({
     loadPieceCatalog(dbUserId),
   ])
 
-  const canUpload = me
+  const canUpload = !guest && me
     ? resolveEffectivePlan({ plan: me.plan, planStatus: me.planStatus, createdAt: me.createdAt }) === "plus"
     : false
 
@@ -95,6 +100,7 @@ export default async function LibraryPage({
       lessonTotal={LESSON_TOTAL}
       ownScoreCount={ownScoreCount}
       canUpload={canUpload}
+      guest={guest}
     />
   )
 }

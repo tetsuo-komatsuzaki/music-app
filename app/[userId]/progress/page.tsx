@@ -12,6 +12,10 @@
 import { prisma } from "@/app/_libs/prisma"
 import { buildKarteData, buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
 import ProgressPage from "./progressPage"
+import GuestGate from "@/app/components/guest/GuestGate"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GUEST_ID } from "@/app/_libs/viewer"
+import { DEMO_AUTH_ID, DEMO_DB_ID } from "../_guest/sample"
 
 export const metadata = { title: "成長カルテ" }
 
@@ -24,20 +28,24 @@ type PageProps = {
 export default async function ProgressServerPage({ params }: PageProps) {
   const { userId } = await params
   const period: KartePeriod = "30d"
-
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseUserId: userId },
-    select: { id: true },
-  })
+  // ゲスト閲覧 (2026-09-06): 運営アカウントの見本データで本物の成長カルテを描き、上にゲートを重ねる (DB には書かない)
+  const guest = userId === GUEST_ID
+  const dbUser = guest
+    ? { id: DEMO_DB_ID }
+    : await prisma.user.findUnique({
+        where: { supabaseUserId: userId },
+        select: { id: true },
+      })
   if (!dbUser) return <div>User not found</div>
-
+  const karteAuthId = guest ? DEMO_AUTH_ID : userId
   // 報酬体系 (骨組み): カルテ閲覧クエスト+閲覧回数カウント (点灯前は不動)
-  try {
-    const { questEventHook } = await import("@/app/_libs/treasureEngine")
-    await questEventHook(dbUser.id, "karte_view")
-  } catch { /* 発火失敗でカルテを止めない */ }
-
-  const data = await buildKarteData(dbUser.id, userId, period)
+  if (!guest) {
+    try {
+      const { questEventHook } = await import("@/app/_libs/treasureEngine")
+      await questEventHook(dbUser.id, "karte_view")
+    } catch { /* 発火失敗でカルテを止めない */ }
+  }
+  const data = await buildKarteData(dbUser.id, karteAuthId, period)
 
   // カードアルバム (2026-08-31 Tetsuo確定): クエストカードの置き場はカルテ配下。点灯時のみ章を出す
   let cardAlbum: { got: number; total: number } | null = null
@@ -67,5 +75,7 @@ export default async function ProgressServerPage({ params }: PageProps) {
     current = nr.current
   } catch { /* 集計に失敗してもカルテは出す */ }
 
-  return <ProgressPage userId={userId} data={data} cardAlbum={cardAlbum} curve={curve} current={current} />
+  const page = <ProgressPage userId={userId} data={data} cardAlbum={cardAlbum} curve={curve} current={current} />
+  if (guest) return <GuestGate title={GATE_TEXT.karte.title} items={[...GATE_TEXT.karte.items]}>{page}</GuestGate>
+  return page
 }

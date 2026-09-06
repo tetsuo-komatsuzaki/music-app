@@ -8,5 +8,6 @@ export default async function RootPage() {
   if (user) {
     redirect(`/${user.id}`)
   }
-  redirect("/login")
+  // ゲスト閲覧 (2026-09-06): 未ログインはログイン画面ではなくゲストホームへ。/login 自体は残す
+  redirect("/guest")
 }

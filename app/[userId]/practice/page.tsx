@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
-import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { resolveViewer } from "@/app/_libs/resolveViewer"
+import { GUEST_DB_PLACEHOLDER } from "@/app/_libs/viewer"
 import { BASIC_PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import type { PracticeCategory } from "@/app/generated/prisma"
 import { getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
@@ -24,7 +25,10 @@ export default async function PracticePage({
   params: Promise<{ userId: string }>
 }) {
   const p = await params
-  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+  // ゲスト閲覧 (2026-09-06): 一覧は見せる。本人の進捗は存在しない ID で引いて空にする
+  const viewer = await resolveViewer(p)
+  const authUserId = viewer.authUserId
+  const dbUserId = viewer.dbUserId ?? GUEST_DB_PLACEHOLDER
 
   // カテゴリごとの件数 (運営サンプル + 自分のアイテムのみ): 基礎練6 + エチュード
   const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }

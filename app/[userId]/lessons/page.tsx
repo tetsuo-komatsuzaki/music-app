@@ -16,28 +16,39 @@ import { CATS, LESSONS, type LessonCat } from "./_lib/content"
 import LessonCardStatus from "./_components/LessonCardStatus"
 import styles from "./lessons.module.css"
 import ds from "@/app/components/ds.module.css"
+import GateSheet from "@/app/components/guest/GateSheet"
+import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GUEST_DB_PLACEHOLDER, GUEST_ID } from "@/app/_libs/viewer"
 
 export const metadata = { title: "学びレッスン" }
 
 export default async function LessonsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ userId: string }>
+  searchParams?: Promise<{ gate?: string }>
 }) {
   const { userId } = await params
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
-  // レッスンは本人の学習記録なので、他人のページ経由でも自分の一覧へ
-  if (user.id !== userId) redirect(`/${user.id}/lessons`)
+  // ゲスト閲覧 (2026-09-06): 一覧は見せる (本人の状態は無い)。行を押すと ?gate= で同じ画面の上にシート
+  const guest = userId === GUEST_ID
+  const gateOpen = guest && !!(await searchParams)?.gate
+  let dbUser: { id: string } | null = { id: GUEST_DB_PLACEHOLDER }
+  if (!guest) {
+    const supabase = await createServerSupabaseClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) redirect("/login")
+    // レッスンは本人の学習記録なので、他人のページ経由でも自分の一覧へ
+    if (user.id !== userId) redirect(`/${user.id}/lessons`)
 
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseUserId: user.id },
-    select: { id: true },
-  })
-  if (!dbUser) redirect("/login")
+    dbUser = await prisma.user.findUnique({
+      where: { supabaseUserId: user.id },
+      select: { id: true },
+    })
+    if (!dbUser) redirect("/login")
+  }
 
   const [inventory, state] = await Promise.all([
     getLessonInventory(),
@@ -55,6 +66,7 @@ export default async function LessonsPage({
 
   return (
     <div>
+      {gateOpen && <GateSheet key={String((await searchParams)?.gate)} title={GATE_TEXT.lesson.title} items={[...GATE_TEXT.lesson.items]} laterMode="hide" returnTo={`/${userId}/lessons`} />}
       {/* 原本 .back */}
       <Link
         href={`/${userId}/library?tab=basics`}
@@ -107,7 +119,8 @@ export default async function LessonsPage({
               return (
                 <Link
                   key={l.id}
-                  href={`/${userId}/lessons/${l.id}`}
+                  href={guest ? `/${userId}/lessons?gate=${l.id}` : `/${userId}/lessons/${l.id}`}
+                  scroll={!guest}
                   className="pressable"
                   style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 11px", marginTop: 6, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 10, textDecoration: "none", color: "inherit" }}
                 >

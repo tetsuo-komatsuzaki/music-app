@@ -36,6 +36,7 @@ import OptionCard from "./_components/OptionCard"
 import CtaButton from "./_components/CtaButton"
 import ProgressBar from "./_components/ProgressBar"
 import { YesNoGate, MultiGate } from "./_screens/gates"
+import { clearReturnToCookie, mapReturnToForUser, readReturnToCookie } from "@/app/_libs/returnTo"
 
 function Header({ bar = true }: { bar?: boolean }) {
   const s = useOnboarding()
@@ -647,7 +648,12 @@ function Scr12() {
     }).catch(() => ({ ok: false as const, error: "通信に失敗しました" }))
     if (res.ok) {
       s.resetDraft()
-      router.push(("homePath" in res && res.homePath) || s.homePath)
+      const home = ("homePath" in res && res.homePath) || s.homePath
+      // ゲスト閲覧 (2026-09-06): ゲートから登録した人は、止められた場所へ戻す (cookie の /guest/... を本人の URL に)
+      const rt = readReturnToCookie()
+      clearReturnToCookie()
+      const uid = home.split("/")[1] ?? ""
+      router.push(rt && uid ? mapReturnToForUser(rt, uid) : home)
     } else {
       setSaving(false)
       setError("error" in res ? (res.error ?? "保存に失敗しました") : "保存に失敗しました")

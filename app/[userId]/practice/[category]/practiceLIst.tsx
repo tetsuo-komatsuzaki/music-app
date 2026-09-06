@@ -10,6 +10,9 @@ import { tonicToJa } from "@/app/_libs/musicNotation"
 import BasicsPreSheet from "./BasicsPreSheet"
 import PrePracticeSheet from "../pieces/PrePracticeSheet"
 
+// ゲスト閲覧 (2026-09-06): 一覧は見せるが、押すと練習前シートではなく教材の詳細 (ゲートつき) へ進む
+const GuestCtx = createContext(false)
+
 type PracticeItemDTO = {
   id: string
   title: string
@@ -84,6 +87,8 @@ type Props = {
   userStar?: number | null
   /** カルテで「取り組んだが未習得」と出ている技法名。一覧の学びポイント表示に使う */
   weakTechniques?: string[]
+  /** ゲスト閲覧: 押した先を教材の詳細 (ゲート) にする */
+  guest?: boolean
 }
 
 type ViewType = "star" | "group"
@@ -364,6 +369,8 @@ function FamilyView({
   category: string
 }) {
   const [sheet, setSheet] = useState<Family | null>(null)
+  const guest = useContext(GuestCtx)
+  const routerG = useRouter()
 
   const map = new Map<string, PracticeItemDTO[]>()
   for (const it of items) {
@@ -381,7 +388,7 @@ function FamilyView({
     .sort((a, b) => a.title.localeCompare(b.title, "ja"))
 
   // 常にシートを開く (1調だけの族も調ラダーを見せる = 教材による有無をなくす)
-  const tap = (fam: Family) => setSheet(fam)
+  const tap = (fam: Family) => (guest ? routerG.push(`/${userId}/practice/${category}/${fam.items[0].id}`) : setSheet(fam))
 
   // シートには全★の同族兄弟を渡す (上位★の奏法を「選択不可(⭐N)」で示すため)。
   const siblings = sheet ? allItems.filter((it) => groupKeyOf(it) === sheet.gkey) : []
@@ -458,7 +465,9 @@ function StarView({
   const [songItem, setSongItem] = useState<PracticeItemDTO | null>(null)
   const [basicItem, setBasicItem] = useState<PracticeItemDTO | null>(null)
   const isEtude = category === "etude" || category === "etudes"
-  const openItem = (it: PracticeItemDTO) => (isEtude ? setSongItem(it) : setBasicItem(it))
+  const guestView = useContext(GuestCtx)
+  const routerI = useRouter()
+  const openItem = (it: PracticeItemDTO) => (guestView ? routerI.push(`/${userId}/practice/${category}/${it.id}`) : isEtude ? setSongItem(it) : setBasicItem(it))
 
   if (tabs.length === 0) {
     return (
@@ -727,7 +736,15 @@ function GroupView({
 // Main component
 // ────────────────────────────────────────────────────────────
 
-export default function PracticeList({
+export default function PracticeList(props: Props) {
+  return (
+    <GuestCtx.Provider value={!!props.guest}>
+      <PracticeListInner {...props} />
+    </GuestCtx.Provider>
+  )
+}
+
+function PracticeListInner({
   userId, category, categoryTitle, items, partItems = [],
   filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats, userStar = null,
   weakTechniques,

@@ -12,6 +12,7 @@ import ArcoMotion from "@/app/components/ArcoMotion"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { isNativeApp } from "@/app/_libs/isNativeApp"
 import { openAuthBrowser } from "@/app/_libs/arcodaAuthBrowser"
+import { resolveLoginDestination } from "@/app/_libs/returnTo"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -37,7 +38,9 @@ export default function LoginPage() {
       // ホームへ着地させる (旧: /scores。ログイン直後に一瞬ライブラリーが出て
       // からホームへ遷移する見え方 + コーチガイドのタイミング崩れを避ける)。
       // 未オンボーディングのユーザーは [userId]/layout の gate が /onboarding へ回す。
-      router.push(`/${userId}`)
+      // ゲスト閲覧 (2026-09-06): ゲートから来た場合は止められた場所へ戻す (?returnTo= か cookie)
+      const rt = new URLSearchParams(window.location.search).get("returnTo")
+      router.push(resolveLoginDestination(userId, rt))
     }
   }
 
