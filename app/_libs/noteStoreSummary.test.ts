@@ -69,7 +69,7 @@ describe("conditionSuffixes ・ 条件の名前", () => {
 })
 
 describe("perSubtaskOf ・ ミスの帰属", () => {
-  it("音程の木は pitchOk、リズムの木は startOk、not_detected は両方", () => {
+  it("音程の木は pitchOk、リズムの木は startOk、not_detected はミスではなく undetected に別枠", () => {
     const slur = P("A4", { techSlur: true })
     const rows = [
       row(slur, null, { pitchOk: false }),
@@ -78,12 +78,12 @@ describe("perSubtaskOf ・ ミスの帰属", () => {
       row(slur, null),
     ]
     const per = perSubtaskOf(rows)
-    expect(per.get("pitch_tech_slur")).toEqual({ miss: 2, target: 4 })
-    expect(per.get("rhythm_tech_slur")).toEqual({ miss: 2, target: 4 })
+    expect(per.get("pitch_tech_slur")).toEqual({ miss: 1, target: 3, undetected: 1 })
+    expect(per.get("rhythm_tech_slur")).toEqual({ miss: 1, target: 3, undetected: 1 })
   })
   it("リズムだけの文脈は rhythm_ にしか出ない", () => {
     const per = perSubtaskOf([row(P("A4", { dotted1: true }), null, { pitchOk: false })])
-    expect(per.get("rhythm_value_dotted")).toEqual({ miss: 0, target: 1 })
+    expect(per.get("rhythm_value_dotted")).toEqual({ miss: 0, target: 1, undetected: 0 })
     expect(per.has("pitch_value_dotted")).toBe(false)
   })
 })
@@ -128,7 +128,7 @@ describe("derivedSummaryOf / withDerived", () => {
   it("analysisSummary と同じ形 ・ 明細の無い演奏は null", () => {
     const s = derivedSummaryOf([row(P("A4", { techSlur: true }), null)])
     expect(s.diagnosis.map_available).toBe(true)
-    expect(s.diagnosis.per_subtask["pitch_tech_slur"]).toEqual({ miss: 0, target: 1 })
+    expect(s.diagnosis.per_subtask["pitch_tech_slur"]).toEqual({ miss: 0, target: 1, undetected: 0 })
     expect(s.noteStats.notes["A4"].target).toBe(1)
     const out = withDerived([{ id: "x", other: 1 }, { id: "y", other: 2 }], new Map([["x", s]]))
     expect(out[0].analysisSummary).toBe(s)

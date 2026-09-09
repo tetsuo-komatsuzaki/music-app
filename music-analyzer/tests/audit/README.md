@@ -23,6 +23,7 @@
 | `run_audit.py` | 3層をまとめて回して `history/` に残す |
 | `fetch_case_inputs.py` | 本番 DB と Storage から、解析器が実際に受け取った入力 (analysis.json・録音テンポ・カウントイン位置・区間) をケースへ取り寄せる。読み取りのみ |
 | `make_expected.py` | analysis.json から expected.json を作る。時刻は楽譜基準、音符番号は analysis.json のもの |
+| `segment_probe.py` | 音程側・段階1の下調べ。楽譜を見ずに音の塊を切り (pYIN 有声確率 + 音量の立ち上がり + 高さの跳び)、いまの方式が見つけた出だしとの一致率を出す |
 | `_diag_match.py` | 一致しない音の理由を切り分ける診断 |
 
 ## 使い方

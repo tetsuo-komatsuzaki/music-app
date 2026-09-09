@@ -9,7 +9,9 @@
  *
  *  - 規則は music-analyzer/lib/diagnosis.py の _context_suffixes をそのまま写す
  *    (verify_note_store_parity.py の profile_to_karte で旧新一致を確認済みの変換)
- *  - ミスの帰属: 音程の木 = pitchOk===false、リズムの木 = startOk===false、not_detected は両方ミス
+ *  - ミスの帰属: 音程の木 = pitchOk===false、リズムの木 = startOk===false
+ *  - not_detected (拾えなかった音) はミスではなく undetected に別枠で数える (2026-09-09)。
+ *    旧: 両方ミスに計上。本番のスラー音は 66% が not_detected で、精度が実態の 1/3 に沈んでいた
  *  - noteStats は analyze_performance.py の規則を写す。ただし遷移の「2回以上」の間引きはしない (F20)
  */
 import {
@@ -24,7 +26,8 @@ const POS_UNKNOWN = -1
 const STRINGS = ["G", "D", "A", "E"]
 const LETTERS = "CDEFGAB"
 
-export type SubEntry = { miss: number; target: number }
+/** target = 拾えて判定した音の数 / miss = そのうち外した数 / undetected = 拾えなかった音の数 (分母に入れない) */
+export type SubEntry = { miss: number; target: number; undetected?: number }
 export type NoteStat = { target: number; pitch_miss: number; timing_miss: number }
 export type NoteStatWithCents = NoteStat & { cents_avg: number | null }
 export type DerivedNoteStats = {
@@ -141,19 +144,26 @@ export function conditionSuffixes(cur: ProfileRow, prev: ProfileRow | null): { p
 /** 明細から per_subtask (条件の名前 → {miss,target}) を合算する */
 export function perSubtaskOf(rows: DetailRow[]): Map<string, SubEntry> {
   const per = new Map<string, SubEntry>()
-  const bump = (sid: string, miss: boolean) => {
-    const e = per.get(sid) ?? { miss: 0, target: 0 }
-    e.target += 1
-    if (miss) e.miss += 1
+  const bump = (sid: string, miss: boolean, und: boolean) => {
+    const e = per.get(sid) ?? { miss: 0, target: 0, undetected: 0 }
+    // 2026-09-09 (Tetsuo指示): 拾えなかった音 (not_detected) は「外した音」ではないので
+    // 分母 target に入れない。別枠 undetected に数え、「何割拾えたか」を出せるようにする。
+    // 本番のスラー音 1,880 件のうち 1,250 件 (66%) が not_detected で、これをミスに数えると
+    // 精度が 1/3 に沈んでいた。弓採点 (lib/subtask_judges._bow_evaluable) と同じ扱いに揃える。
+    if (und) e.undetected = (e.undetected ?? 0) + 1
+    else {
+      e.target += 1
+      if (miss) e.miss += 1
+    }
     per.set(sid, e)
   }
   for (const r of rows) {
     const und = r.evaluationStatus === "not_detected"
-    const pm = und || r.pitchOk === false
-    const rm = und || r.startOk === false
+    const pm = r.pitchOk === false
+    const rm = r.startOk === false
     const cx = conditionSuffixes(r.cur, r.prev)
-    for (const s of cx.pitchCtx) { bump(`pitch_${s}`, pm); bump(`rhythm_${s}`, rm) }
-    for (const s of cx.rhythmOnlyCtx) bump(`rhythm_${s}`, rm)
+    for (const s of cx.pitchCtx) { bump(`pitch_${s}`, pm, und); bump(`rhythm_${s}`, rm, und) }
+    for (const s of cx.rhythmOnlyCtx) bump(`rhythm_${s}`, rm, und)
   }
   return per
 }

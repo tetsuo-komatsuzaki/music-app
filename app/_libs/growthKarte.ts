@@ -1480,22 +1480,28 @@ export async function buildSkillDetail(
     }
     return sid.startsWith("pitch_double_") || sid.startsWith("rhythm_double_")
   }
-  const aggOf = (summary: unknown): { miss: number; target: number } => {
+  // 2026-09-09: target は判定件数 (1音につき pitch_ と rhythm_ の 2 件)。画面に「何音」と出すのは
+  // notes (pitch_ 側の件数 = 音数)。旧: target をそのまま音数として表示し、2 倍に見えていた (1,824 音 → 実際 912 音)。
+  const aggOf = (summary: unknown): { miss: number; target: number; notes: number } => {
     const d = (summary as { diagnosis?: DiagnosisJson } | null)?.diagnosis
     let miss = 0
     let target = 0
+    let notes = 0
+    let rhythmOnly = 0
     if (d?.per_subtask) {
       for (const [sid, v] of Object.entries(d.per_subtask)) {
         if (!inScope(sid) || typeof v?.miss !== "number" || typeof v?.target !== "number") continue
         miss += v.miss
         target += v.target
+        if (sid.startsWith("pitch_")) notes += v.target
+        else rhythmOnly += v.target
       }
     }
-    return { miss, target }
+    return { miss, target, notes: notes || rhythmOnly }
   }
 
   // 録音ごとの精度 (対象3音以上のみ点にする) + 聴き比べ候補
-  type Rec = { at: Date; title: string; audioPath: string | null; agg: { miss: number; target: number } }
+  type Rec = { at: Date; title: string; audioPath: string | null; agg: { miss: number; target: number; notes: number } }
   const recs: Rec[] = [
     ...perfs.map((p) => ({ at: p.uploadedAt, title: p.score?.title ?? "曲", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),
     ...pracs.map((p) => ({ at: p.uploadedAt, title: p.practiceItem?.title ?? "教材", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),
@@ -1507,11 +1513,14 @@ export async function buildSkillDetail(
     at: r.at.getTime(),
     date: fmtJp(r.at),
     pct: pctOf(r),
-    target: r.agg.target,
+    target: r.agg.notes,
   }))
 
   // 全期間の合算 → 状態判定 (マップと同じ規則)
-  const total = scored.reduce((a, r) => ({ miss: a.miss + r.agg.miss, target: a.target + r.agg.target }), { miss: 0, target: 0 })
+  const total = scored.reduce(
+    (a, r) => ({ miss: a.miss + r.agg.miss, target: a.target + r.agg.target, notes: a.notes + r.agg.notes }),
+    { miss: 0, target: 0, notes: 0 },
+  )
   const clearSet = new Set(clears.map((c) => c.tagType + ":" + c.tagKey))
   const acqSet = new Set(acqs.map((c) => c.tagType + ":" + c.tagKey))
   let inClear = false
@@ -1652,7 +1661,7 @@ export async function buildSkillDetail(
     provisional: acquired && !inClear,
     pct,
     miss: total.miss,
-    target: total.target,
+    target: total.notes,
     practiceHref: def.practiceCat ? "/" + supabaseUserId + "/practice/" + def.practiceCat : "/" + supabaseUserId + "/practice",
     series,
     annotations,
