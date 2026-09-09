@@ -1,0 +1,107 @@
+{
+  "timestamp": "2026-09-06T15:12:31.601740+00:00",
+  "case_count": 4,
+  "metrics": {
+    "detection": 0.5635,
+    "pitch": 0.9815,
+    "false_positive": 0.0,
+    "onset_mae": 485.1891,
+    "onset_p95": 499.9909,
+    "pitch_mae": 7.4993,
+    "pitch_p95": 18.8293,
+    "cascade_failures": 2,
+    "case_count": 4
+  },
+  "cases": {
+    "cmmiwe8kk000j4cjykt590m07": {
+      "provenance": "auto_generated",
+      "detection": 0.9917,
+      "pitch": 1.0,
+      "pitch_mae": 2.19,
+      "onset_mae": 143.8,
+      "analyzer": {
+        "notes": 121,
+        "detected": 120,
+        "pitch_ok": 120,
+        "timing_evaluated": 106,
+        "timing_ok": 106,
+        "not_detected": 1,
+        "valid_ratio": 0.627,
+        "first_sound_time": 11.308,
+        "global_shift": 0.641,
+        "beat_sec": 0.6667,
+        "time_scale": 1.0,
+        "timing_tolerance": 0.3333
+      }
+    },
+    "cmmixf2tc000o4cjycph81n05": {
+      "provenance": "auto_generated",
+      "detection": 0.9917,
+      "pitch": 1.0,
+      "pitch_mae": 2.19,
+      "onset_mae": 143.8,
+      "analyzer": {
+        "notes": 121,
+        "detected": 120,
+        "pitch_ok": 120,
+        "timing_evaluated": 106,
+        "timing_ok": 106,
+        "not_detected": 1,
+        "valid_ratio": 0.627,
+        "first_sound_time": 11.308,
+        "global_shift": 0.641,
+        "beat_sec": 0.6667,
+        "time_scale": 1.0,
+        "timing_tolerance": 0.3333
+      }
+    },
+    "cmnka2oac00000ojy19pke52r": {
+      "provenance": "auto_generated",
+      "detection": 0.0092,
+      "pitch": 1.0,
+      "pitch_mae": 3.7,
+      "onset_mae": 1252.2,
+      "analyzer": {
+        "notes": 109,
+        "detected": 1,
+        "pitch_ok": 1,
+        "timing_evaluated": 1,
+        "timing_ok": 0,
+        "not_detected": 108,
+        "valid_ratio": 0.369,
+        "first_sound_time": 2.38,
+        "global_shift": 2.18,
+        "beat_sec": 0.6667,
+        "time_scale": 1.0,
+        "timing_tolerance": 0.3333
+      }
+    },
+    "cmnl2fcv800000ojywq952uxk": {
+      "provenance": "auto_generated",
+      "detection": 0.2613,
+      "pitch": 0.9259,
+      "pitch_mae": 21.93,
+      "onset_mae": 400.95,
+      "analyzer": {
+        "notes": 310,
+        "detected": 81,
+        "pitch_ok": 75,
+        "timing_evaluated": 50,
+        "timing_ok": 40,
+        "not_detected": 229,
+        "valid_ratio": 0.823,
+        "first_sound_time": 0.476,
+        "global_shift": 0.246,
+        "beat_sec": 1.0,
+        "time_scale": 1.0,
+        "timing_tolerance": 0.5
+      }
+    }
+  },
+  "skipped": [
+    {
+      "case_id": "cmmiwi028000k4cjylgastvhs",
+      "reason": "recording.wav がない"
+    }
+  ]
+}

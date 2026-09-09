@@ -9,6 +9,7 @@ import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import NumbersRoomView from "@/app/components/NumbersRoomView"
 import { buildFastSwitch, type FastSwitchData } from "@/app/_libs/fastSwitch"
+import { buildPowersComparison, parseScale, scaleWindows, SCALE_LABEL, pastRange, buildPastFastSwitch } from "@/app/_libs/fivePowers"
 
 export const metadata = { title: "記録の分析" }
 
@@ -16,16 +17,26 @@ export default async function NumbersRoomPage({
   params, searchParams,
 }: {
   params: Promise<{ userId: string }>
-  searchParams: Promise<{ period?: string }>
+  searchParams: Promise<{ scale?: string }>
 }) {
   const p = await params
   const sp = await searchParams
   const { authUserId, dbUserId } = await getUserIdsFromParams(p)
-  const period: KartePeriod = sp.period === "7d" ? "7d" : sp.period === "all" ? "all" : "30d"
-  const d = await buildNumbersRoom(dbUserId, period)
+  // 比べる尺度 (2026-09-06 Tetsuo確定): 先週の自分と / 先月の自分と / はじめの自分と。下の箱は「いま」の窓で描く
+  const scale = parseScale(sp.scale)
+  const period: KartePeriod = SCALE_LABEL[scale].period
+  const win = scaleWindows(scale)
+  const [d, powers, past] = await Promise.all([
+    buildNumbersRoom(dbUserId, period, win.now),
+    buildPowersComparison(dbUserId, scale).catch(() => null),
+    pastRange(dbUserId, scale).catch(() => null),
+  ])
+  const [dPast, fastSwitchPast] = past
+    ? await Promise.all([buildNumbersRoom(dbUserId, period, past).catch(() => null), buildPastFastSwitch(dbUserId, scale).catch(() => null)])
+    : [null, null]
 
-  // 指板ヒートマップ (期間タブ連動。all は直近1年で近似)
-  const days = period === "7d" ? 7 : period === "all" ? 365 : 30
+  // 指板ヒートマップ (尺度の「いま」の窓)
+  const days = period === "7d" ? 7 : 30
   let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
   try { heatmap = await buildUserHeatmap(dbUserId, days) } catch { /* storage不通でも画面は出す */ }
 
@@ -53,6 +64,10 @@ export default async function NumbersRoomPage({
       fbMarks={fbMarks}
       practiceBase={`/${authUserId}/practice`}
       fastSwitch={fastSwitch}
+      scale={scale}
+      powers={powers}
+      dPast={dPast}
+      fastSwitchPast={fastSwitchPast}
     />
   )
 }

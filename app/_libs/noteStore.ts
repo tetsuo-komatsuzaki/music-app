@@ -73,6 +73,8 @@ export type Unit = {
   until?: Date
   target?: { type: "score" | "practice"; id: string }
   lastN?: number
+  /** 最初の N 回 (2026-09-06 比べる尺度「はじめの自分」= 最初の 5 回の演奏) */
+  firstN?: number
   performanceId?: string
   /** 通し演奏だけ (部分録音 rangeFromNote あり を除く)。基礎練②④が使う */
   wholeOnly?: boolean
@@ -266,6 +268,7 @@ async function selectPerformances(unit: Unit): Promise<{ kind: "score" | "practi
     }
   }
   out.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+  if (unit.firstN) return out.slice(0, unit.firstN)
   return unit.lastN ? out.slice(-unit.lastN) : out
 }
 

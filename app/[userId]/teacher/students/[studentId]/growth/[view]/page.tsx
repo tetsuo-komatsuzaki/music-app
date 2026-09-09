@@ -10,6 +10,7 @@ import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import SkillsLevelClient from "@/app/[userId]/progress/skills/SkillsLevelClient"
 import ExpressionLevelClient from "@/app/[userId]/progress/expression/ExpressionLevelClient"
 import NumbersRoomView from "@/app/components/NumbersRoomView"
+import { buildPowersComparison, parseScale, scaleWindows, SCALE_LABEL, pastRange, buildPastFastSwitch } from "@/app/_libs/fivePowers"
 
 export const metadata = { title: "生徒の成長カルテ" }
 
@@ -17,7 +18,7 @@ export default async function TeacherGrowthDetailPage({
   params, searchParams,
 }: {
   params: Promise<{ userId: string; studentId: string; view: string }>
-  searchParams: Promise<{ period?: string }>
+  searchParams: Promise<{ period?: string; scale?: string }>
 }) {
   const { userId, studentId, view } = await params
   const sp = await searchParams
@@ -39,9 +40,18 @@ export default async function TeacherGrowthDetailPage({
   const backLabel = `${student.name}のカルテにもどる`
 
   if (view === "numbers") {
-    const period: KartePeriod = sp.period === "7d" ? "7d" : sp.period === "all" ? "all" : "30d"
-    const d = await buildNumbersRoom(studentId, period)
-    const days = period === "7d" ? 7 : period === "all" ? 365 : 30
+    const scale = parseScale(sp.scale)
+    const period: KartePeriod = SCALE_LABEL[scale].period
+    const win = scaleWindows(scale)
+    const [d, powers, past] = await Promise.all([
+      buildNumbersRoom(studentId, period, win.now),
+      buildPowersComparison(studentId, scale).catch(() => null),
+      pastRange(studentId, scale).catch(() => null),
+    ])
+    const [dPast, fastSwitchPast] = past
+      ? await Promise.all([buildNumbersRoom(studentId, period, past).catch(() => null), buildPastFastSwitch(studentId, scale).catch(() => null)])
+      : [null, null]
+    const days = period === "7d" ? 7 : 30
     let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
     try { heatmap = await buildUserHeatmap(studentId, days) } catch { /* storage不通でも画面は出す */ }
     let fbMarks: { cellId: string; note: string }[] = []
@@ -60,6 +70,10 @@ export default async function TeacherGrowthDetailPage({
         backLabel={backLabel}
         heatmap={heatmap}
         fbMarks={fbMarks}
+        scale={scale}
+        powers={powers}
+        dPast={dPast}
+        fastSwitchPast={fastSwitchPast}
       />
     )
   }
