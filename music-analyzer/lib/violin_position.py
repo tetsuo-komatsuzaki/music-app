@@ -188,8 +188,11 @@ def try_infer_violin_position(midi_pitch: int) -> Optional[tuple[str, int]]:
 # これにより旧 MIDI 84+ 上限 (86% の mxl で高音が欠落) を撤廃する。
 # ---------------------------------------------------------------------------
 
-# 物理的な最大ポジション (学びレッスンは 10th まで。余裕を持たせて 12)
-MAX_POSITION = 12
+# 物理的な最大ポジション。
+# 2026-09-12 Tetsuo指示で 12 → 14。バイオリンのポジションは 14th まで実在し、
+# 13th は 1指=D7 / 4指=G7 で指板のいちばん端にあたる。3オクターブ ト長調音階の
+# てっぺん G7 が 12 では解決できず、弦も指も不明になっていた。
+MAX_POSITION = 14
 
 # ─── 音名（ダイアトニック）算術 (2026-07-09 Tetsuo 方針・最終形) ───
 # ポジションは半音距離ではなく「音名の文字数」で数える（奏者の数え方そのもの）。
@@ -344,6 +347,14 @@ def infer_with_finger(
         s, p = candidates[0]
         return (s, p, "high")
     s, p = _pick_candidate(candidates, prev_string, prev_position)
+    # 弦は5度ずつ = 音名で4文字ずつ離れているので、同じ音を同じ指で別の弦に取る
+    # 候補は必ず 4 ポジション以上離れる。「A線の第13ポジ」は「E線の第9ポジ」の
+    # 代わりにならない。候補の本数だけで低信頼にすると、この作り物の候補が
+    # 正しい答えを道連れにする (note_store が低信頼のポジションを捨てるため)。
+    # 最も低いポジションを採ったなら、そこに迷いは無い。
+    # 2026-09-12 Tetsuo指示。position_pass.resolve_anchor と同じ規則。
+    if p == min(c[1] for c in candidates):
+        return (s, p, "high")
     return (s, p, "low")
 
 
@@ -391,6 +402,12 @@ def infer_pitch_only(
     )
     # 選ばれた (弦, ポジ) で届く指のうち高い指を採用 (低ポジで自然)
     finger = max((c[2] for c in candidates if c[0] == s and c[1] == p), default=1)
+    # 最も低いポジションを採ったなら既定の読みなので、55-83 の帯と同じ "estimated"。
+    # 文脈を見て既定から離れたときだけ "low" に落とす (2026-09-12 Tetsuo指示)。
+    # 弦は5度ずつ離れているため候補は必ず4ポジション以上飛ぶ。本数で数えると
+    # 「A線の第13ポジ」のような作り物の候補が正しい答えを道連れにする。
+    if p == min(c[1] for c in candidates):
+        return (s, p, finger, "estimated")
     return (s, p, finger, "low")
 
 

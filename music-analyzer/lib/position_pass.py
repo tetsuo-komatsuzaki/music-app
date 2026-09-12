@@ -44,6 +44,10 @@ logger = logging.getLogger(__name__)
 # 1音の解決結果
 Resolved = dict[str, Any]   # {string_id, position, finger, confidence, is_anchor}
 
+# 隣り合う弦は5度 = 音名で4文字ぶん離れている。同じ音を同じ指で1本下の弦に取ると
+# ポジションはちょうど 4 上がる。ここより近い候補が並ぶことは無い。
+_STRING_GAP_POSITIONS = 4
+
 
 def _candidates_for_finger(step: str, octave: int, finger: int, midi: int) -> list[tuple[str, int]]:
     """指定の指で鳴らせる (弦, ポジション) の候補。物理的に出せない弦は除く。"""
@@ -89,8 +93,14 @@ def resolve_anchor(step: str, octave: int, finger: int, midi: int) -> Optional[R
                 "confidence": "high", "is_anchor": True}
     # B: 最も低いポジション ・ 同点は高音弦
     s, p = min(cands, key=lambda c: (c[1], -_STRING_ORDER.index(c[0])))
+    # 弦は5度ずつ = 音名で4文字ずつ離れているので、同じ音を同じ指で別の弦に取る候補は
+    # 必ず 4 ポジション以上離れる。「A線の第13ポジ」は「E線の第9ポジ」の代わりにならない。
+    # 候補の本数だけで低信頼にすると、この作り物の候補が正しい答えを道連れにする
+    # (note_store が低信頼のポジションを捨てるため・2026-09-12 実測で第9ポジが全滅した)。
+    # 最も低いポジションの候補は常に一意なので、そこに迷いは無い。
+    near = [c for c in cands if c[1] < p + _STRING_GAP_POSITIONS]
     return {"string_id": s, "position": p, "finger": finger,
-            "confidence": "high" if len(cands) == 1 else "low", "is_anchor": True}
+            "confidence": "high" if len(near) == 1 else "low", "is_anchor": True}
 
 
 def _pick_between(step: str, octave: int, midi: int,

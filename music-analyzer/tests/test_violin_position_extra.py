@@ -114,18 +114,27 @@ def test_infer_with_finger_open_string_no_match_none():
     assert infer_with_finger(70, 0) is None  # A#4 はどの開放弦とも不一致
 
 
-def test_infer_with_finger_multiple_strings_is_low_confidence():
-    # F5 指3 は G/D/A 3弦で可能 → 音脈補正で最低ポジの A線3rd, confidence low
+def test_infer_with_finger_lowest_position_is_high_confidence():
+    # F5 指3 の候補は G線11 / D線7 / A線3。弦は5度ずつ離れているので候補は
+    # 必ず4ポジション以上飛び、最低ポジの候補は常に一意。既定の読みを採った
+    # ときは迷っていないので high (2026-09-12 Tetsuo指示で本数判定から変更)。
     r = infer_with_finger(77, 3, step="F", octave=5)
-    assert r == ("A", 3, "low")
+    assert r == ("A", 3, "high")
+
+
+def test_infer_with_finger_context_away_from_lowest_is_low_confidence():
+    # 直前が G線11ポジなら、手を動かさない G線11ポジが選ばれる。
+    # 既定 (最低ポジ) から離れた選択なので low。
+    r = infer_with_finger(77, 3, prev_string="G", prev_position=11, step="F", octave=5)
+    assert r == ("G", 11, "low")
 
 
 def test_infer_with_finger_context_pulls_toward_prev_string():
-    # 直前が E線なら手の移動最小で高音弦寄りに引かれる（低信頼選択の音脈補正）
+    # 直前が E線なら手の移動最小で高音弦寄りに引かれる
     r = infer_with_finger(77, 3, prev_string="E", prev_position=1, step="F", octave=5)
-    # 候補は G/D/A。E線に最も近いのは A → A線を選ぶ
+    # 候補は G/D/A。E線に最も近いのは A → A線を選ぶ (最低ポジでもあるので high)
     assert r[0] == "A"
-    assert r[2] == "low"
+    assert r[2] == "high"
 
 
 def test_infer_with_finger_requires_step_octave_for_nonzero():
@@ -135,13 +144,14 @@ def test_infer_with_finger_requires_step_octave_for_nonzero():
 # ─── infer_pitch_only 高音域・境界 ───────────────────────────────────────
 
 def test_infer_pitch_only_high_note_uses_letter_arithmetic():
-    # E6(88) は 1st では弾けない → 音名算術で 2nd 以上・low
+    # E6(88) は 1st では弾けない → 音名算術で 2nd 以上。
+    # 文脈が無ければ最低ポジを採るので、55-83 の帯と同じ estimated。
     r = infer_pitch_only(88, step="E", octave=6)
     assert r is not None
     s, pos, finger, conf = r
     assert pos is not None and pos >= 2
     assert finger >= 1
-    assert conf == "low"
+    assert conf == "estimated"
 
 
 def test_infer_pitch_only_high_note_needs_step_octave():
@@ -155,8 +165,16 @@ def test_infer_pitch_only_boundary_83_is_estimated():
     assert r[3] == "estimated"
 
 
-def test_infer_pitch_only_boundary_84_is_low():
+def test_infer_pitch_only_boundary_84_is_estimated():
+    # 84 以上は音名算術に移るが、最低ポジを採るなら信頼度は 83 以下と同じ estimated。
     r = infer_pitch_only(FIRST_POSITION_MIDI_MAX + 1, step="C", octave=6)
+    assert r is not None
+    assert r[3] == "estimated"
+
+
+def test_infer_pitch_only_away_from_lowest_is_low():
+    # 直前が D線の高いポジなら、手を動かさない候補が選ばれて既定から離れる → low
+    r = infer_pitch_only(88, prev_string="D", prev_position=13, step="E", octave=6)
     assert r is not None
     assert r[3] == "low"
 
