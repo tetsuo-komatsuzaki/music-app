@@ -70,7 +70,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
             アルコの採点は無制限で使えます。
             {planStatus === "trialing" && endDate && <>無料期間は {endDate} までです。</>}
             {planStatus === "active" && endDate && <>次回の更新日は {endDate} です。</>}
-            {planStatus === "past_due" && <>カード情報をご確認ください (このままだと無料プランに戻ります)。</>}
+            {planStatus === "past_due" && <>カード情報をご確認ください (このままだと採点が使えなくなります)。</>}
           </p>
           <button
             type="button"
@@ -89,7 +89,10 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
                 (以前ここに書いていたが、実装に課金判定が無く、事実と違っていた) */}
             <b style={{ color: "var(--text-ink)" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — アルコの採点が無制限になり、
             自分の楽譜を取り込んで、その曲も採点できるようになります。
-            {trialEligible && <><br /><b style={{ color: "var(--text-master)" }}>はじめての方は14日間無料</b>で試せます。</>}
+            {/* 2026-09-12: 恒久的な「無料プラン」は無く、あるのはアルコプラスの無料期間だけ。
+                「加入すると無料期間が始まる」と読める書き方を避ける。
+                日数は Stripe の trial_period_days が正 (現在 14)。ここでは数字を持たない */}
+            {trialEligible && <><br /><b style={{ color: "var(--text-master)" }}>はじめは無料でためせます</b>。いつでもやめられます。</>}
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button

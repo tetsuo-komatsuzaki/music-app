@@ -1,7 +1,11 @@
 // 課金プラン判定 + 採点クォータ (2026-08-07 課金設計確定: project_pricing_plan)
 //
 // 設計の要点 (2026-09-12 05_プラン設計 第4版に合わせて改訂):
-// - 有料と無料の差は 2 つだけ。①自分の楽譜を取り込めるか ②量の上限。
+// - **恒久的な「無料プラン」は存在しない。** あるのはアルコプラスの無料期間だけ。
+//   登録した人は無料期間の中にいて、期間が終われば課金されるか、使えなくなる。
+//   そのためこのファイルの上限はすべて「無料期間中の上限」であって、
+//   「無料プランの上限」ではない (以前の FREE_* という名前は誤解を招くので TRIAL_* に改めた)。
+// - 差は 2 つだけ。①自分の楽譜を取り込めるか ②量の上限。
 //   それ以外 (基礎練・学びレッスン・おすすめ練習・部分練習・くわしい数字・推移・カルテ・
 //   比べる尺度・報酬・わざ・表現・指板ヒートマップ) は無料でも有料と同じものが出る。
 // - 量の上限は「日次」。週次だと使い切った後の 6 日間が死ぬため。
@@ -23,29 +27,34 @@ import { prisma } from "@/app/_libs/prisma"
  * 原価は 固定(本数) + 変動(分) の 2 項なので、本数と分の両方に上限を置く。
  * 分だけだと 1 本 10 分 × 8 本 = 80 分、本数だけだと長い録音が野放しになる。
  */
-export const FREE_DAILY_SECONDS = 600
+export const TRIAL_DAILY_SECONDS = 600
 
 /** 無料の 1 日あたり 曲の採点回数。原価の固定費 (1 本 15.28 秒) を抑えるための上限 */
-export const FREE_DAILY_GRADINGS = 8
+export const TRIAL_DAILY_GRADINGS = 8
 
 /** 無料の 1 日あたり 基礎練・学びレッスンの採点回数 (曲とは別枠・第4版「別枠で 1 日 5 分」) */
-export const FREE_DAILY_PRACTICE_GRADINGS = 5
+export const TRIAL_DAILY_PRACTICE_GRADINGS = 5
 
 /**
- * 無料で使える日数 (登録から)。第4版で「恒久的な無料プランはやめ、15 日間にする」と決定。
- * 15 日を過ぎたら、アルコプラスに入るか、新しく録音できなくなる。
+ * 登録から数えた無料期間の日数 (第4版)。
+ * 過ぎたら、アルコプラスの支払いを始めるか、新しく録音できなくなる。
  * 記録 (点数・分析・カルテ・推移) は消さない。止まるのは新しい録音だけ。
+ *
+ * **注意 (未解決):** Stripe 側は checkout で trial_period_days: 14 を付けている。
+ * この登録起点の無料期間を発動すると 15 日 + 14 日 = 29 日 無料になってしまう。
+ * ENFORCE_TRIAL_PERIOD を true にする前に、どちらを正にするか決めること。
  */
-export const FREE_PERIOD_DAYS = 15
+export const TRIAL_PERIOD_DAYS = 15
 
 /**
- * 無料期間の打ち切りを発動するか。
+ * 登録起点の無料期間の打ち切りを発動するか。
  *
  * **既定は false。** true にした瞬間、登録から 15 日を過ぎた既存ユーザー全員が
  * その場で録音できなくなる (開発・検証用のアカウントを含む)。
- * 発動するときは RESTRICTION_START と同じように移行の猶予を先に用意すること。
+ * 発動するときは RESTRICTION_START と同じように移行の猶予を先に用意し、
+ * 併せて Stripe の trial_period_days (現在 14) との二重取りも解消すること。
  */
-export const ENFORCE_FREE_PERIOD = false
+export const ENFORCE_TRIAL_PERIOD = false
 
 /** アルコプラス 月額 (税込・円) */
 export const PLUS_PRICE_JPY = 980
@@ -126,12 +135,12 @@ export function resolveEffectivePlan(input: {
 }
 
 /**
- * 無料期間の残り日数。純関数。
- * 登録日から FREE_PERIOD_DAYS 日が無料期間。過ぎていれば 0 を返す。
+ * 登録起点の無料期間の残り日数。純関数。
+ * 登録日から TRIAL_PERIOD_DAYS 日が無料期間。過ぎていれば 0 を返す。
  */
-export function freePeriodDaysLeft(createdAt: Date, now: Date = new Date()): number {
+export function trialDaysLeftFrom(createdAt: Date, now: Date = new Date()): number {
   const elapsed = Math.floor((now.getTime() - createdAt.getTime()) / DAY_MS)
-  return Math.max(0, FREE_PERIOD_DAYS - elapsed)
+  return Math.max(0, TRIAL_PERIOD_DAYS - elapsed)
 }
 
 export type GradingQuota = {
@@ -150,10 +159,10 @@ export type GradingQuota = {
   allowed: boolean
   /** 今すぐ基礎練を採点してよいか */
   practiceAllowed: boolean
-  /** 無料期間の残り日数 (プラスなら null) */
-  freeDaysLeft: number | null
-  /** 無料期間が終わっているか (ENFORCE_FREE_PERIOD=false の間は常に false) */
-  freePeriodOver: boolean
+  /** 登録起点の無料期間の残り日数 (支払い中なら null) */
+  trialDaysLeft: number | null
+  /** 登録起点の無料期間が終わっているか (ENFORCE_TRIAL_PERIOD=false の間は常に false) */
+  trialOver: boolean
   plan: EffectivePlan
 }
 
@@ -204,7 +213,7 @@ export async function countDailyPracticeGradings(dbUserId: string, now: Date = n
 
 /**
  * 採点クォータの取得 (サーバー専用)。
- * 曲と基礎練で別枠。無料期間 (15日) の判定は ENFORCE_FREE_PERIOD で切り替える。
+ * 曲と基礎練で別枠。無料期間 (15日) の判定は ENFORCE_TRIAL_PERIOD で切り替える。
  */
 export async function getGradingQuota(dbUserId: string, now: Date = new Date()): Promise<GradingQuota> {
   const [user, teacherLink, used, secondsUsed, practiceUsed] = await Promise.all([
@@ -222,11 +231,11 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
 
   const base = {
     used,
-    limit: FREE_DAILY_GRADINGS,
+    limit: TRIAL_DAILY_GRADINGS,
     secondsUsed,
-    secondsLimit: FREE_DAILY_SECONDS,
+    secondsLimit: TRIAL_DAILY_SECONDS,
     practiceUsed,
-    practiceLimit: FREE_DAILY_PRACTICE_GRADINGS,
+    practiceLimit: TRIAL_DAILY_PRACTICE_GRADINGS,
   }
 
   if (!user) {
@@ -235,16 +244,16 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
       unlimited: false,
       allowed: !ENFORCE_LIMITS,
       practiceAllowed: !ENFORCE_LIMITS,
-      freeDaysLeft: 0,
-      freePeriodOver: false,
+      trialDaysLeft: 0,
+      trialOver: false,
       plan: "free",
     }
   }
 
   const plan = resolveEffectivePlan({ ...user, now })
   const unlimited = plan === "plus" || teacherLink != null
-  const freeDaysLeft = unlimited ? null : freePeriodDaysLeft(user.createdAt, now)
-  const freePeriodOver = ENFORCE_FREE_PERIOD && !unlimited && freeDaysLeft === 0
+  const trialDaysLeft = unlimited ? null : trialDaysLeftFrom(user.createdAt, now)
+  const trialOver = ENFORCE_TRIAL_PERIOD && !unlimited && trialDaysLeft === 0
 
   return {
     ...base,
@@ -254,11 +263,11 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
       !ENFORCE_LIMITS ||
       (unlimited
         ? true
-        : !freePeriodOver && used < FREE_DAILY_GRADINGS && secondsUsed < FREE_DAILY_SECONDS),
+        : !trialOver && used < TRIAL_DAILY_GRADINGS && secondsUsed < TRIAL_DAILY_SECONDS),
     practiceAllowed:
-      !ENFORCE_LIMITS || (unlimited ? true : !freePeriodOver && practiceUsed < FREE_DAILY_PRACTICE_GRADINGS),
-    freeDaysLeft,
-    freePeriodOver,
+      !ENFORCE_LIMITS || (unlimited ? true : !trialOver && practiceUsed < TRIAL_DAILY_PRACTICE_GRADINGS),
+    trialDaysLeft,
+    trialOver,
     plan,
   }
 }

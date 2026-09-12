@@ -181,8 +181,10 @@ export default function loginPage() {
               disabled={isSubmitting}
               className={styles.input}
             >
-              <option value="">プランを選ぶ</option>
-              <option value="free">無料プラン</option>
+              {/* 2026-09-12: 恒久的な「無料プラン」は存在せず、登録するとアルコプラスを
+                  無料でためせる期間が始まる。value は互換のため "free" のまま */}
+              <option value="">えらぶ</option>
+              <option value="free">まずは無料でためす</option>
             </select>
           </div>
           <div className={styles.field}>

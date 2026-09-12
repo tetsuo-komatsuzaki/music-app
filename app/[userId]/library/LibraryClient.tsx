@@ -5,7 +5,7 @@
 //  ・セグメント 曲 / 基礎練 / マイ楽譜。選択はURLの ?tab= に持ち、戻る操作で復元する
 //  ・曲/マイ楽譜 = 1曲1カード (b14.5 / 作曲者11 / ★11px ls1.5 実数 / 判定バッジ=マスター金・達成テール)
 //  ・基礎練 = カテゴリ grid2 (0曲は文字と矢印だけ薄く) + 学びのレッスン行
-//  ・マイ楽譜 = 金破線のアップロード箱。無料プランには PLAN_NOTICE を常設
+//  ・マイ楽譜 = 金破線のアップロード箱。支払い前のユーザーには PLAN_NOTICE を常設
 //  ・空状態 = ♪ + 見出し + 説明 + 金ピル (原本 04/05)
 // 逸脱申告: 検索行右の + ボタンは原本に無いため廃止 (アップロード導線はマイ楽譜タブに一本化)
 import { useState } from "react"
@@ -108,7 +108,7 @@ export default function LibraryClient({
               {[
                 ["自分の楽譜を取り込む", "その曲も採点できる"],
                 ["採点が無制限", "1日8本の上限が外れる"],
-                ["14日間おためし", "いつでもやめられる"],
+                ["はじめは無料でためせる", "いつでもやめられる"],
               ].map(([t, sub]) => (
                 <div key={t} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, color: "var(--text-sub)" }}>
                   <span style={{ color: "var(--gold)", fontWeight: 900, flex: "none" }}>+</span>
@@ -269,7 +269,7 @@ export default function LibraryClient({
             </span>
           </button>
 
-          {/* PLAN_NOTICE (原本 04): 無料プランには常設 */}
+          {/* PLAN_NOTICE (原本 04): 支払い前のユーザーには常設 */}
           {!canUpload && !guest && (
             <div className={ds.card} style={{ padding: "14px 15px", borderColor: "rgba(232,178,60,.3)" }} role="status">
               <b style={{ fontSize: 13.5, color: "var(--gold)" }}>楽譜のアップロードはプラス限定の機能です</b>

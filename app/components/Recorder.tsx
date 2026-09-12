@@ -1051,7 +1051,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
               <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 4 }}>明日またできるよ</div>
               {canShowBillingEntryPoint() && params?.userId && (
                 <Link href={`/${params.userId}/settings`} style={{ display: "inline-block", marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "#2b5bc4", textDecoration: "none" }}>
-                  アルコプラスなら無制限・14日間無料 →
+                  アルコプラスで無制限にする →
                 </Link>
               )}
             </div>

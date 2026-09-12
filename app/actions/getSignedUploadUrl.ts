@@ -77,10 +77,10 @@ export async function getSignedUploadUrl(
   // === 1.5 採点クォータ (2026-09-12 第4版: 日次・曲と基礎練は別枠) ===
   //     UI側でもボタンを畳むが、ここが権威 (直APIやUI飛ばしを防ぐ)
   const quota = await getGradingQuota(dbUserId)
-  if (quota.freePeriodOver) {
+  if (quota.trialOver) {
     return {
       ok: false,
-      error: "無料でためせる期間が終わりました。アルコプラスに入ると、続きから練習できます",
+      error: "無料でためせる期間が終わりました。お支払いを始めると、続きから練習できます",
     }
   }
   if (params.kind === "score" && !quota.allowed) {
