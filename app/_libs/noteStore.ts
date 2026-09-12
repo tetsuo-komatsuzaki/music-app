@@ -64,6 +64,13 @@ export type DetailRow = {
   /** スラーの中の位置 (2026-09-06): そのスラーの音数 と 何番目か (0 = 最初の音)。スラーの外・古い並びは null */
   slurLen?: number | null
   slurPos?: number | null
+  /** 奏法品質の測定値 (2026-09-12)。2026-07 より前に解析した録音は入っていない */
+  durRatio?: number | null
+  attackPeakFrac?: number | null
+  decayRatio?: number | null
+  pitchAltCount?: number | null
+  pitchAltSemitones?: number | null
+  ampStrokeCount?: number | null
 }
 
 /** 単位 (§5-1) */
@@ -277,6 +284,9 @@ type RawDetail = {
   evaluationStatus: string; expectedStartSec: number | null; profileId: number; prevProfileId: number | null
   noteName: string | null; pitchCentsError: number | null; expectedPitchHz: number | null
   slurLen: number | null; slurPos: number | null
+  // 奏法品質の測定値 (2026-09-12)。判定は techniqueQuality.ts。古い録音は null
+  durRatio: number | null; attackPeakFrac: number | null; decayRatio: number | null
+  pitchAltCount: number | null; pitchAltSemitones: number | null; ampStrokeCount: number | null
 }
 
 /** 明細 → 並び (かたちの番号だけ)。かたちの中身は別に1回で引く (行ごとの副問い合わせは重い) */
@@ -288,6 +298,8 @@ async function fetchDetailFor(kind: "score" | "practice", perfs: { id: string; t
   return prisma.$queryRaw<RawDetail[]>(Prisma.sql`
     SELECT pn."performanceId", pn."noteIndex", pn."pitchOk", pn."startOk", pn."evaluationStatus", pn."expectedStartSec",
            pn."noteName", pn."pitchCentsError", pn."expectedPitchHz",
+           pn."durRatio", pn."attackPeakFrac", pn."decayRatio",
+           pn."pitchAltCount", pn."pitchAltSemitones", pn."ampStrokeCount",
            sn."profileId", sn."prevProfileId", sn."slurLen", sn."slurPos"
     FROM "PerformanceNote" pn
     JOIN ${perfTable} x ON x.id = pn."performanceId"
@@ -354,6 +366,8 @@ export const prismaSource: NoteStoreSource = {
         noteName: r.noteName, pitchCentsError: r.pitchCentsError, expectedPitchHz: r.expectedPitchHz,
         cur, prev: r.prevProfileId !== null ? profiles.get(r.prevProfileId) ?? null : null,
         slurLen: r.slurLen, slurPos: r.slurPos,
+        durRatio: r.durRatio, attackPeakFrac: r.attackPeakFrac, decayRatio: r.decayRatio,
+        pitchAltCount: r.pitchAltCount, pitchAltSemitones: r.pitchAltSemitones, ampStrokeCount: r.ampStrokeCount,
       })
     }
     return out

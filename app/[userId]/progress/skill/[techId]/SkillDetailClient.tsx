@@ -55,6 +55,15 @@ function masteryHint(l: SkillLadderRow): string {
   return `直近5回の平均 ${l.avg} 点 ・ マスターまで あと ${Math.ceil(MASTER_AVG - l.avg)}`
 }
 
+// 何を見て合否にしているか。数字だけ出しても何の出来か分からないため
+const QUALITY_NOTE: Record<string, string> = {
+  staccato: "楽譜の音価の半分以下に短く切れていれば合格だよ。",
+  spiccato: "楽譜の音価の半分以下に短く切れていれば合格だよ。",
+  portato: "切るけれど切りすぎない長さなら合格だよ。",
+  trill: "主音と補助音を4回以上いききしていれば合格だよ。",
+  pizzicato: "はじいた音らしく、出だしが鋭くて減っていけば合格だよ。",
+}
+
 // 分類ラベル (karte08 subT 用 ・ SkillsLevelClient と同一)
 const CAT_OF: Record<string, string> = {
   slur: "弓", staccato: "弓", portato: "弓", bow_staccato: "弓", tremolo: "弓", spiccato: "弓", ricochet: "弓", pizzicato: "弓",
@@ -154,6 +163,34 @@ export default function SkillDetailClient({ userId, data, mastery = null }: { us
           </div>
         )}
       </div>
+
+      {/* 奏法そのものの出来 (2026-09-12)。音程とリズムではなく、音の長さや音量の包絡から
+          「奏法として弾けているか」を見る。判定を持つ 5 奏法だけに出す。
+          いまは測定値のある録音がほとんど無いので、多くの場合ここは「まだ測れていません」になる */}
+      {data.quality && (
+        <div className={ds.card}>
+          <div className={ds.lab}>{data.label}の出来</div>
+          {data.quality.pct != null ? (
+            <>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 9, marginTop: 7 }}>
+                <div style={{ fontSize: 26, fontWeight: 900, color: "var(--cream)", lineHeight: 1 }}>{data.quality.pct}</div>
+                <span style={{ paddingBottom: 4, fontSize: 11, color: SUB, fontWeight: 700 }}>
+                  % ・ {data.quality.judged} 音のうち {data.quality.ok} 音
+                </span>
+              </div>
+              <div style={{ fontSize: 10.5, color: SUB, marginTop: 7, lineHeight: 1.7 }}>
+                {QUALITY_NOTE[data.id] ?? "奏法として弾けているかを見ているよ。"}
+                {data.quality.unmeasured > 0 && `${data.quality.unmeasured} 音は測れなかったので数えていないよ。`}
+              </div>
+            </>
+          ) : (
+            <div style={{ fontSize: 11.5, color: SUB, marginTop: 8, lineHeight: 1.75 }}>
+              まだ測れていないよ。{data.quality.unmeasured > 0 && `${data.label}の音は ${data.quality.unmeasured} 音あるけれど、`}
+              音の長さを測るには録音がうまく拾えている必要があるよ。
+            </div>
+          )}
+        </div>
+      )}
 
       {/* B1 の 3 つの事実。いまの一手だけをここに置き、詳細は下の「くわしく」に畳む。
           先生の指摘は今回の対象外のため出していない (枠を足せば 3 行に戻る) */}

@@ -9,6 +9,7 @@ import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { derivedSummariesByPerformance, derivedSummariesFromRows, withDerived } from "./noteStoreSummary"
+import { QUALITY_TECHS, tallyQuality, type QualityTech } from "./techniqueQuality"
 import { normalizeNoteName } from "./noteName"
 import { prismaSource, aggregate, aggregateChords, findMaterialsForKey, findMaterialsForTechnique, type GroupKey, type Tech } from "./noteStore"
 import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
@@ -1023,6 +1024,9 @@ export interface SkillDetailData {
   coverage: number | null
   /** 直近の週と その前の週 の精度の差。null=2週ぶん揃っていない */
   weekDelta: number | null
+  /** 奏法そのものの出来 (2026-09-12)。判定を持たない奏法は null。
+      音程とリズムではなく、音の長さや音量の包絡から「奏法として弾けているか」を見る */
+  quality: { judged: number; ok: number; unmeasured: number; pct: number | null } | null
   practiceHref: string
   series: SkillSeriesPoint[]
   annotations: SkillAnnotation[]
@@ -1541,6 +1545,11 @@ export async function buildSkillDetail(
   const undTotal = recs.reduce((a, r) => a + r.agg.und, 0)
   const notesTotal = recs.reduce((a, r) => a + r.agg.notes, 0)
 
+  // 奏法そのものの出来 (2026-09-12)。判定を持つ 5 奏法だけ。測定値が無い音は分母に入れない
+  const quality = (QUALITY_TECHS as readonly string[]).includes(def.id)
+    ? tallyQuality(def.id as QualityTech, rowsAll)
+    : null
+
   // 先週比 (2026-09-10): 週ごとに miss/target を足し直してから割る。
   // 録音ごとの pct を平均すると 3 音の録音と 300 音の録音が同じ重みになるため。
   const weekKey = (t: number) => { const d = new Date(t); d.setUTCHours(0, 0, 0, 0); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d.getTime() }
@@ -1697,6 +1706,7 @@ export async function buildSkillDetail(
     undetected: undTotal,
     coverage: notesTotal + undTotal > 0 ? notesTotal / (notesTotal + undTotal) : null,
     weekDelta,
+    quality,
     practiceHref: def.practiceCat ? "/" + supabaseUserId + "/practice/" + def.practiceCat : "/" + supabaseUserId + "/practice",
     series,
     annotations,

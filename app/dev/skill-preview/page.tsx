@@ -36,6 +36,8 @@ const SERIES = [
 const detailA: SkillDetailData = {
   id: "slur", label: "スラー", lane: "bow", star: 1, state: "stable", provisional: false,
   pct: 86, miss: 12, target: 44, undetected: 16, coverage: 44 / 60, weekDelta: 9,
+  // 奏法の出来。スラーは判定を持たないので null。5奏法の見え方は下の別枠で見る
+  quality: null,
   practiceHref: `/${UID}/practice/bowing`,
   series: SERIES,
   annotations: [{ at: 1, date: "4.20", kind: "lesson_clear", label: "スラーのレッスン合格" }],
@@ -90,6 +92,20 @@ export default function SkillPreviewPage() {
 
       <Frame n="3" title="認定曲が未登録" note="いまの本番は全わざがこの状態">
         <SkillDetailClient userId={UID} data={detailA} mastery={null} />
+      </Frame>
+
+      <Frame n="4" title="奏法の出来が測れたとき" note="スタッカート ・ 判定できた12音中9音">
+        <SkillDetailClient userId={UID}
+          data={{ ...detailA, id: "staccato", label: "スタッカート",
+                  quality: { judged: 12, ok: 9, unmeasured: 3, pct: 75 } }}
+          mastery={null} />
+      </Frame>
+
+      <Frame n="5" title="奏法の出来がまだ測れないとき" note="いまの本番はほぼこの状態">
+        <SkillDetailClient userId={UID}
+          data={{ ...detailA, id: "staccato", label: "スタッカート",
+                  quality: { judged: 0, ok: 0, unmeasured: 225, pct: null } }}
+          mastery={null} />
       </Frame>
 
     </div>
