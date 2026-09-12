@@ -38,8 +38,14 @@ describe("resolveEffectivePlan", () => {
     expect(resolveEffectivePlan({ ...base, plan: null, planStatus: null })).toBe("free")
   })
 
-  it.each(["trialing", "active", "past_due"])("planStatus=%s は plus", (s) => {
+  // 2026-09-12: trialing は「加入しているが、まだ払っていない」= trial に分けた。
+  // 無料期間中は量に上限がかかり、自分の楽譜は使えない。
+  it.each(["active", "past_due"])("planStatus=%s は plus (支払い中)", (s) => {
     expect(resolveEffectivePlan({ ...base, plan: "plus", planStatus: s })).toBe("plus")
+  })
+
+  it("planStatus=trialing は trial (無料期間中)", () => {
+    expect(resolveEffectivePlan({ ...base, plan: "plus", planStatus: "trialing" })).toBe("trial")
   })
 
   it.each(["canceled", "unpaid", "incomplete_expired"])("planStatus=%s は free", (s) => {

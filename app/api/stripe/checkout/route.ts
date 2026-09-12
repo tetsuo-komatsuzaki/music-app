@@ -2,13 +2,15 @@
 //
 // 課金 Phase 2 (2026-08-07): アルコプラス加入の入口。
 // Stripe Checkout (ホスト型・Apple Pay 自動対応) のセッションを作り URL を返す。
-// 2026-09-12: トライアルは機能として削除した。恒久的な「無料プラン」は存在せず、
-// 登録した時点でアルコプラスを無料でためせる期間が始まっている。
-// checkout でさらに trial_period_days を付けると無料期間が二重になるため付けない。
+// 2026-09-12: 恒久的な「無料プラン」は存在しない。登録した時点でアルコプラスに入り、
+// その最初の TRIAL_PERIOD_DAYS 日だけが無料期間になる。これを Stripe の
+// trial_period_days で表現する (アプリ側で日数を二重に持たない)。
+// 無料期間中 (trialing) は量に上限がかかり、自分の楽譜は使えない (plan.ts)。
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { getStripe, isBillingConfigured } from "@/app/_libs/stripe"
+import { TRIAL_PERIOD_DAYS } from "@/app/_libs/plan"
 import { logError } from "@/app/_libs/logError"
 
 export async function POST(request: NextRequest) {
@@ -59,8 +61,7 @@ export async function POST(request: NextRequest) {
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      // トライアルは付けない (2026-09-12 削除)。無料期間は登録時点から始まっている
-      subscription_data: { metadata: { dbUserId: dbUser.id } },
+      subscription_data: { trial_period_days: TRIAL_PERIOD_DAYS, metadata: { dbUserId: dbUser.id } },
       client_reference_id: dbUser.id,
       locale: "ja",
       allow_promotion_codes: true,
