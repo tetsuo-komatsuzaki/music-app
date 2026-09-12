@@ -38,7 +38,11 @@ def notes_from_case(case_dir: pathlib.Path) -> tuple[list, float, dict]:
     aj = case_dir / "analysis.json"
     if aj.exists():
         d = json.loads(aj.read_text(encoding="utf-8"))
-        return d["notes"], float(d.get("bpm") or DEFAULT_BPM), {"source": "analysis.json"}
+        # 本番は analysis.json の instrument で音域を選ぶ (analyze_performance.py 1886/1931 行)。
+        # "ヴァイオリン" や "piano" は INSTRUMENT_PITCH_RANGE に無く DEFAULT (G3〜E6) に落ちる。
+        # 監査は本番と同じ分岐を踏む (直さない)。
+        return d["notes"], float(d.get("bpm") or DEFAULT_BPM), {"source": "analysis.json",
+                                                                   "instrument": d.get("instrument", "unknown")}
 
     cr = case_dir / "comparison_result.json"
     if not cr.exists():
@@ -234,6 +238,7 @@ def analyze_case(case_dir, **kw) -> dict:
         kw.setdefault("range_to", p.get("range_to_note"))
         info = {**info, "params": {k: p.get(k) for k in
                                    ("recording_bpm", "guide_offset_sec", "range_from_note", "range_to_note")}}
+    kw.setdefault("instrument", info.get("instrument", "unknown"))
     out = analyze(case_dir / "recording.wav", notes, bpm, **kw)
     out["notes_source"] = info
     out["bpm"] = bpm

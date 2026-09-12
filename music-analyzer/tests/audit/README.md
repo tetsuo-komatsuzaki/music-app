@@ -25,6 +25,7 @@
 | `make_expected.py` | analysis.json から expected.json を作る。時刻は楽譜基準、音符番号は analysis.json のもの |
 | `segment_probe.py` | 音程側・段階1の下調べ。楽譜を見ずに音の塊を切り (pYIN 有声確率 + 音量の立ち上がり + 高さの跳び)、いまの方式が見つけた出だしとの一致率を出す |
 | `undetected_probe.py` | 「検出できず」の音を 弾いていない・違う音・見逃し・隣に吸収・ずれ の5つに分ける (音声を窓で直接見る) |
+| `triage_undetected.py` | 「検出できず」の分解ロジック 最終版 (v18 実装 = 文書 v19)。探索ログを捕まえ、第1層 (探索の死角) と第2層 (演奏の事実) に分け、交差窓・境界の印と機械集計を出す。批判者との17往復の結果: https://claude.ai/code/artifact/34be94fe-2590-48cc-9d72-ab86a6489970 |
 | `fetch_case_audio.py` | 本番の演奏を監査ケースとして取り寄せる (webm は imageio_ffmpeg で変換)。読み取りのみ。取り寄せた録音はコミットしない |
 | `_diag_match.py` | 一致しない音の理由を切り分ける診断 |
 
