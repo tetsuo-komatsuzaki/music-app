@@ -2,7 +2,7 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { prisma } from "@/app/_libs/prisma"
 import { resolveEffectivePlan } from "@/app/_libs/plan"
-import { isBillingConfigured, isTrialEligible } from "@/app/_libs/stripe"
+import { isBillingConfigured } from "@/app/_libs/stripe"
 import { redirect } from "next/navigation"
 import SettingsClient from "./SettingsClient"
 
@@ -59,7 +59,6 @@ export default async function SettingsPage({
         isPlus,
         planStatus: dbUser.planStatus,
         periodEnd: dbUser.planCurrentPeriodEnd?.toISOString() ?? null,
-        trialEligible: isTrialEligible(dbUser),
       }}
     />
   )

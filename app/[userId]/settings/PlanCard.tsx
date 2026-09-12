@@ -14,16 +14,16 @@ type Props = {
   planStatus: string | null
   /** ISO 文字列 (Server Component から渡すため Date にしない) */
   periodEnd: string | null
-  trialEligible: boolean
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  trialing: "無料トライアル中",
+  // trialing: トライアルは 2026-09-12 に削除したが、それ以前に始まった契約がまだ残りうる
+  trialing: "無料期間中",
   active: "契約中",
   past_due: "お支払いに問題があります",
 }
 
-export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd, trialEligible }: Props) {
+export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd }: Props) {
   const [pending, setPending] = useState<"month" | "year" | "portal" | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -89,10 +89,8 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
                 (以前ここに書いていたが、実装に課金判定が無く、事実と違っていた) */}
             <b style={{ color: "var(--text-ink)" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — アルコの採点が無制限になり、
             自分の楽譜を取り込んで、その曲も採点できるようになります。
-            {/* 2026-09-12: 恒久的な「無料プラン」は無く、あるのはアルコプラスの無料期間だけ。
-                「加入すると無料期間が始まる」と読める書き方を避ける。
-                日数は Stripe の trial_period_days が正 (現在 14)。ここでは数字を持たない */}
-            {trialEligible && <><br /><b style={{ color: "var(--text-master)" }}>はじめは無料でためせます</b>。いつでもやめられます。</>}
+            {/* 2026-09-12: トライアルは機能として削除。無料期間は登録時点から始まっており、
+                加入は「支払いを始める」ことなので、ここで無料をうたわない */}
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button

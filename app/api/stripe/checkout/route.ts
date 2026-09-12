@@ -2,11 +2,13 @@
 //
 // 課金 Phase 2 (2026-08-07): アルコプラス加入の入口。
 // Stripe Checkout (ホスト型・Apple Pay 自動対応) のセッションを作り URL を返す。
-// トライアル14日はカードあり (trial_period_days)。初回サブスクのみ付与 (再加入は即課金)。
+// 2026-09-12: トライアルは機能として削除した。恒久的な「無料プラン」は存在せず、
+// 登録した時点でアルコプラスを無料でためせる期間が始まっている。
+// checkout でさらに trial_period_days を付けると無料期間が二重になるため付けない。
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
-import { getStripe, isBillingConfigured, isTrialEligible } from "@/app/_libs/stripe"
+import { getStripe, isBillingConfigured } from "@/app/_libs/stripe"
 import { logError } from "@/app/_libs/logError"
 
 export async function POST(request: NextRequest) {
@@ -57,9 +59,8 @@ export async function POST(request: NextRequest) {
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data: isTrialEligible(user)
-        ? { trial_period_days: 14, metadata: { dbUserId: dbUser.id } }
-        : { metadata: { dbUserId: dbUser.id } },
+      // トライアルは付けない (2026-09-12 削除)。無料期間は登録時点から始まっている
+      subscription_data: { metadata: { dbUserId: dbUser.id } },
       client_reference_id: dbUser.id,
       locale: "ja",
       allow_promotion_codes: true,

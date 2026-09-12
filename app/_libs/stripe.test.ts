@@ -1,6 +1,6 @@
 // Stripe → User 写像のユニットテスト (課金 Phase 2, 2026-08-07)
 import { describe, expect, it } from "vitest"
-import { isTrialEligible, subscriptionToUserFields } from "./stripe"
+import { subscriptionToUserFields } from "./stripe"
 
 describe("subscriptionToUserFields", () => {
   const base = { id: "sub_123", status: "active", current_period_end: 1_790_000_000 }
@@ -39,11 +39,5 @@ describe("subscriptionToUserFields", () => {
   })
 })
 
-describe("isTrialEligible", () => {
-  it("一度もサブスクを持っていなければトライアル可", () => {
-    expect(isTrialEligible({ stripeSubscriptionId: null })).toBe(true)
-  })
-  it("過去にサブスクがあれば不可 (解約→再加入で2回目のトライアルを与えない)", () => {
-    expect(isTrialEligible({ stripeSubscriptionId: "sub_old" })).toBe(false)
-  })
-})
+// isTrialEligible のテストは、トライアルを機能として削除したため撤去 (2026-09-12)。
+// status=trialing の写像テストは上に残してある: 削除以前に始まった契約がまだ残りうるため。

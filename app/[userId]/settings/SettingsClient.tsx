@@ -16,7 +16,6 @@ interface Props {
     isPlus: boolean
     planStatus: string | null
     periodEnd: string | null
-    trialEligible: boolean
   }
 }
 
