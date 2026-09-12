@@ -37,6 +37,7 @@ import CtaButton from "./_components/CtaButton"
 import ProgressBar from "./_components/ProgressBar"
 import { YesNoGate, MultiGate } from "./_screens/gates"
 import { clearReturnToCookie, mapReturnToForUser, readReturnToCookie } from "@/app/_libs/returnTo"
+import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
 
 function Header({ bar = true }: { bar?: boolean }) {
   const s = useOnboarding()
@@ -653,7 +654,27 @@ function Scr12() {
       const rt = readReturnToCookie()
       clearReturnToCookie()
       const uid = home.split("/")[1] ?? ""
-      router.push(rt && uid ? mapReturnToForUser(rt, uid) : home)
+      const dest = rt && uid ? mapReturnToForUser(rt, uid) : home
+
+      // 登録＝アルコプラス加入 (2026-09-12)。恒久的な「無料プラン」は無く、
+      // オンボーディングを終えたらそのままカード登録へ進み、15 日の無料期間が始まる。
+      // アプリ内 (WKWebView) は課金導線を出さない方針 (isNativeApp.ts) なので従来どおりホームへ。
+      // checkout の作成に失敗しても、ここで立ち往生させない (ホームへ流し、設定から加入できる)
+      if (canShowBillingEntryPoint()) {
+        try {
+          const r = await fetch("/api/stripe/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ interval: "month", next: dest }),
+          })
+          const d = await r.json().catch(() => null)
+          if (r.ok && d?.url) {
+            window.location.href = d.url
+            return
+          }
+        } catch { /* 下でホームへ */ }
+      }
+      router.push(dest)
     } else {
       setSaving(false)
       setError("error" in res ? (res.error ?? "保存に失敗しました") : "保存に失敗しました")

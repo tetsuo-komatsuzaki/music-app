@@ -23,9 +23,15 @@ export async function POST(request: NextRequest) {
   }
 
   let interval: "month" | "year" = "month"
+  // next: 決済後に戻るアプリ内パス (2026-09-12)。オンボーディングから来た人は設定ではなく
+  // ホームへ戻す。オープンリダイレクト防止のため「/」で始まる相対パスだけ受ける
+  let next: string | null = null
   try {
     const body = await request.json()
     if (body?.interval === "year") interval = "year"
+    if (typeof body?.next === "string" && /^\/[A-Za-z0-9_\-./?=&%]*$/.test(body.next) && !body.next.startsWith("//")) {
+      next = body.next
+    }
   } catch { /* body なしは月額扱い */ }
 
   const priceId = interval === "year" ? process.env.STRIPE_PRICE_YEARLY! : process.env.STRIPE_PRICE_MONTHLY!
@@ -57,6 +63,8 @@ export async function POST(request: NextRequest) {
 
     const origin = request.nextUrl.origin
     const settingsUrl = `${origin}/${auth.user.supabaseUser.id}/settings`
+    const returnBase = next ? `${origin}${next}` : settingsUrl
+    const joiner = returnBase.includes("?") ? "&" : "?"
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
@@ -65,8 +73,8 @@ export async function POST(request: NextRequest) {
       client_reference_id: dbUser.id,
       locale: "ja",
       allow_promotion_codes: true,
-      success_url: `${settingsUrl}?billing=success`,
-      cancel_url: `${settingsUrl}?billing=cancel`,
+      success_url: `${returnBase}${joiner}billing=success`,
+      cancel_url: `${returnBase}${joiner}billing=cancel`,
     })
     return NextResponse.json({ url: session.url })
   } catch (e) {
