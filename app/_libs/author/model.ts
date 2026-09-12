@@ -15,8 +15,8 @@ export const OPEN_MIDI: Record<StringId, number> = { G: 55, D: 62, A: 69, E: 76 
 /** バイオリンの音域 (解析器と同じ G3〜E7) */
 export const VIOLIN_LOW = 55
 export const VIOLIN_HIGH = 100
-/** 解析器の物理上限 (lib/violin_position.py MAX_POSITION) */
-export const MAX_POSITION = 12
+/** 解析器の物理上限 (lib/violin_position.py MAX_POSITION)。変えるときは両方そろえる */
+export const MAX_POSITION = 14
 
 /** 音価。x = 64 分 */
 export type DurBase = "w" | "h" | "q" | "e" | "s" | "t" | "x"
