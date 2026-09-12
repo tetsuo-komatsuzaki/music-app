@@ -98,18 +98,28 @@ def test_hand_position_carries_over_open_string():
     assert [profiles[r["profileKey"]]["position"] for r in rows] == [3, 3, 3]
 
 
-def test_low_confidence_position_is_unknown_until_known():
+def test_low_confidence_position_is_kept():
+    # 2026-09-12 Tetsuo指示で変更: 低信頼でもポジションの値は捨てない。
+    # アンカー方式では補間した音がすべて "low" になるため、捨てると大半が消える。
+    # 束に入れるかどうかは bundle_keys 側が POS_UNKNOWN で決める。
     karte = [K(0, conf="low"), K(1, position=2)]
     rows, profiles, st = build(karte)
-    assert profiles[rows[0]["profileKey"]]["position"] == POS_UNKNOWN
+    assert profiles[rows[0]["profileKey"]]["position"] == 1
     assert profiles[rows[1]["profileKey"]]["position"] == 2
 
 
-def test_low_confidence_breaks_hand_carry_for_following_open_string():
-    # F16: 低信頼の音は不明。そのあとの開放弦は引き継ぐ相手が無いので不明。確かな音が来たら戻る
+def test_low_confidence_does_not_break_hand_carry():
+    # 低信頼の音もポジションを持つので、そのあとの開放弦は引き継げる
     karte = [K(0, position=1), K(1, position=3, conf="low"), K(2, "A", midi=69, finger=0, position=None), K(3, position=1)]
     rows, profiles, st = build(karte)
-    assert [profiles[r["profileKey"]]["position"] for r in rows] == [1, POS_UNKNOWN, POS_UNKNOWN, 1]
+    assert [profiles[r["profileKey"]]["position"] for r in rows] == [1, 3, 3, 1]
+
+
+def test_position_unknown_only_when_never_known():
+    # ポジションが一度も分からないまま来た開放弦だけが不明になる
+    karte = [K(0, "A", midi=69, finger=0, position=None), K(1, position=2)]
+    rows, profiles, st = build(karte)
+    assert [profiles[r["profileKey"]]["position"] for r in rows] == [POS_UNKNOWN, 2]
 
 
 def test_chord_cont_neighbors():

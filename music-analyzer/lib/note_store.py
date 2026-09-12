@@ -347,17 +347,23 @@ def build_score_notes(
             rest_accum += float(k.get("duration_beats") or 0.0)
             continue
         # 手のポジション (R2 / F16)
-        #   低信頼の音        → 不明 (-1)。手のポジションも分からなくなるので引き継ぎを切る
-        #   開放弦 (position None, 低信頼でない) → 直前の手のポジションを引き継ぐ
-        #   それ以外          → その音のポジションが新しい手のポジション
+        #   開放弦 (position None) → 直前の手のポジションを引き継ぐ
+        #   それ以外               → その音のポジションが新しい手のポジション
+        #
+        # 【2026-09-12 Tetsuo指示で変更】以前は position_confidence が "low" の音の
+        # ポジションを捨てて不明 (-1) にしていた。設計書 §25「低信頼の音を
+        # ポジション移動の集計から除外する」を実装したものだったが、
+        #   1. その小課題は 2026-09-05 のノート属性ストア移行で廃止済み
+        #      (生き残った23項目は全部 弓 で、信頼度を一切見ていない)
+        #   2. §25 の趣旨は「前後ともポジションが判明した音だけを束にする」という
+        #      bundle_keys 側の判定が既に引き継いでいて二重
+        #   3. カルテをアンカー方式に切り替えると、補間した音は設計上すべて "low" に
+        #      なる。旧来の意味 (弦を推測した) と噛み合わず、捨てると 40/46 音が消える
+        # 値は残し、束に入れるかどうかは下流が POS_UNKNOWN で決める。
         kpos = k.get("position")
-        if k.get("position_confidence") == "low":
-            hand_position = None
-            position = POS_UNKNOWN
-        else:
-            if kpos is not None:
-                hand_position = int(kpos)
-            position = hand_position if hand_position is not None else POS_UNKNOWN
+        if kpos is not None:
+            hand_position = int(kpos)
+        position = hand_position if hand_position is not None else POS_UNKNOWN
         # 連続重音: 前後の非休符が重音か
         p = pos_in_list[i]
         neighbor_chord = False

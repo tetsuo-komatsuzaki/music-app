@@ -194,6 +194,58 @@ def extract_skill_info(musicxml_path: str) -> List[SkillInfoNote]:
     return notes
 
 
+def _written_finger(note_elem: ET.Element) -> Optional[int]:
+    """楽譜に書かれた運指。空の <fingering></fingering> が本物より先に置かれている
+    譜面があるので、最初の要素ではなく「中身のある最初の要素」を採る。
+    find() は最初の1つしか見ないため、空タグが本物を隠してしまう (2026-09-12)。"""
+    technical = note_elem.find("notations/technical")
+    if technical is None:
+        return None
+    for fe in technical.findall("fingering"):
+        if fe.text is None:
+            continue
+        t = fe.text.strip()
+        if not t:
+            continue
+        try:
+            return int(t)
+        except ValueError:
+            continue
+    return None
+
+
+def _solve_with_anchors(notes: List["SkillInfoNote"], src: List[tuple]) -> None:
+    """カルテの弦・指・ポジションをアンカー方式で解き直す (2026-09-12 Tetsuo指示)。
+
+    src = [(notes 内の index, midi, step, octave, 楽譜の運指), ...]
+
+    触らないもの:
+      - 重音 … 構成音ごとに _chord_member_of が担当する
+      - 楽譜に <string> が書かれた音 (confidence="annotated") … 書き込みが最優先
+    """
+    # 遅延 import: lib パッケージ初期化中の相互参照を避ける
+    from .position_pass import resolve_sequence
+
+    targets = [
+        row for row in src
+        if not notes[row[0]].is_chord and notes[row[0]].position_confidence != "annotated"
+    ]
+    if not targets:
+        return
+    solved = resolve_sequence(
+        [{"midi": m, "step": st, "octave": oc, "finger": fg} for (_, m, st, oc, fg) in targets]
+    )
+    for row, r in zip(targets, solved):
+        if r is None:
+            continue
+        n = notes[row[0]]
+        n.string_id = r["string_id"]
+        n.finger = r["finger"]
+        n.position = r["position"]
+        n.position_confidence = r["confidence"]
+        n.is_inferred_position = True   # アンカー方式は <string> を読まないので常に推定
+
+
 def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
     """MusicXML から音符カルテ (note_karte) を抽出する（工程A・version 3）。
 
@@ -218,6 +270,10 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
 
     notes: List[SkillInfoNote] = []
     note_index = 0
+
+    # アンカー方式の入力 (2026-09-12 Tetsuo指示)。走査しながら集め、走査後に
+    # 譜面を通しで解き直す。(notes のindex, midi, step, octave, 楽譜の運指)
+    _anchor_src: List[tuple] = []
 
     active_slurs: set[str] = set()
     prev_was_rest = False
@@ -386,6 +442,8 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
                 or note_elem.find("notations/technical/pluck") is not None,
             }
             notes.append(skill_note)
+            if not is_rest and midi is not None and step is not None and octv is not None:
+                _anchor_src.append((len(notes) - 1, midi, step, octv, _written_finger(note_elem)))
 
             if not is_rest and string_id is not None:
                 prev_string = string_id
@@ -396,6 +454,13 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
             prev_was_rest = is_rest
             if not is_grace:
                 cursor += dur_div
+
+    # ── アンカー方式で解き直す (2026-09-12 Tetsuo指示) ──
+    # これまでカルテは1音ずつ前から決める旧方式で、譜面表示だけが 2026-08-25 の
+    # アンカー方式に切り替わっていた。同じ音に2つの答えがある状態だったので、
+    # カルテ (= ノート属性ストアの入力) もアンカー方式に揃える。
+    # 重音は構成音ごとに別扱い (_chord_member_of) なので対象外。
+    _solve_with_anchors(notes, _anchor_src)
 
     _annotate_transitions(notes)
 
