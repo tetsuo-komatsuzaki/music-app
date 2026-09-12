@@ -92,7 +92,8 @@ const STAMP_GROUPS: { group: string; items: StampDef[] }[] = [
   { group: "運指", items: ["0", "1", "2", "3", "4"].map((v) => (
     { kind: "fingering", value: v, g: "num", label: v }
   )) },
-  { group: "弦", items: ["I", "II", "III", "IV"].map((v) => (
+  // 弦番号はローマ数字に統一 (2026-09-12 Tetsuo指示)。Ⅰ=E線 Ⅱ=A線 Ⅲ=D線 Ⅳ=G線
+  { group: "弦", items: ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ"].map((v) => (
     { kind: "string", value: v, g: "roman", label: v }
   )) },
 ]
@@ -128,7 +129,7 @@ function stampInnerHtml(kind: string, value?: string): string {
     case "harmonic": return svg('<path d="M12 6 L18 12 L12 18 L6 12 Z" stroke-width="1.8"/>')
     case "dynamic": return `<span class="txt" style="font-style:italic;font-weight:900;font-family:Georgia,serif">${v}</span>`
     case "fingering": return `<span class="txt" style="font-weight:800">${v}</span>`
-    case "string": return `<span class="txt" style="font-weight:800;font-variant:small-caps">${v}</span>`
+    case "string": return `<span class="txt" style="font-weight:800">${v}</span>`
     default: return `<span class="txt">?</span>`
   }
 }
