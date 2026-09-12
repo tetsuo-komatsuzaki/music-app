@@ -240,7 +240,8 @@ type PerfResult = {
 }
 
 type Props = {
-  onRecordingComplete: (blob: Blob) => Promise<{
+  /** durationSec = 実際に録音した秒数 (分の上限判定にサーバーへ渡す) */
+  onRecordingComplete: (blob: Blob, durationSec: number) => Promise<{
     success?: boolean
     error?: string
     result?: PerfResult
@@ -893,7 +894,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     }
     setStatus("uploading")
     try {
-      const res = await onRecordingComplete(blobRef)
+      const res = await onRecordingComplete(blobRef, elapsed)
       if (res?.error) {
         showToast(res.error, "error")
         setStatus("preview")
@@ -933,7 +934,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       showToast(`送信エラー: ${e.message}`, "error")
       setStatus("preview")
     }
-  }, [blobRef, onRecordingComplete, retryRecording])
+  }, [blobRef, elapsed, onRecordingComplete, retryRecording])
 
   // 2026-09-05: 4つの操作ボタンは click ではなく「押して離した」で動かす (usePress)。
   // iOS は指を置いたまま 0.5 秒ほど経つと click を成立させないため、「押しても反応しない」に見えていた。
@@ -1044,10 +1045,10 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         <div className={styles.idlePanel}>
           {/* テンポは共通の「テンポ・メトロノーム」で設定 → ここは直接カウントインへ (2026-07-18 一本化) */}
           {quota && !quota.unlimited && quota.used >= quota.limit ? (
-            /* Phase 3 (2026-08-16発動): 無料は週7回まで。上限到達時は録音ボタンを畳んで案内カード */
+            /* 第4版 (2026-09-12): 無料は1日8本まで。上限到達時は録音ボタンを畳んで案内カード */
             <div data-testid="recorder-quota-limit" style={{ textAlign: "center", background: "#f3f6fb", border: "1px solid #d9e3f4", borderRadius: 12, padding: "16px 14px" }}>
-              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "#1f3d78" }}>今週の無料採点はここまで</div>
-              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 4 }}>月曜日にまた7回できるよ</div>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "#1f3d78" }}>今日の無料採点はここまで</div>
+              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 4 }}>明日またできるよ</div>
               {canShowBillingEntryPoint() && params?.userId && (
                 <Link href={`/${params.userId}/settings`} style={{ display: "inline-block", marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "#2b5bc4", textDecoration: "none" }}>
                   アルコプラスなら無制限・14日間無料 →
@@ -1067,7 +1068,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           )}
           {quota && !quota.unlimited && quota.used < quota.limit && (
             <div className={styles.quotaLine} data-testid="recorder-quota">
-              今週の採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
+              今日の採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
             </div>
           )}
         </div>

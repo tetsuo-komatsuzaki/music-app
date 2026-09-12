@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import FindTeacherClient from "./FindTeacherClient"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export const metadata = { title: "先生を探す" }
 
@@ -15,6 +16,8 @@ export default async function FindTeacherPage({
   const { userId } = await params
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
 
   const me = await prisma.user.findUnique({ where: { supabaseUserId: userId }, select: { id: true } })

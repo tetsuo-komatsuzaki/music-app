@@ -5,7 +5,7 @@ import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
 import { evaluateRateLimit, rateLimitMessage, RECORDING_LIMIT } from "@/app/_libs/rateLimit"
-import { getGradingQuota } from "@/app/_libs/plan"
+import { ENFORCE_LIMITS, getGradingQuota } from "@/app/_libs/plan"
 
 // flac/wav はアプリ版ネイティブ録音用 (ARC-SPEC-NATIVE-1.0 Phase 0。wavはFLACエンコード不能時のフォールバック)
 const ALLOWED_MIME = ["audio/webm", "audio/ogg", "audio/mp4", "audio/flac", "audio/wav"] as const
@@ -19,9 +19,12 @@ const EXT_BY_MIME: Record<AllowedMime, string> = {
   "audio/wav":  "wav",
 }
 
+// durationSec: クライアントが測った録音秒数。分の上限を録音前に見るために受け取る。
+// 申告値なので嘘をつけるが、1 本の上限 (MAX_DURATION=600) と 1 時間のレート制限、
+// および解析後に埋まる performanceDuration の合算で次回以降に必ず反映される。
 export type GetSignedUploadUrlParams =
-  | { kind: "score";    scoreId: string; mimeType: string }
-  | { kind: "practice"; itemId:  string; mimeType: string }
+  | { kind: "score";    scoreId: string; mimeType: string; durationSec?: number }
+  | { kind: "practice"; itemId:  string; mimeType: string; durationSec?: number }
 
 export type GetSignedUploadUrlResult =
   | { ok: true;  signedUrl: string; path: string; token: string; performanceId: string }
@@ -71,11 +74,30 @@ export async function getSignedUploadUrl(
     if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   }
 
-  // === 1.5 週次採点クォータ (Phase 3・2026-08-16発動): 無料は週7回まで。
-  //     UI側でもボタンを畳むが、ここが権威 (直APIやUI飛ばしを防ぐ) ===
+  // === 1.5 採点クォータ (2026-09-12 第4版: 日次・曲と基礎練は別枠) ===
+  //     UI側でもボタンを畳むが、ここが権威 (直APIやUI飛ばしを防ぐ)
   const quota = await getGradingQuota(dbUserId)
-  if (!quota.allowed) {
-    return { ok: false, error: "今週の無料採点は上限に達しました。月曜日にリセットされます" }
+  if (quota.freePeriodOver) {
+    return {
+      ok: false,
+      error: "無料でためせる期間が終わりました。アルコプラスに入ると、続きから練習できます",
+    }
+  }
+  if (params.kind === "score" && !quota.allowed) {
+    return { ok: false, error: "今日の無料採点はここまでです。明日またできます" }
+  }
+  // 分の上限: 今日すでに使った秒数 + これから録る秒数 が上限を超えるなら止める
+  if (
+    ENFORCE_LIMITS &&
+    params.kind === "score" &&
+    !quota.unlimited &&
+    typeof params.durationSec === "number" &&
+    quota.secondsUsed + Math.max(0, params.durationSec) > quota.secondsLimit
+  ) {
+    return { ok: false, error: "今日の無料採点はここまでです。明日またできます" }
+  }
+  if (params.kind === "practice" && !quota.practiceAllowed) {
+    return { ok: false, error: "今日の基礎練の採点はここまでです。明日またできます" }
   }
 
   // === 2. mimeType allowlist (codec suffix を剥がして正規化) ===

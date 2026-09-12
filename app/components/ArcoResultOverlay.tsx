@@ -21,6 +21,7 @@ type Ach = {
   mastered: boolean
 }
 import type { Praise } from "@/app/_libs/praiseFeedback"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 function headline(score: number, mastered: boolean): string {
   if (mastered) return "この曲、マスター達成〜！"
@@ -183,7 +184,7 @@ export default function ArcoResultOverlay({
         </div>
 
         {/* 💪 先生の強みリンク (案5・2026-08-03): 入口だけ置き、詳細はカルテの表現セクションへ */}
-        {strengthCount > 0 && (
+        {TEACHER_FEATURE_ENABLED && strengthCount > 0 && (
           <div style={{ margin: "6px 4px 0", fontSize: "var(--fs-caption)", fontWeight: 800 }}>
             <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "var(--text-link)", textDecoration: "underline" }}>
               <Palette size={13} style={{ verticalAlign: -2 }} /> 先生が認定したきみの表現・{strengthCount}個を見る →
@@ -254,7 +255,7 @@ export default function ArcoResultOverlay({
           <Link href={`/${userId}/progress`} onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>カルテで成長記録をみる</Link>
           <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Share2 size={13} /> シェア</span></button>
           {/* 👂 先生に聴いてもらう (2026-08-06 案1簡素版): ワンタップ送信・シート無し */}
-          {hasTeacher && (
+          {TEACHER_FEATURE_ENABLED && hasTeacher && (
             <button type="button" className={styles.ghost} disabled={listenState === "sending" || listenState === "done"}
               onClick={async () => {
                 setListenState("sending")

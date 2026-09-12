@@ -84,8 +84,11 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
       ) : (
         <>
           <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 10px", lineHeight: 1.7 }}>
-            <b style={{ color: "var(--text-ink)" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — アルコの採点が無制限になり、全ての基礎練・学びレッスン・
-            おすすめ練習・部分練習・くわしい数字が使えるようになります。
+            {/* 2026-09-12 第4版: 課金判定があるのは「自分の楽譜」と「量の上限」の2つだけ。
+                基礎練・学びレッスン・おすすめ練習・部分練習・くわしい数字は無料でも使えるので書かない
+                (以前ここに書いていたが、実装に課金判定が無く、事実と違っていた) */}
+            <b style={{ color: "var(--text-ink)" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — アルコの採点が無制限になり、
+            自分の楽譜を取り込んで、その曲も採点できるようになります。
             {trialEligible && <><br /><b style={{ color: "var(--text-master)" }}>はじめての方は14日間無料</b>で試せます。</>}
           </p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

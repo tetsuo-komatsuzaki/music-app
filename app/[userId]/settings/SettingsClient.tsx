@@ -5,6 +5,7 @@ import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import TeacherLinkCard from "./TeacherLinkCard"
 import PlanCard from "./PlanCard"
 import styles from "./Settings.module.css"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 interface Props {
   userId: string
@@ -45,8 +46,8 @@ export default function SettingsClient({
       {/* プラン (課金 Phase 2, 2026-08-07): Stripe 未構成の間は非表示 */}
       {billing && <PlanCard {...billing} />}
 
-      {/* 先生とつながる (先生機能 MVP 2026-07-28) */}
-      <TeacherLinkCard />
+      {/* 先生とつながる (先生機能 MVP 2026-07-28)。2026-09-12: 未公開の間は出さない */}
+      {TEACHER_FEATURE_ENABLED && <TeacherLinkCard />}
 
       {/* 通知設定 (先生がいる生徒のみ・2026-08-01) */}
       {hasTeacher && (

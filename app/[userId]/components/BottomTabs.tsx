@@ -10,6 +10,7 @@ import { usePathname, useParams } from "next/navigation"
 import { Home, Library, BarChart3, MessageCircle, type LucideIcon } from "lucide-react"
 import { getTeacherStudentSummary } from "@/app/actions/teacherStudentViews"
 import styles from "./BottomTabs.module.css"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 type Tab = { key: string; path: string; Icon: LucideIcon; label: string; match: (p: string, base: string) => boolean }
 
@@ -48,7 +49,10 @@ export default function BottomTabs() {
   // タブごと出さない (3つになる)。以前は「先生をさがす」を出していたが、押しても
   // 先生が見つからない画面に着くだけで空振りしていた。公開時に4つへ戻す。
   // 判定前 (null) は先生タブを出す = チラつきを抑える (先生ありユーザーの体験を優先)
-  const teacherTab: Tab | null = hasTeacher === false
+  // 2026-09-12: 先生機能が未公開の間は、判定前 (null) も含めて出さない。
+  // 以前は「判定前は出す」にしてチラつきを抑えていたが、先生がいないユーザーにも
+  // 初回ロードで一瞬タブが見えていた。未公開を徹底するほうを優先する。
+  const teacherTab: Tab | null = !TEACHER_FEATURE_ENABLED || hasTeacher === false
     ? null
     : { key: "teacher", path: "my-teacher", Icon: MessageCircle, label: "先生", match: (r) => startsWithAny(r, TEACHER_PREFIXES) }
 

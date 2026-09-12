@@ -11,6 +11,7 @@ import SkillsLevelClient from "@/app/[userId]/progress/skills/SkillsLevelClient"
 import ExpressionLevelClient from "@/app/[userId]/progress/expression/ExpressionLevelClient"
 import NumbersRoomView from "@/app/components/NumbersRoomView"
 import { buildPowersComparison, parseScale, scaleWindows, SCALE_LABEL, pastRange, buildPastFastSwitch } from "@/app/_libs/fivePowers"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export const metadata = { title: "生徒の成長カルテ" }
 
@@ -25,6 +26,8 @@ export default async function TeacherGrowthDetailPage({
 
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
   const me = await prisma.user.findUnique({ where: { supabaseUserId: userId }, select: { id: true, role: true } })
   if (!me || me.role !== "teacher") redirect(`/${userId}`)

@@ -10,6 +10,7 @@ import { weakSlotsByPerformance, type WeakSlotLite as WeakSlot } from "@/app/_li
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
 import KarteDetailClient from "./KarteDetailClient"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export const metadata = { title: "練習後カルテ" }
 
@@ -41,6 +42,8 @@ export default async function KarteDetailPage({
 
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
   const me = await prisma.user.findUnique({ where: { supabaseUserId: userId }, select: { id: true, role: true } })
   if (!me || me.role !== "teacher") redirect(`/${userId}`)

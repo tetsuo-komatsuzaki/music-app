@@ -11,7 +11,7 @@ export const GATE_TEXT = {
     title: `${title}を練習するには、登録かログインが必要です`,
     items: [
       { title: "譜面と練習前シート", detail: "難易度とパートを選べる" },
-      { title: "録音して採点", detail: "週 7 回まで無料" },
+      { title: "録音して採点", detail: "1 日 8 本まで無料" },
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   }),
@@ -35,9 +35,11 @@ export const GATE_TEXT = {
     items: [
       { title: "成長カーブ", detail: "弾くたびに 1 点ずつ増える折れ線" },
       { title: "わざの習得状況", detail: "認定曲のマスターで灯る" },
-      { title: "からだの癖", detail: "先生の目で直す" },
+      { title: "からだの癖", detail: "指板のどこがずれたか残る" },
     ],
   } as GateText,
+  // 先生機能は未公開 (features.ts TEACHER_FEATURE_ENABLED)。
+  // ルート側で塞いでいるので現在は未使用だが、公開時にそのまま使えるよう残す。
   teacher: {
     title: "先生とつながると、宿題と添削が届きます",
     items: [
@@ -57,7 +59,7 @@ export const GATE_TEXT = {
   generic: {
     title: "この画面を開くには、登録かログインが必要です",
     items: [
-      { title: "録音して採点", detail: "週 7 回まで無料" },
+      { title: "録音して採点", detail: "1 日 8 本まで無料" },
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   } as GateText,

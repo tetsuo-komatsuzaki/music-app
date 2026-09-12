@@ -1,8 +1,10 @@
 // GET /api/plan/usage
 //
-// 課金 Phase 1 (2026-08-07): 自分の今週の採点クォータ。
-// Recorder が「今週のAI採点 N/7」の表示に使う (無制限ユーザーには表示しない)。
-// レスポンス: { unlimited, used, limit, allowed, plan }
+// 課金 Phase 1 (2026-08-07) / 第4版で日次に改訂 (2026-09-12)。
+// 自分の今日の採点クォータ。曲と基礎練は別枠。
+// Recorder が「今日の採点 N/8」の表示に使う (無制限ユーザーには表示しない)。
+// レスポンス: { unlimited, used, limit, practiceUsed, practiceLimit,
+//              allowed, practiceAllowed, freeDaysLeft, freePeriodOver, plan }
 
 import { NextResponse } from "next/server"
 import { requireAuthApi } from "@/app/_libs/requireAuth"

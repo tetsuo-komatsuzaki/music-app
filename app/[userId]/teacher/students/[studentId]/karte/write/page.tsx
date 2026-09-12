@@ -13,6 +13,7 @@ import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
 import { buildTargetHeatmap } from "@/app/_libs/fingerboard/aggregate"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import KarteWriteClient from "./KarteWriteClient"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export const metadata = { title: "練習後カルテを書く" }
 
@@ -42,6 +43,8 @@ export default async function KarteWritePage({
   const { kind: kindRaw, target } = await searchParams
   const kind: "score" | "practice" = kindRaw === "practice" ? "practice" : "score"
   const backHref = `/${userId}/teacher/students/${studentId}?tab=karte`
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!target) redirect(backHref)
 
   const supabase = await createServerSupabaseClient()

@@ -11,6 +11,7 @@ import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
 import { buildWeeklySummary, type WeeklySummaryData } from "@/app/_libs/weeklySummary"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import StudentKarte from "./StudentKarte"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 // 演奏ごとの上位の弱点 (§5-1: ミス集中箇所・原因候補) は明細から (weakSlotsByPerformance・2026-09-05)
 
@@ -26,6 +27,8 @@ export default async function StudentKartePage({
   const { tab: urlTab } = await searchParams
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
 
   const me = await prisma.user.findUnique({

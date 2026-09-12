@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import ScheduleClient from "./ScheduleClient"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export const metadata = { title: "レッスン枠" }
 
@@ -14,6 +15,8 @@ export default async function TeacherSchedulePage({
   const { userId } = await params
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
 
   const me = await prisma.user.findUnique({ where: { supabaseUserId: userId }, select: { id: true, role: true } })

@@ -9,6 +9,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { weakSlotsByPerformance } from "@/app/_libs/diagnosisPresentation"
 import InviteCodeCard from "./InviteCodeCard"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 // 直近演奏1件のいちばんの課題 (AIの一言用) は明細から (weakSlotsByPerformance lastN=1・2026-09-05)
 
@@ -36,6 +37,8 @@ export default async function TeacherHomePage({
   const { userId } = await params
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
 
   const me = await prisma.user.findUnique({

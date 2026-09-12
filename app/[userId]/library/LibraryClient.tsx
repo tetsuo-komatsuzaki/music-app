@@ -107,7 +107,7 @@ export default function LibraryClient({
             <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
               {[
                 ["自分の楽譜を取り込む", "その曲も採点できる"],
-                ["採点が無制限", "週7回の上限が外れる"],
+                ["採点が無制限", "1日8本の上限が外れる"],
                 ["14日間おためし", "いつでもやめられる"],
               ].map(([t, sub]) => (
                 <div key={t} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, color: "var(--text-sub)" }}>

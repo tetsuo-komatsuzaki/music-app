@@ -13,6 +13,7 @@ import { openHelp } from "../_onboarding/helpBus"
 import { GUEST_ID } from "@/app/_libs/viewer"
 import { setReturnToCookie } from "@/app/_libs/returnTo"
 import styles from "./AccountMenu.module.css"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export default function AccountMenu({ role }: { role?: string }) {
   const { userId } = useParams<{ userId: string }>()
@@ -123,7 +124,7 @@ export default function AccountMenu({ role }: { role?: string }) {
               <span className={styles.ic}><Settings size={17} /></span>
               <span className={styles.label}>設定</span>
             </Link>
-            {role === "teacher" && (
+            {TEACHER_FEATURE_ENABLED && role === "teacher" && (
               <Link href={`${base}/teacher`} className={`${styles.item} ${styles.gold}`} onClick={close} role="menuitem">
                 <span className={styles.ic}><GraduationCap size={17} /></span>
                 <span className={styles.label}>先生モードへ</span>

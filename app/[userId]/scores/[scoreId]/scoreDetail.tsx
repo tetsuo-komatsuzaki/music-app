@@ -1623,13 +1623,13 @@ function ScoreDetailInner({
   // Recorder の onRecordingComplete ハンドラ (G-1 + Path B、v3.3 spec Commit 3)
   // 旧: convert-audio → uploadRecord(WAV FormData)
   // 新: getSignedUploadUrl → XHR PUT 直接 → uploadAction({ performanceId, recordingBpm })
-  const handleRecordingComplete = useCallback(async (blob: Blob) => {
+  const handleRecordingComplete = useCallback(async (blob: Blob, durationSec: number) => {
     const mimeType = blob.type || "audio/webm"  // iOS Safari は audio/mp4
 
     // 1. signed URL 取得 (Performance 行作成 + audioPath 確定済み = Commit 2 Step A-D)
     const signedRes = practiceItemId
-      ? await getSignedUploadUrl({ kind: "practice", itemId:  practiceItemId, mimeType })
-      : await getSignedUploadUrl({ kind: "score",    scoreId: score.id,        mimeType })
+      ? await getSignedUploadUrl({ kind: "practice", itemId:  practiceItemId, mimeType, durationSec })
+      : await getSignedUploadUrl({ kind: "score",    scoreId: score.id,        mimeType, durationSec })
     if (!signedRes.ok) return { error: signedRes.error }
 
     // 2. Supabase Storage に直接 PUT (XMLHttpRequest で進捗取得)

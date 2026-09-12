@@ -11,6 +11,7 @@ import MyTeacherClient from "./MyTeacherClient"
 import GuestGate from "@/app/components/guest/GuestGate"
 import { GATE_TEXT } from "@/app/components/guest/gateText"
 import { GUEST_ID } from "@/app/_libs/viewer"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 
 export const metadata = { title: "先生とのやりとり" }
 
@@ -48,6 +49,8 @@ export default async function MyTeacherPage({
   }
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+  // 2026-09-12: 先生機能が未公開の間は直リンクも塞ぐ
+  if (!TEACHER_FEATURE_ENABLED) redirect(`/${userId}`)
   if (!user || user.id !== userId) redirect(`/${userId}`)
 
   const me = await prisma.user.findUnique({
