@@ -11,10 +11,36 @@ export const GATE_TEXT = {
     title: `${title}を練習するには、登録かログインが必要です`,
     items: [
       { title: "譜面と練習前シート", detail: "難易度とパートを選べる" },
-      { title: "録音して採点", detail: "1 日 8 本まで無料" },
+      { title: "録音して採点", detail: "弾くたびに音程とリズムが残る" },
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   }),
+  // ▼ 1 回ためし (2026-09-12 要件整理 v2.7 §3): 端末の 1 回が未使用のとき
+  songTry: (title: string): GateText => ({
+    title: `${title}を、登録なしで 1 回だけ採点してみられます`,
+    items: [
+      { title: "録音して採点", detail: "音程とリズムを 1 音ずつ" },
+      { title: "この 1 回は登録なし", detail: "弾いてから決められる" },
+      { title: "続けるには登録", detail: "最初の 2 週間は無料、その後 月 1,280 円" },
+    ],
+  }),
+  // ▼ 1 回ためし: 使用済み
+  songUsed: (title: string, lastScore: number | null): GateText => ({
+    title: "続けるには、はじめる手続きが必要です",
+    items: [
+      { title: lastScore != null ? `さっきの ${lastScore} 点` : `${title}の採点`, detail: "はじめると、あなたの記録として残る" },
+      { title: "毎日の採点と基礎練", detail: "最初の 2 週間は無料、その後 月 1,280 円" },
+      { title: "成長カルテ", detail: "弾くたびに変化が残る" },
+    ],
+  }),
+  // ▼ 契約なし・契約切れ (ゲストと同じ範囲・§8-8)。主ボタンは「再開する」→ /start
+  resume: {
+    title: "アルコプラスが終了しています",
+    items: [
+      { title: "採点と基礎練が止まっています", detail: "記録は残っています" },
+      { title: "再開する", detail: "購入シートだけで、すぐ戻れる" },
+    ],
+  } as GateText,
   item: (title: string): GateText => ({
     title: `${title}を練習するには、登録かログインが必要です`,
     items: [
@@ -59,7 +85,7 @@ export const GATE_TEXT = {
   generic: {
     title: "この画面を開くには、登録かログインが必要です",
     items: [
-      { title: "録音して採点", detail: "1 日 8 本まで無料" },
+      { title: "録音して採点", detail: "弾くたびに音程とリズムが残る" },
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   } as GateText,

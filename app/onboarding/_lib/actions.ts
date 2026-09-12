@@ -65,5 +65,18 @@ export async function completeOnboarding(
   const { alreadyDone } = await prisma.$transaction((tx) =>
     completeOnboardingTx(tx, dbUser.id, input),
   )
+  // 2026-09-12 要件整理 v2.7: 呼び名 (SCR-02b) とお便り (SCR-11d) を User に写す。冪等 (2 回目は上書きしない)
+  if (!alreadyDone) {
+    const a = input.answers as { nickname?: string; mailEmail?: string | null; mailOptIn?: boolean }
+    const nickname = typeof a.nickname === "string" ? a.nickname.trim().slice(0, 20) : ""
+    const mail = typeof a.mailEmail === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.mailEmail.trim()) ? a.mailEmail.trim() : null
+    await prisma.user.update({
+      where: { id: dbUser.id },
+      data: {
+        ...(nickname ? { name: nickname } : {}),
+        ...(mail ? { marketingEmail: mail, marketingOptInAt: a.mailOptIn ? new Date() : null } : {}),
+      },
+    })
+  }
   return { ok: true, alreadyDone, homePath }
 }

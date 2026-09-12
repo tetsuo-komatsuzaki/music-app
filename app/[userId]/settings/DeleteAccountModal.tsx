@@ -1,6 +1,9 @@
 "use client"
 
-import { useState } from "react"
+// 退会 (審査 5.1.1(v): アカウント作成があるアプリはアプリ内で削除できること)。
+// 2026-09-12 要件整理 v2.7 §6: Sign in with Apple の人にはパスワードが無いので、本人確認を「退会 と入力」に切り替える。
+// Apple の契約は退会しても自動では止まらないので、その案内を本文に出す。
+import { useEffect, useState } from "react"
 import { requestAccountDeletion } from "@/app/actions/requestAccountDeletion"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { clearKnownUser } from "@/app/_libs/knownUser"
@@ -11,11 +14,27 @@ interface Props {
   onClose: () => void
 }
 
+const CONFIRM_WORD = "退会"
+
 export default function DeleteAccountModal({ open, onClose }: Props) {
-  const [step, setStep] = useState<"confirm" | "password">("confirm")
+  const [step, setStep] = useState<"confirm" | "verify">("confirm")
   const [password, setPassword] = useState("")
+  const [word, setWord] = useState("")
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null)
+  const [hasApple, setHasApple] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // どの本人確認を出すか: email (パスワード) の identity があるかで決める
+  useEffect(() => {
+    if (!open) return
+    const supabase = createBrowserSupabaseClient()
+    supabase.auth.getUser().then(({ data }) => {
+      const providers = (data.user?.app_metadata?.providers as string[] | undefined) ?? []
+      setHasPassword(providers.includes("email"))
+      setHasApple(providers.includes("apple"))
+    }).catch(() => setHasPassword(true))
+  }, [open])
 
   if (!open) return null
 
@@ -23,26 +42,19 @@ export default function DeleteAccountModal({ open, onClose }: Props) {
     if (submitting) return  // 削除中は閉じさせない
     setStep("confirm")
     setPassword("")
+    setWord("")
     setError(null)
     onClose()
   }
 
-  const handleProceed = () => {
-    setStep("password")
-  }
-
-  const handleBack = () => {
-    setStep("confirm")
-    setPassword("")
-    setError(null)
-  }
+  const canSubmit = hasPassword === false ? word.trim() === CONFIRM_WORD : password.length > 0
 
   const handleSubmit = async () => {
-    if (submitting) return
+    if (submitting || !canSubmit) return
     setSubmitting(true)
     setError(null)
     try {
-      const result = await requestAccountDeletion({ password })
+      const result = await requestAccountDeletion(hasPassword === false ? { confirmWord: word.trim() } : { password })
       if (result.success) {
         const supabase = createBrowserSupabaseClient()
         await supabase.auth.signOut({ scope: "local" })
@@ -76,29 +88,40 @@ export default function DeleteAccountModal({ open, onClose }: Props) {
               <br />
               <strong>この操作は取り消せません。</strong>
             </p>
+            {hasApple && (
+              <p className={styles.modalText} data-testid="delete-apple-note">
+                Apple の契約は自動では止まりません。退会のあと、iPhone の設定 › サブスクリプション から解約してください。
+              </p>
+            )}
             <div className={styles.modalActions}>
-              <button
-                type="button"
-                onClick={handleClose}
-                className={styles.secondaryButton}
-              >
-                キャンセル
-              </button>
-              <button
-                type="button"
-                onClick={handleProceed}
-                className={styles.dangerButton}
-              >
-                次へ
-              </button>
+              <button type="button" onClick={handleClose} className={styles.secondaryButton}>キャンセル</button>
+              <button type="button" onClick={() => setStep("verify")} className={styles.dangerButton} disabled={hasPassword === null}>次へ</button>
+            </div>
+          </>
+        ) : hasPassword === false ? (
+          <>
+            <h2 className={styles.modalTitle}>本人確認</h2>
+            <p className={styles.modalText}>Apple でサインインしたアカウントです。確認のため「{CONFIRM_WORD}」と入力してください。</p>
+            <input
+              type="text"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              placeholder={CONFIRM_WORD}
+              className={styles.input}
+              disabled={submitting}
+              autoComplete="off"
+              data-testid="delete-confirm-word"
+            />
+            {error && <p className={styles.messageError}>{error}</p>}
+            <div className={styles.modalActions}>
+              <button type="button" onClick={() => { setStep("confirm"); setWord(""); setError(null) }} disabled={submitting} className={styles.secondaryButton}>← 戻る</button>
+              <button type="button" onClick={handleSubmit} disabled={submitting || !canSubmit} className={styles.dangerButton}>{submitting ? "退会処理中..." : "退会する"}</button>
             </div>
           </>
         ) : (
           <>
             <h2 className={styles.modalTitle}>パスワード入力</h2>
-            <p className={styles.modalText}>
-              本人確認のため、現在のパスワードを入力してください。
-            </p>
+            <p className={styles.modalText}>本人確認のため、現在のパスワードを入力してください。</p>
             <input
               type="password"
               value={password}
@@ -108,26 +131,10 @@ export default function DeleteAccountModal({ open, onClose }: Props) {
               disabled={submitting}
               autoComplete="current-password"
             />
-            {error && (
-              <p className={styles.messageError}>{error}</p>
-            )}
+            {error && <p className={styles.messageError}>{error}</p>}
             <div className={styles.modalActions}>
-              <button
-                type="button"
-                onClick={handleBack}
-                disabled={submitting}
-                className={styles.secondaryButton}
-              >
-                ← 戻る
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={submitting || password.length === 0}
-                className={styles.dangerButton}
-              >
-                {submitting ? "退会処理中..." : "退会する"}
-              </button>
+              <button type="button" onClick={() => { setStep("confirm"); setPassword(""); setError(null) }} disabled={submitting} className={styles.secondaryButton}>← 戻る</button>
+              <button type="button" onClick={handleSubmit} disabled={submitting || !canSubmit} className={styles.dangerButton}>{submitting ? "退会処理中..." : "退会する"}</button>
             </div>
           </>
         )}

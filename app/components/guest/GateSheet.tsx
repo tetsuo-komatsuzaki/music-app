@@ -11,8 +11,10 @@
  */
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { setReturnToCookie } from "@/app/_libs/returnTo"
+import { isAppleBilling } from "@/app/_libs/billingMode"
+import { startGuestTry } from "@/app/_libs/guestTryClient"
 import { readKnownUser } from "@/app/_libs/knownUser"
 import { recordGuestEvent } from "@/app/actions/recordGuestEvent"
 import { placeOf } from "@/app/_libs/guestEvents"
@@ -24,22 +26,45 @@ export type { GateItem }
 export type GateSheetProps = {
   title: string
   items: GateItem[]
-  /** 主ボタンの文言 (既定: 無料で登録する) */
+  /** 主ボタンの文言 (既定: Apple 課金なら「はじめる」、それ以外は「登録する」) */
   primaryLabel?: string
   /** 閉じたときの振る舞い。"bar" = 細い帯を残して再び開ける (ゲートされた画面用) ／ "hide" = 消す (その場のゲート用) */
   onLater?: () => void
   laterMode?: "bar" | "hide"
   /** 戻り先。省略時は今の URL */
   returnTo?: string
+  /** 1 回ためし (2026-09-12): この曲を登録なしで採点させる。主ボタンが「登録なしで 1 回ためす」になり、従が「はじめる」 */
+  tryScoreId?: string
+  /** 主ボタンの飛び先を差し替える (契約切れの「再開する」→ /start など) */
+  primaryHref?: string
+  /** 「あとで」を出さない (ハードペイウォール的に使うとき) */
+  noLater?: boolean
 }
 
 const SIGNUP = "/signUp"
 const LOGIN = "/login"
+const START = "/start"
 
-export default function GateSheet({ title, items, primaryLabel = "無料で登録する", onLater, laterMode = "bar", returnTo }: GateSheetProps) {
+export default function GateSheet({ title, items, primaryLabel, onLater, laterMode = "bar", returnTo, tryScoreId, primaryHref, noLater }: GateSheetProps) {
+  const router = useRouter()
   const pathname = usePathname()
   const [open, setOpen] = useState(true)
+  const [trying, setTrying] = useState(false)
+  const [tryError, setTryError] = useState<string | null>(null)
   const dest = returnTo ?? pathname ?? "/guest"
+  // Apple 課金 (2026-09-12): 登録の入口は /start (アルコプラスをはじめる)。Stripe (従来) は /signUp
+  const apple = isAppleBilling()
+  const startHref = primaryHref ?? (apple ? START : SIGNUP)
+  const startLabel = primaryLabel ?? (apple ? "はじめる" : "登録する")
+
+  const onTry = async () => {
+    if (!tryScoreId || trying) return
+    setTrying(true); setTryError(null)
+    void recordGuestEvent("try_start", place, pathname)
+    const r = await startGuestTry(tryScoreId)
+    if (r.ok) { router.push(r.href); return }
+    setTrying(false); setTryError(r.error)
+  }
   // 案B (2026-09-06): 端末に記録がある人 (登録済み・未ログイン) は主ボタンをログインに、1 行目も「ログインが必要です」に
   const [known, setKnown] = useState(false)
   useEffect(() => { setKnown(readKnownUser() != null) }, [])
@@ -84,18 +109,25 @@ export default function GateSheet({ title, items, primaryLabel = "無料で登�
             </div>
           ))}
         </div>
-        {known ? (
+        {tryScoreId ? (
+          <>
+            <button type="button" className={styles.primary} disabled={trying} onClick={() => void onTry()}>{trying ? "準備しています…" : "登録なしで 1 回ためす"}</button>
+            {tryError && <div className={styles.row} style={{ marginTop: 8, color: "var(--text-error)" }}>{tryError}</div>}
+            <Link href={startHref} className={styles.secondary} onClick={remember("gate_signup")}>{startLabel}</Link>
+            <Link href={`${LOGIN}${q}`} className={styles.later} onClick={remember("gate_login")} style={{ textDecoration: "none" }}>ログイン</Link>
+          </>
+        ) : known ? (
           <>
             <Link href={`${LOGIN}${q}`} className={styles.primary} onClick={remember("gate_login")}>ログイン</Link>
-            <Link href={`${SIGNUP}${q}`} className={styles.secondary} onClick={remember("gate_signup")}>アカウントがない人は無料で登録</Link>
+            <Link href={startHref} className={styles.secondary} onClick={remember("gate_signup")}>アカウントがない人は{startLabel}</Link>
           </>
         ) : (
           <>
-            <Link href={`${SIGNUP}${q}`} className={styles.primary} onClick={remember("gate_signup")}>{primaryLabel}</Link>
+            <Link href={startHref} className={styles.primary} onClick={remember("gate_signup")}>{startLabel}</Link>
             <Link href={`${LOGIN}${q}`} className={styles.secondary} onClick={remember("gate_login")}>ログイン</Link>
           </>
         )}
-        <button type="button" className={styles.later} onClick={later}>あとで</button>
+        {!noLater && !tryScoreId && <button type="button" className={styles.later} onClick={later}>あとで</button>}
       </div>
     </div>
   )

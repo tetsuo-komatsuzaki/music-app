@@ -55,11 +55,21 @@ export function getNativePlatform(): NativePlatform | null {
 }
 
 /**
- * アプリ内でプラン加入導線を出してよいか (審査ガイドライン3.1.1・spec §5)。
- *
- * 初期方針は安全側で「アプリ内は非表示」。既加入者の機能はすべて使えるので、
- * 隠すのは新規加入の導線だけ。スマホ新法の運用状況を見て開放を判断する。
+ * いま開いている場所で「アルコプラスをはじめる」導線を出してよいか (要件整理 v2.7 §3 U-13)。
+ * - NEXT_PUBLIC_BILLING_MODE=apple: iOS のアプリ内だけ true。Web では売らない
+ * - それ以外 (stripe・従来): Web だけ true。iOS では出さない (審査ガイドライン 3.1.1)
+ * 切り替えは環境変数だけ。ローンチ前の本番は stripe のまま、既存の利用者に影響を出さない。
  */
 export function canShowBillingEntryPoint(): boolean {
-  return !isNativeApp()
+  const apple = process.env.NEXT_PUBLIC_BILLING_MODE === "apple"
+  return apple ? isNativeApp() : !isNativeApp()
 }
+
+/**
+ * サーバーで描いた HTML の中で「殻のときだけ / Web のときだけ」を CSS で出し分けるための起動スクリプト。
+ * Capacitor のブリッジは document start で注入されるので、body の先頭で読めば最初の描画前に決まる (ハイドレーション不一致なし)。
+ * 使い方: <script dangerouslySetInnerHTML={{ __html: NATIVE_BOOT_SCRIPT }} /> を置き、
+ *   html[data-native-boot] .webOnly { display:none } / html:not([data-native-boot]) .nativeOnly { display:none } で切り替える。
+ */
+export const NATIVE_BOOT_SCRIPT =
+  "try{var c=window.Capacitor;if(c&&typeof c.isNativePlatform==='function'&&c.isNativePlatform())document.documentElement.setAttribute('data-native-boot','1')}catch(e){}"

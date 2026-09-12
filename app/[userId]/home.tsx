@@ -11,6 +11,7 @@ import NextPiecesCard from "@/app/components/NextPiecesCard"
 import PersonalRecoCard, { type PersonalReco } from "@/app/components/PersonalRecoCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
+import { TEACHER_FEATURE_ENABLED } from "@/app/_libs/features"
 import AnalysisNoticeBar, { type AnalysisNotice } from "@/app/components/AnalysisNoticeBar"
 import ds from "@/app/components/ds.module.css"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -58,6 +59,8 @@ type Props = {
   /** 宝物の授与待ちキュー (報酬体系骨組み・点灯前は常に空) */
   treasureQueue?: TreasureQueueItem[]
   userName: string
+  /** 課金の状態 (2026-09-12): trial = 残り日数チップ / expired = 「再開する」の帯 */
+  planView?: { kind: "trial" | "expired" | "none"; periodEnd: string | null }
   streak: number
   weeklyDays: number
   arcoMessage: { greeting: string; cheer: string }
@@ -128,6 +131,7 @@ const ARCO_HITOKOTO = [
 ] as const
 
 export default function HomeClient({
+  planView,
   guide,
   questProgress,
   homeQuestClears,
@@ -219,6 +223,21 @@ export default function HomeClient({
       >
         こんにちは、{userName}さん
       </h1>
+      {/* 無料期間の残り日数 / 契約切れ (2026-09-12 要件整理 v2.7 §3 C-14, C-15) */}
+      {planView?.kind === "trial" && planView.periodEnd && (
+        <div style={{ marginTop: 6 }}>
+          <span data-testid="home-trial-chip" style={{ display: "inline-block", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "rgba(232,178,60,.12)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 999, padding: "2px 10px" }}>
+            無料期間はあと {Math.max(0, Math.ceil((new Date(planView.periodEnd).getTime() - Date.now()) / 86400000))} 日
+          </span>
+        </div>
+      )}
+      {planView?.kind === "expired" && (
+        <div data-testid="home-expired-banner" style={{ marginTop: 10, background: "var(--card-b)", border: "1px solid rgba(232,178,60,.34)", borderRadius: 14, padding: "12px 14px" }}>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>アルコプラスが終了しています</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 2, lineHeight: 1.5 }}>採点と基礎練が止まっています。記録は残っています。</div>
+          <Link href="/start" style={{ display: "inline-block", marginTop: 8, background: "#b8862e", color: "#fff", borderRadius: 9, padding: "8px 20px", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>再開する</Link>
+        </div>
+      )}
 
       {/* アルコからひとこと (2026-08-23 proto画面4写経: 紙カード ・ 文言は日替わり仮実装) */}
       <div style={{
@@ -234,7 +253,7 @@ export default function HomeClient({
       </div>
 
       {/* モック home-01 の並び: 先生から → 通知 → ランク (2026-08-21 再写経で是正) */}
-      <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
+      {TEACHER_FEATURE_ENABLED && <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />}
 
       {/* アルコのクエスト (2周目以降=ガイド完了ユーザー)。折り畳みが既定・先生からカードの下 (2026-08-29 Tetsuo指定) */}
       {homeQuestClears != null

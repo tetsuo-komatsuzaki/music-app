@@ -85,7 +85,7 @@ export async function getSignedUploadUrl(
     }
   }
   if (params.kind === "score" && !quota.allowed) {
-    return { ok: false, error: "今日の無料採点はここまでです。明日またできます" }
+    return { ok: false, error: "今日の採点はここまでです。明日またできます" }
   }
   // 分の上限: 今日すでに使った秒数 + これから録る秒数 が上限を超えるなら止める
   if (
@@ -95,7 +95,7 @@ export async function getSignedUploadUrl(
     typeof params.durationSec === "number" &&
     quota.secondsUsed + Math.max(0, params.durationSec) > quota.secondsLimit
   ) {
-    return { ok: false, error: "今日の無料採点はここまでです。明日またできます" }
+    return { ok: false, error: "今日の採点はここまでです。明日またできます" }
   }
   if (params.kind === "practice" && !quota.practiceAllowed) {
     return { ok: false, error: "今日の基礎練の採点はここまでです。明日またできます" }

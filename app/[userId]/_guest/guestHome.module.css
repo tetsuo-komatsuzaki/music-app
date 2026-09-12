@@ -11,6 +11,9 @@
   background: var(--accent); color: var(--text-on-accent); border-radius: 14px; padding: 13px;
   font-size: 14px; font-weight: 900;
 }
+/* 殻 / Web の出し分け (isNativeApp.ts の NATIVE_BOOT_SCRIPT が html[data-native-boot] を立てる) */
+:global(html[data-native-boot]) .webOnly { display: none; }
+:global(html:not([data-native-boot])) .nativeOnly { display: none; }
 .linkline { display: block; text-align: center; margin-top: 9px; font-size: 11px; font-weight: 800; color: var(--text-link); text-decoration: none; }
 
 .rowIcon { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; }

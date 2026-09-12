@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./Recorder.module.css"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
+import { useCanShowBillingEntryPoint } from "@/app/_hooks/useIsNativeApp"
 import { planCountIn } from "@/app/_libs/countIn"
 import { usePress } from "@/app/_libs/usePress"
 import {
@@ -309,7 +309,10 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
 
   // 課金 Phase 1 (2026-08-07): 無料ユーザーへの週次採点カウント表示 (制限はまだ発動しない)。
   // idle に戻るたびに再取得 (採点1回で消費が増えるため)。無制限 (プラス/先生接続) は非表示。
-  const [quota, setQuota] = useState<{ unlimited: boolean; used: number; limit: number } | null>(null)
+  const [quota, setQuota] = useState<{
+    unlimited: boolean; used: number; limit: number
+    secondsUsed?: number; secondsLimit?: number; isGuest?: boolean; needsSubscription?: boolean; guestLastScore?: number | null
+  } | null>(null)
   useEffect(() => {
     if (status !== "idle") return
     let cancelled = false
@@ -319,6 +322,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       .catch(() => {})
     return () => { cancelled = true }
   }, [status])
+  const canShowBilling = useCanShowBillingEntryPoint()
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [blobRef, setBlobRef] = useState<Blob | null>(null)
@@ -1044,16 +1048,28 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       {status === "idle" && (
         <div className={styles.idlePanel}>
           {/* テンポは共通の「テンポ・メトロノーム」で設定 → ここは直接カウントインへ (2026-07-18 一本化) */}
-          {quota && !quota.unlimited && quota.used >= quota.limit ? (
-            /* 第4版 (2026-09-12): 無料は1日8本まで。上限到達時は録音ボタンを畳んで案内カード */
-            <div data-testid="recorder-quota-limit" style={{ textAlign: "center", background: "#f3f6fb", border: "1px solid #d9e3f4", borderRadius: 12, padding: "16px 14px" }}>
-              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "#1f3d78" }}>今日の無料採点はここまで</div>
-              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 4 }}>明日またできるよ</div>
-              {canShowBillingEntryPoint() && params?.userId && (
-                <Link href={`/${params.userId}/settings`} style={{ display: "inline-block", marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "#2b5bc4", textDecoration: "none" }}>
-                  アルコプラスで無制限にする →
-                </Link>
+          {quota?.needsSubscription ? (
+            /* 契約なし・契約切れ (2026-09-12 要件整理 v2.7 §2): 録音ボタンを畳んで「再開する」→ /start */
+            <div data-testid="recorder-needs-plan" style={{ width: "100%", textAlign: "center", background: "var(--card-b)", border: "1px solid rgba(232,178,60,.34)", borderRadius: 16, padding: "16px 14px" }}>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>アルコプラスが終了しています</div>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 4 }}>採点と基礎練が止まっています。記録は残っています</div>
+              {canShowBilling && (
+                <Link href="/start" style={{ display: "inline-block", marginTop: 10, background: "#b8862e", color: "#fff", borderRadius: 9, padding: "9px 22px", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>再開する</Link>
               )}
+            </div>
+          ) : quota?.isGuest && quota.used >= quota.limit ? (
+            /* 1 回ためしの使用済み (2026-09-12 要件整理 v2.7 §3 手順 9): 帯は出さず、録音ボタンの位置にこのカード */
+            <div data-testid="recorder-guest-used" style={{ width: "100%", textAlign: "center", padding: "6px 0 2px" }}>
+              <Link href="/start" style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #c1a24f", borderRadius: 999, color: "#c1a24f", background: "rgba(232,178,60,.08)", padding: "10px 22px", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>
+                <span aria-hidden style={{ fontWeight: 900 }}>+</span>{quota.guestLastScore != null ? `${quota.guestLastScore} 点を残してつづける` : "この採点を残してつづける"}
+              </Link>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 12 }}>ためせるのは 1 回。次からはアルコプラスで</div>
+            </div>
+          ) : quota && !quota.unlimited && quota.used >= quota.limit ? (
+            /* 第4版 (2026-09-12): 無料期間中は 1 日 8 本まで。上限到達時は録音ボタンを畳んで案内カード */
+            <div data-testid="recorder-quota-limit" style={{ textAlign: "center", background: "#f3f6fb", border: "1px solid #d9e3f4", borderRadius: 12, padding: "16px 14px" }}>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "#1f3d78" }}>今日の採点はここまで</div>
+              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 4 }}>明日またできるよ</div>
             </div>
           ) : (
             <button
@@ -1066,9 +1082,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
               <span>録音して採点</span>
             </button>
           )}
-          {quota && !quota.unlimited && quota.used < quota.limit && (
+          {quota && !quota.unlimited && !quota.needsSubscription && quota.used < quota.limit && (
             <div className={styles.quotaLine} data-testid="recorder-quota">
-              今日の採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
+              {quota.isGuest
+                ? "登録なしでためせるのは 1 回"
+                : <>今日の採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回{quota.secondsLimit ? ` ・ あと ${Math.max(0, Math.ceil((quota.secondsLimit - (quota.secondsUsed ?? 0)) / 60))} 分` : ""}</>}
             </div>
           )}
         </div>

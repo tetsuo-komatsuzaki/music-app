@@ -25,8 +25,26 @@ model User {
   // ▼ 課金 (2026-08-07 課金設計確定: フリーミアム/週7回/月980円。Stripe が正・DB は写し)
   stripeCustomerId     String?           @unique
   stripeSubscriptionId String?
-  planStatus           String? // Stripe subscription.status の写し (trialing/active/past_due/canceled 等)
+  planStatus           String? // subscription.status の写し (trialing/active/past_due/canceled/expired 等)。Stripe と Apple の両経路が書く
   planCurrentPeriodEnd DateTime? // 現契約期間の終了日 (表示用)
+
+  // ▼ Apple のアプリ内課金 (2026-09-12 要件整理 v2.7 §4)。Apple が正・ここは写し。
+  //   結びつきは購入時の appAccountToken = supabaseUserId。通知の originalTransactionId で持ち主を一意にする
+  billingProvider            String?   // "apple" | "stripe" | null
+  appleOriginalTransactionId String?   @unique
+  appleProductId             String?   // com.arcodaviolin.app.plus.yearly / .monthly
+  appleEnvironment           String?   // "Sandbox" | "Production"
+  appleAutoRenew             Boolean?  // 自動更新の予定 (false = 「更新しない予定」を設定に出す)
+  appleRefreshToken          String?   // Sign in with Apple の provider_refresh_token。退会時のトークン失効に使う
+  // ▼ 開発者アカウント: Apple に契約が無くても契約中扱い ("internal")。管理画面からだけ付ける
+  planGrant                  String?
+  // ▼ お便り (SCR-11d)。Apple のメールとは別に、本人が書いたメールと同意日時
+  marketingEmail             String?
+  marketingOptInAt           DateTime?
+  marketingOptOutAt          DateTime?
+  // ▼ ゲストの 1 回ためし: Supabase の匿名ユーザーの UUID で作る User (role = guest)。30 日で Cron が消す
+  guestDeviceKey             String?   @unique
+  guestExpiresAt             DateTime?
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   performances         Performance[]
@@ -322,6 +340,7 @@ enum Role {
   student
   teacher
   admin
+  guest // 1 回ためし用の匿名アカウント (2026-09-12)。Apple でサインインすると student に昇格
 }
 
 enum PerformanceType {
@@ -1879,4 +1898,23 @@ model GuestEvent {
 
   @@index([createdAt])
   @@index([kind, place])
+}
+
+// Apple の App Store Server Notifications V2 の受信記録 (2026-09-12 要件整理 v2.7 §4)。
+// notificationUUID で冪等にし、生の signedPayload を残して監査・再処理できるようにする。
+model AppleNotification {
+  id                    String    @id @default(cuid())
+  notificationUUID      String    @unique
+  notificationType      String // SUBSCRIBED / DID_RENEW / EXPIRED / REFUND / DID_CHANGE_RENEWAL_STATUS …
+  subtype               String?
+  environment           String // Sandbox / Production
+  originalTransactionId String?
+  appAccountToken       String? // 購入時に添えた supabaseUserId
+  signedPayload         String // 受け取った JWS そのまま
+  processedAt           DateTime?
+  error                 String?
+  createdAt             DateTime  @default(now())
+
+  @@index([originalTransactionId])
+  @@index([createdAt])
 }

@@ -27,7 +27,7 @@ export default async function SettingsPage({
     select: {
       name: true, teacherEmailOff: true, createdAt: true, role: true,
       // ▼ 課金 Phase 2 (2026-08-07): プラン欄
-      plan: true, planStatus: true, planCurrentPeriodEnd: true, stripeSubscriptionId: true,
+      plan: true, planStatus: true, planCurrentPeriodEnd: true, billingProvider: true, planGrant: true, appleAutoRenew: true, stripeSubscriptionId: true,
     },
   })
   // helper を通過していれば dbUser は存在するはず、念のため
@@ -59,6 +59,9 @@ export default async function SettingsPage({
         isPlus,
         planStatus: dbUser.planStatus,
         periodEnd: dbUser.planCurrentPeriodEnd?.toISOString() ?? null,
+        provider: dbUser.billingProvider,
+        planGrant: dbUser.planGrant,
+        autoRenew: dbUser.appleAutoRenew,
       }}
     />
   )

@@ -123,6 +123,8 @@ type Props = {
   userId: string
   /** 報酬体系キルスイッチ (宝物予告の文言用・サーバーで解決) */
   rewardLit?: boolean
+  /** 1 回ためし中の匿名ゲスト (2026-09-12): 結果カードの下段を差し替える */
+  viewerIsGuest?: boolean
   analysis: AnalysisData | null
   buildUrl: string | null
   /**
@@ -1107,6 +1109,7 @@ function ScoreDetailInner({
   score,
   userId,
   rewardLit,
+  viewerIsGuest = false,
   uploadAction,
   analysis,
   buildUrl,
@@ -4040,6 +4043,7 @@ function ScoreDetailInner({
             return ev
           })()}
           rewardLit={rewardLit}
+          guestTrial={viewerIsGuest}
           songTitle={score.title}
           onClose={() => { setArcoResult(null); if (isScoreMode) handleTabChange("review") }}
         />

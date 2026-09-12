@@ -38,6 +38,7 @@ import ProgressBar from "./_components/ProgressBar"
 import { YesNoGate, MultiGate } from "./_screens/gates"
 import { clearReturnToCookie, mapReturnToForUser, readReturnToCookie } from "@/app/_libs/returnTo"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
+import { isAppleBilling } from "@/app/_libs/billingMode"
 
 function Header({ bar = true }: { bar?: boolean }) {
   const s = useOnboarding()
@@ -80,7 +81,39 @@ function Scr02() {
           <AvatarBubble variant="center" tail="up">こんにちは!アルコだよ!</AvatarBubble>
         </div>
       </div>
-      <CtaButton label="次へ" onClick={() => s.go("SCR03")} />
+      <CtaButton label="次へ" onClick={() => s.go("SCR02B")} />
+    </>
+  )
+}
+
+/* ── SCR-02b 呼び名 (2026-09-12 要件整理 v2.7 §3): 登録画面を無くした代わりに、ここで「ユーザー名」を聞く。
+   Apple の氏名は仮の名前として入っているので、ここで上書きする。空なら「次へ」は押せない ── */
+function Scr02B() {
+  const s = useOnboarding()
+  const [nick, setNick] = useState(s.ans.nickname ?? "")
+  return (
+    <>
+      <Header bar={false} />
+      <AvatarBubble poseKey="greet">
+        はじめまして、アルコだよ。<b>なんて呼べばいい？</b>
+      </AvatarBubble>
+      <div className={styles.list}>
+        <input
+          className={styles.input}
+          placeholder="ニックネーム"
+          value={nick}
+          onChange={(e) => setNick(e.target.value)}
+          maxLength={20}
+          aria-label="呼び名"
+          data-testid="onb-nickname"
+        />
+        <div className={styles.predictBody} style={{ padding: 0, textAlign: "left" }}>アルコはこの名前で話しかけるよ。あとから変えられる</div>
+      </div>
+      <CtaButton
+        label="次へ"
+        disabled={nick.trim().length === 0}
+        onClick={() => { s.setAns({ nickname: nick.trim() }); s.go("SCR03") }}
+      />
     </>
   )
 }
@@ -529,7 +562,7 @@ function Scr11() {
     else if (s.ans.q8 === "憧れのあの曲を完璧に弾きたい") s.go("SCR11C")
     else {
       s.setSeg("goal", 1)
-      s.go("SCR12")
+      s.go("SCR11D")
     }
   }
   return (
@@ -559,7 +592,7 @@ function Scr11B() {
   const done = (d: string | null) => {
     s.setAns({ goalDate: d })
     s.setSeg("goal", 1)
-    s.go("SCR12")
+    s.go("SCR11D")
   }
   return (
     <>
@@ -612,9 +645,50 @@ function Scr11C() {
           s.setAns({ goalSong: name })
           s.setSongRequest(name)
           s.setSeg("goal", 1)
-          s.go("SCR12")
+          s.go("SCR11D")
         }}
       />
+    </>
+  )
+}
+
+/* ── SCR-11d お便り (2026-09-12 要件整理 v2.7 §7): プロモ用のメールと同意。必須にしない・未チェックで始まる・「あとで」で飛ばせる。
+   Apple のメールとは別に持つ (marketingEmail)。同意日時は completeOnboarding が User に写す ── */
+function Scr11D() {
+  const s = useOnboarding()
+  const [mail, setMail] = useState(s.ans.mailEmail ?? "")
+  const [optIn, setOptIn] = useState(!!s.ans.mailOptIn)
+  const valid = mail.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail.trim())
+  const next = () => {
+    const m = mail.trim() || null
+    s.setAns({ mailEmail: m, mailOptIn: !!m && optIn })
+    s.go("SCR12")
+  }
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">
+        上達のヒントと新しい曲のお知らせを、<b>たまにメールで送ってもいい？</b>
+      </AvatarBubble>
+      <div className={styles.list}>
+        <input
+          className={styles.input}
+          placeholder="メールアドレス"
+          value={mail}
+          onChange={(e) => setMail(e.target.value)}
+          inputMode="email"
+          autoComplete="email"
+          maxLength={120}
+          aria-label="メールアドレス"
+          data-testid="onb-mail"
+        />
+        <OptionCard label="受け取る" desc="いつでもやめられる" checkbox checked={optIn} onClick={() => setOptIn((v) => !v)} />
+        <div className={styles.predictBody} style={{ padding: 0, textAlign: "left" }}>メールはお便り以外に使いません。書かなくても先に進めます</div>
+      </div>
+      <CtaButton label="次へ" divider disabled={!valid} onClick={next} />
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: "1.2%", textAlign: "center", zIndex: 7 }}>
+        <button type="button" className={styles.linkbtn} onClick={() => { s.setAns({ mailEmail: null, mailOptIn: false }); s.go("SCR12") }}>あとで</button>
+      </div>
     </>
   )
 }
@@ -660,7 +734,7 @@ function Scr12() {
       // オンボーディングを終えたらそのままカード登録へ進み、15 日の無料期間が始まる。
       // アプリ内 (WKWebView) は課金導線を出さない方針 (isNativeApp.ts) なので従来どおりホームへ。
       // checkout の作成に失敗しても、ここで立ち往生させない (ホームへ流し、設定から加入できる)
-      if (canShowBillingEntryPoint()) {
+      if (!isAppleBilling() && canShowBillingEntryPoint()) {
         try {
           const r = await fetch("/api/stripe/checkout", {
             method: "POST",
@@ -703,6 +777,7 @@ function Scr12() {
 const SCREENS: Record<ScreenId, () => React.ReactElement> = {
   SCR01: Scr01,
   SCR02: Scr02,
+  SCR02B: Scr02B,
   SCR03: Scr03,
   SCR04: Scr04,
   L_G1: GateG1,
@@ -721,6 +796,7 @@ const SCREENS: Record<ScreenId, () => React.ReactElement> = {
   SCR11: Scr11,
   SCR11B: Scr11B,
   SCR11C: Scr11C,
+  SCR11D: Scr11D,
   SCR12: Scr12,
 }
 

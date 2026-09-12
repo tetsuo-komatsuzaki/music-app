@@ -32,6 +32,8 @@ function isPublicApiPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  // サーバーコンポーネント (layout) がいまのパスを知るための印 (2026-09-12: ゲストの 1 回ためしの範囲制限に使う)
+  request.headers.set("x-pathname", request.nextUrl.pathname)
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

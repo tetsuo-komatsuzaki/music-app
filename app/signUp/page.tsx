@@ -8,6 +8,15 @@ import Image from "next/image"
 import { signUpAction } from "../actions/signUpAction"
 import { isNativeApp } from "@/app/_libs/isNativeApp"
 import { openAuthBrowser } from "@/app/_libs/arcodaAuthBrowser"
+import { isAppleBilling, appStoreUrl } from "@/app/_libs/billingMode"
+import { useIsNativeApp } from "@/app/_hooks/useIsNativeApp"
+import { useEffect } from "react"
+
+/** iOS のアプリ内で /signUp に来た人を /start へ (2026-09-12) */
+function AppleNativeRedirect() {
+  useEffect(() => { window.location.replace("/start") }, [])
+  return null
+}
 
 
 
@@ -15,6 +24,7 @@ const MIN_PASSWORD_LEN = 8
 
 export default function loginPage() {
 
+  const native = useIsNativeApp()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [username, setUsername] = useState("")
@@ -88,6 +98,22 @@ export default function loginPage() {
 
 
 
+  // 2026-09-12 要件整理 v2.7 §3 W-1: Apple 課金では登録は iPhone アプリの中だけ。ブラウザは App Store へ
+  if (isAppleBilling() && !native) {
+    const url = appStoreUrl()
+    return (
+      <div style={{ padding: "48px 20px", textAlign: "center" }}>
+        <h1 className={styles.title}>アルコは iPhone アプリではじめられます</h1>
+        <p style={{ color: "var(--text-sub)", marginTop: 12 }}>App Store で「アルコ」をダウンロードして、アプリの中で登録してください。</p>
+        {url && <a href={url} className={styles.button} style={{ display: "inline-block", marginTop: 20, textDecoration: "none" }}>App Store を開く</a>}
+        <p style={{ marginTop: 24 }}>すでにアカウントをお持ちの方は<Link href="/login">ログイン</Link></p>
+      </div>
+    )
+  }
+  if (isAppleBilling()) {
+    // iOS のアプリ内で /signUp に来たら、登録は /start (アルコプラスをはじめる) へ
+    return <AppleNativeRedirect />
+  }
   return (
     <>
       <div className={styles.logoContainer}>
@@ -167,25 +193,6 @@ export default function loginPage() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
               className={styles.input} />
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="plan" className={styles.label}>
-              プラン
-            </label >
-            <select
-              name="plan"
-              id="plan"
-              value={plan}
-              required
-              onChange={(e) => setPlan(e.target.value)}
-              disabled={isSubmitting}
-              className={styles.input}
-            >
-              {/* 2026-09-12: 恒久的な「無料プラン」は存在せず、登録するとアルコプラスを
-                  無料でためせる期間が始まる。value は互換のため "free" のまま */}
-              <option value="">えらぶ</option>
-              <option value="free">まずは無料でためす</option>
-            </select>
           </div>
           <div className={styles.field}>
             <label className={styles.label}>

@@ -1,4 +1,5 @@
 "use client"
+import { isAppleBilling } from "@/app/_libs/billingMode"
 
 // アカウント ドロップダウン (2026-08-17 ナビ要件定義 SECTION 1-3)。
 // サイドバー廃止に伴い、設定・サポート・使い方・先生モード・管理・ログアウトをここへ集約する。
@@ -57,9 +58,9 @@ export default function AccountMenu({ role }: { role?: string }) {
           <>
             <div className={styles.veil} onClick={close} aria-hidden />
             <div className={styles.menu} role="menu">
-              <Link href={`/signUp${rt}`} className={`${styles.item} ${styles.gold}`} onClick={() => { close(); setReturnToCookie(`/${GUEST_ID}`) }} role="menuitem">
+              <Link href={isAppleBilling() ? "/start" : `/signUp${rt}`} className={`${styles.item} ${styles.gold}`} onClick={() => { close(); setReturnToCookie(`/${GUEST_ID}`) }} role="menuitem">
                 <span className={styles.ic}><User size={17} /></span>
-                <span className={styles.label}>無料で登録</span>
+                <span className={styles.label}>{isAppleBilling() ? "はじめる" : "登録する"}</span>
               </Link>
               <Link href={`/login${rt}`} className={styles.item} onClick={() => { close(); setReturnToCookie(`/${GUEST_ID}`) }} role="menuitem">
                 <span className={styles.ic}><LogOut size={17} style={{ transform: "scaleX(-1)" }} /></span>

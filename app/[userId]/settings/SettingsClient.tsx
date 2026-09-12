@@ -16,6 +16,9 @@ interface Props {
     isPlus: boolean
     planStatus: string | null
     periodEnd: string | null
+    provider?: string | null
+    planGrant?: string | null
+    autoRenew?: boolean | null
   }
 }
 

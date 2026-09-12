@@ -10,6 +10,8 @@ import { LESSON_TOTAL } from "@/app/[userId]/lessons/_lib/content"
 import { badgeKind } from "@/app/_libs/starProgress"
 import { resolveEffectivePlan } from "@/app/_libs/plan"
 import LibraryClient, { type LibraryPiece, type LibraryCategory } from "./LibraryClient"
+import { isAppleBilling } from "@/app/_libs/billingMode"
+import { getGuestTryState } from "@/app/actions/guestTry"
 import { loadPieceCatalog } from "./loadPieceCatalog"
 
 export const metadata = { title: "ライブラリ" }
@@ -68,6 +70,8 @@ export default async function LibraryPage({
     loadPieceCatalog(dbUserId, { officialOnly: guest }),   // ゲストは公式曲だけ (Q2)
   ])
 
+  // 1 回ためし (2026-09-12): ゲスト・Apple 課金・未使用なら「曲をえらんでください」の帯
+  const tryBanner = guest && isAppleBilling() ? !(await getGuestTryState()).used : false
   const canUpload = !guest && me
     ? resolveEffectivePlan({ plan: me.plan, planStatus: me.planStatus, createdAt: me.createdAt }) === "plus"
     : false
@@ -101,6 +105,7 @@ export default async function LibraryPage({
       ownScoreCount={ownScoreCount}
       canUpload={canUpload}
       guest={guest}
+      tryBanner={tryBanner}
     />
   )
 }

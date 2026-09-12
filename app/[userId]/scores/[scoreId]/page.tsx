@@ -1,4 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
+import { redirect } from "next/navigation"
+import { isAppleBilling } from "@/app/_libs/billingMode"
+import { getGuestTryState } from "@/app/actions/guestTry"
 import GuestGate from "@/app/components/guest/GuestGate"
 import { GATE_TEXT } from "@/app/components/guest/gateText"
 import { getOfficialUserIds } from "@/app/_libs/officialUsers"
@@ -49,6 +52,8 @@ export default async function Page({
   console.log(`[PERF] scores/detail step1_dbUser+score: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
+  // 1 回ためし中の匿名ゲスト (2026-09-12 要件整理 v2.7): 結果カードの下段を差し替える
+  const viewerIsGuest = !guest && (dbUser as { role?: string }).role === "guest"
   if (!score) return <div>この曲は見つからなかったよ</div>
 
   // 登録済み・未ログインの人が「前回の画面」から自分の曲を開いたときもここに来る (2026-09-06)。
@@ -307,9 +312,14 @@ export default async function Page({
   } catch { teacherKartes = [] }
 
   if (guest) {
-    const g = GATE_TEXT.song(score.title)
+    // 1 回ためし (2026-09-12 要件整理 v2.7 §2): 未使用の端末なら「登録なしで 1 回ためす」、使用済みなら「はじめる」→ /start。
+    // ためした曲を開き直したら、匿名ユーザー本人の URL (結果が見られる) へ
+    const tryState = isAppleBilling() ? await getGuestTryState() : null
+    if (tryState?.used && tryState.triedScoreId === score.id && tryState.authUserId) redirect(`/${tryState.authUserId}/scores/${score.id}`)
+    const canTry = !!tryState && !tryState.used
+    const g = canTry ? GATE_TEXT.songTry(score.title) : tryState?.used ? GATE_TEXT.songUsed(score.title, tryState.lastScore) : GATE_TEXT.song(score.title)
     return (
-      <GuestGate title={g.title} items={g.items}>
+      <GuestGate title={g.title} items={g.items} tryScoreId={canTry ? score.id : undefined}>
         <ScoreDetail
           score={{ id: score.id, title: score.title, badge: null }}
           userId={userId}
@@ -348,6 +358,7 @@ export default async function Page({
         }}
         userId={userId}
         rewardLit={process.env.REWARD_SYSTEM_LIT === "1"}
+        viewerIsGuest={viewerIsGuest}
         analysis={analysisData}
         uploadAction={uploadRecord}
         parts={groupParts}

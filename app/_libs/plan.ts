@@ -39,16 +39,19 @@ export const TRIAL_DAILY_GRADINGS = 8
 export const TRIAL_DAILY_PRACTICE_GRADINGS = 5
 
 /**
- * 無料期間の日数。Stripe の checkout に trial_period_days として渡す値。
- * 期間中か否かの判定は Stripe の subscription.status (trialing / active) が持つので、
- * アプリ側で createdAt から数え直さない (二重になる)。
+ * 無料期間の日数。Stripe の checkout に trial_period_days として渡す値 (Stripe は眠らせ中・Web 販売なし)。
+ * Apple の経路では Apple の導入オファー (2 週間) が正で、この値は使わない。
  */
-export const TRIAL_PERIOD_DAYS = 15
+export const TRIAL_PERIOD_DAYS = 14
 
-/** アルコプラス 月額 (税込・円) */
+/** Stripe 用の価格 (眠らせ中)。iOS の価格は StoreKit が返す値を表示し、ここには書かない */
 export const PLUS_PRICE_JPY = 980
-/** アルコプラス 年額 (税込・円) = 2ヶ月分お得 */
 export const PLUS_PRICE_YEARLY_JPY = 9800
+
+// 純粋な定数は planConstants.ts (client からも import できる)。ここでは再エクスポート
+export { APPLE_PRODUCT_IDS, PLAN_GRANT_INTERNAL, GUEST_TRIAL_GRADINGS, GUEST_RETENTION_DAYS } from "./planConstants"
+export type { ApplePlanKind } from "./planConstants"
+import { PLAN_GRANT_INTERNAL, GUEST_TRIAL_GRADINGS } from "./planConstants"
 
 /**
  * 未加入 (Stripe のサブスクが無い) の人に録音させないか。
@@ -115,11 +118,15 @@ export function resolveEffectivePlan(input: {
   plan: string | null
   planStatus: string | null
   createdAt: Date
+  /** "internal" = 開発者アカウント。Apple に契約が無くても plus */
+  planGrant?: string | null
   now?: Date
   restrictionStart?: Date | null
 }): EffectivePlan {
   const now = input.now ?? new Date()
   const restrictionStart = input.restrictionStart === undefined ? RESTRICTION_START : input.restrictionStart
+
+  if (input.planGrant === PLAN_GRANT_INTERNAL) return "plus"
 
   if (input.plan === "plus" && input.planStatus != null) {
     // 無料期間中 (trialing) は「加入はしているが、まだ払っていない」。
@@ -157,6 +164,10 @@ export type GradingQuota = {
   isTrial: boolean
   /** まだ加入していないか (録音できない状態) */
   needsSubscription: boolean
+  /** ゲスト (1 回ためし) か。limit は GUEST_TRIAL_GRADINGS、基礎練は不可 */
+  isGuest: boolean
+  /** ゲストの直近の点数 (1 回ためしの結果)。録音画面のカード「N 点を残してつづける」に使う */
+  guestLastScore?: number | null
   plan: EffectivePlan
 }
 
@@ -213,7 +224,7 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
   const [user, teacherLink, used, secondsUsed, practiceUsed] = await Promise.all([
     prisma.user.findUnique({
       where: { id: dbUserId },
-      select: { plan: true, planStatus: true, createdAt: true },
+      select: { plan: true, planStatus: true, createdAt: true, planGrant: true, role: true },
     }),
     // 先生接続中の生徒は無制限 (先生プランの価値の一部)。
     // 注意: 先生機能をサービスインする日に必ず見直す。放置すると最大の原価漏れになる。
@@ -240,6 +251,31 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
       practiceAllowed: !ENFORCE_LIMITS,
       isTrial: false,
       needsSubscription: REQUIRE_SUBSCRIPTION,
+      isGuest: false,
+      plan: "free",
+    }
+  }
+
+  // ゲストの 1 回ためし (要件整理 v2.7 §2): 公式曲を 1 回だけ。基礎練は不可。加入は求めない (まだアカウントではない)
+  if (user.role === "guest") {
+    const guestUsed = await prisma.performance.count({
+      where: { userId: dbUserId, analysisStatus: { in: ["queued", "processing", "done", "retrying"] } },
+    })
+    const last = guestUsed > 0
+      ? await prisma.performance.findFirst({ where: { userId: dbUserId }, orderBy: { createdAt: "desc" }, select: { pitchAccuracy: true, timingAccuracy: true } })
+      : null
+    const guestLastScore = last?.pitchAccuracy != null && last?.timingAccuracy != null ? Math.round((last.pitchAccuracy + last.timingAccuracy) / 2) : null
+    return {
+      ...base,
+      used: guestUsed,
+      limit: GUEST_TRIAL_GRADINGS,
+      unlimited: false,
+      allowed: !ENFORCE_LIMITS || guestUsed < GUEST_TRIAL_GRADINGS,
+      practiceAllowed: false,
+      isTrial: false,
+      needsSubscription: false,
+      isGuest: true,
+      guestLastScore,
       plan: "free",
     }
   }
@@ -264,6 +300,7 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
     practiceAllowed:
       !ENFORCE_LIMITS ||
       (unlimited ? true : !needsSubscription && practiceUsed < TRIAL_DAILY_PRACTICE_GRADINGS),
+    isGuest: false,
     plan,
   }
 }

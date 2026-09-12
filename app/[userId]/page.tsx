@@ -9,6 +9,7 @@ import {
   STAR_UP_ACHIEVEMENTS,
 } from "@/app/_libs/starProgress"
 import HomeClient from "./home"
+import { resolveEffectivePlan, REQUIRE_SUBSCRIPTION } from "@/app/_libs/plan"
 import GuestHome from "./_guest/GuestHome"
 import KnownUserRecorder from "@/app/components/guest/KnownUserRecorder"
 import { GUEST_ID } from "@/app/_libs/viewer"
@@ -73,7 +74,7 @@ export default async function HomePage({ params, searchParams }: PageProps) {
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
-    select: { id: true, name: true, role: true, deletedAt: true },
+    select: { id: true, name: true, role: true, deletedAt: true, plan: true, planStatus: true, planCurrentPeriodEnd: true, planGrant: true, createdAt: true },
   })
   if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
   console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -816,6 +817,14 @@ export default async function HomePage({ params, searchParams }: PageProps) {
       exprShelf,
       starterPick,
       userName: dbUser.name ?? "",
+      // 課金の状態 (2026-09-12): 無料期間の残り日数チップ / 契約切れの帯
+      planView: (() => {
+        const eff = resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, planGrant: dbUser.planGrant })
+        const end = dbUser.planCurrentPeriodEnd?.toISOString() ?? null
+        if (eff === "trial") return { kind: "trial" as const, periodEnd: end }
+        if (eff === "free" && REQUIRE_SUBSCRIPTION) return { kind: "expired" as const, periodEnd: end }
+        return { kind: "none" as const, periodEnd: end }
+      })(),
       streak,
       weeklyDays,
       arcoMessage,

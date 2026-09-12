@@ -14,7 +14,8 @@
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
     "@capacitor/screen-orientation": "^8.0.1",
-    "arcoda-recorder": "file:./plugins/arcoda-recorder"
+    "arcoda-recorder": "file:./plugins/arcoda-recorder",
+    "arcoda-store": "file:./plugins/arcoda-store"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.0",

@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/app/_libs/supabaseAdmin"
 import { prisma } from "@/app/_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { Resend } from "resend"
+import { revokeAppleToken } from "@/app/_libs/apple/appleRevoke"
 
 // =========================================================
 // 退会フロー (同期削除、Auth-first)
@@ -23,7 +24,7 @@ import { Resend } from "resend"
 // =========================================================
 
 export async function requestAccountDeletion(
-  { password }: { password: string }
+  { password, confirmWord }: { password?: string; confirmWord?: string }
 ): Promise<{ success: boolean; error?: string }> {
   if (process.env.ENABLE_ACCOUNT_DELETION !== "true") {
     return { success: false, error: "現在この機能は利用できません" }
@@ -65,18 +66,26 @@ export async function requestAccountDeletion(
     // 30 秒以上経過 + Auth 存在 → 残処理続行 (fall through)
   }
 
-  // === パスワード再認証 (per-request 一時クライアント、セッション汚染回避) ===
-  const tempClient = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  )
-  const { error: signInError } = await tempClient.auth.signInWithPassword({
-    email: authUser.email,
-    password,
-  })
-  if (signInError) {
-    return { success: false, error: "パスワードが正しくありません" }
+  // === 本人確認 (2026-09-12 要件整理 v2.7 §6) ===
+  // email の identity がある人はパスワード再認証。Sign in with Apple だけの人にはパスワードが無いので「退会」の入力で確認する
+  const providers = (authUser.app_metadata?.providers as string[] | undefined) ?? []
+  if (providers.includes("email")) {
+    if (!password) return { success: false, error: "パスワードを入力してください" }
+    const tempClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false } }
+    )
+    const { error: signInError } = await tempClient.auth.signInWithPassword({ email: authUser.email, password })
+    if (signInError) return { success: false, error: "パスワードが正しくありません" }
+  } else if (confirmWord !== "退会") {
+    return { success: false, error: "「退会」と入力してください" }
+  }
+
+  // Sign in with Apple のトークン失効 (5.1.1(v))。失敗しても退会は続ける
+  if (providers.includes("apple")) {
+    const ok = await revokeAppleToken(dbUser.appleRefreshToken)
+    if (!ok) console.warn(JSON.stringify({ event: "apple_revoke_skipped", userId: dbUser.id }))
   }
 
   // === deletedAt セット ===

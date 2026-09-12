@@ -1,0 +1,79 @@
+/* 「アルコプラスをはじめる」(2026-09-12 モック v3 = scr13-v3.template.html を逐語で写経)。
+   単位は cqh (コンテナ高さ比)。枠は画面いっぱい。色は globals.css の確定パレット (金は成果専用・使わない)。 */
+.frame {
+  container-type: size;
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg0);
+  color: var(--text-ink);
+  font-weight: 700;
+  --primary: #2b5bc4;
+  --primary-shadow: #1c3f8f;
+  --surface: #15233f;
+  --border: rgba(150, 175, 225, 0.16);
+  --sel-border: #2b5bc4;
+  --sel-bg: rgba(43, 91, 196, 0.22);
+}
+.glow { position: absolute; inset: 0 0 auto 0; height: 34%; background: radial-gradient(ellipse at 50% -10%, rgba(43, 91, 196, 0.34) 0, transparent 62%); pointer-events: none; }
+.hero { position: absolute; top: 12.5%; left: 6%; width: 88%; text-align: center; }
+.hero h3 { margin: 0; font-size: min(3.3cqh, 29px); font-weight: 900; line-height: 1.35; color: var(--text-ink); letter-spacing: 0.01em; }
+.hero p { margin: 1.4cqh 0 0; font-size: min(1.7cqh, 15px); font-weight: 500; color: var(--text-sub); line-height: 1.55; }
+.plans { position: absolute; top: 29.5%; left: 4%; width: 92%; display: flex; flex-direction: column; gap: 1.6cqh; }
+.plan {
+  position: relative; border: 2px solid var(--border); border-radius: 16px; background: var(--surface);
+  padding: 2cqh 4.5% 1.9cqh; display: flex; align-items: center; justify-content: space-between; gap: 3%;
+  cursor: pointer; min-height: 10.4cqh; box-sizing: border-box; width: 100%; text-align: left; font-family: inherit; color: inherit; line-height: 1.6;
+  transition: transform 0.12s ease, background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+.plan:active { transform: scale(0.982); }
+.plan.sel { background: var(--sel-bg); border-color: var(--sel-border); box-shadow: 0 0 0 1px var(--sel-border); }
+.plan .t { font-size: min(2.5cqh, 22px); font-weight: 900; color: var(--text-ink); line-height: 1.2; }
+.plan .s { font-size: min(1.55cqh, 13.5px); font-weight: 500; color: var(--text-sub); margin-top: 0.5cqh; }
+.plan .p { font-size: min(2.15cqh, 19px); font-weight: 800; color: var(--text-ink); white-space: nowrap; font-variant-numeric: tabular-nums; transition: color 0.2s; }
+.plan .p small { font-size: 0.72em; font-weight: 700; color: var(--text-sub); }
+.plan.sel .p { color: #fff; }
+.chk { box-sizing: content-box; width: min(2.6cqh, 22px); aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: grid; place-items: center; margin-left: 2%; transition: border-color 0.2s, background 0.2s; }
+.chk::after { content: ""; width: 46%; aspect-ratio: 1; border-radius: 50%; background: #fff; transform: scale(0); transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.plan.sel .chk { border-color: var(--primary); background: var(--primary); }
+.plan.sel .chk::after { transform: scale(1); }
+.badge { position: absolute; top: -1.3cqh; left: 4%; background: var(--primary); color: #fff; font-size: min(1.3cqh, 11.5px); font-weight: 900; border-radius: 6px; padding: 0.25cqh 1.2cqh; letter-spacing: 0.03em; transform-origin: left center; }
+.plan.sel .badge { animation: badgePop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes badgePop { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
+.feats { position: absolute; top: 57.5%; left: 6%; width: 88%; }
+.feats h4 { margin: 0 0 1.6cqh; text-align: center; font-size: min(2.1cqh, 19px); font-weight: 900; color: var(--text-ink); line-height: 1.4; }
+.feat { display: flex; align-items: center; gap: 4%; font-size: min(1.7cqh, 15px); font-weight: 700; color: var(--text-body); padding: 0.8cqh 0; }
+.feat i { box-sizing: content-box; width: min(4cqh, 34px); aspect-ratio: 1; border-radius: 50%; background: var(--card-in); border: 1px solid var(--border); display: grid; place-items: center; flex-shrink: 0; color: var(--text-ink); font-style: normal; }
+.feat svg { width: 55%; height: 55%; }
+.dock { position: absolute; left: 0; right: 0; bottom: 0; padding: 2cqh 4% calc(3.2cqh + env(safe-area-inset-bottom, 0px)); background: linear-gradient(180deg, rgba(10, 17, 34, 0) 0, var(--bg0) 22%); display: flex; flex-direction: column; align-items: center; gap: 1cqh; z-index: 5; }
+.cta {
+  width: 100%; height: 5.6cqh; max-height: 54px; border: none; border-radius: 16px; background: #000; box-shadow: 0 4px 0 #2a2a2a;
+  color: #fff; font-size: min(1.9cqh, 17px); font-weight: 800; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 0.9cqh; position: relative; transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s;
+}
+.cta:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #2a2a2a; }
+.cta:disabled { opacity: 0.55; cursor: default; }
+.cta.busy > * { opacity: 0; }
+.cta.busy::after { content: ""; position: absolute; width: 2.4cqh; aspect-ratio: 1; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, 0.28); border-top-color: #fff; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fine { font-size: min(1.35cqh, 12px); color: var(--text-muted); font-weight: 500; text-align: center; line-height: 1.45; }
+.fine b { color: var(--text-sub); }
+.legal { display: flex; gap: 1.8cqh; font-size: min(1.35cqh, 12px); color: var(--text-muted); font-weight: 500; flex-wrap: wrap; justify-content: center; line-height: 1.6; }
+.legal a, .legal button { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; background: none; border: none; font: inherit; line-height: inherit; cursor: pointer; padding: 0; }
+.toast { position: absolute; left: 50%; bottom: 22%; transform: translateX(-50%) translateY(10px); background: var(--card-b); border: 1px solid var(--border); color: var(--text-ink); font-size: min(1.6cqh, 14px); font-weight: 700; border-radius: 999px; padding: 1cqh 2.4cqh; opacity: 0; transition: opacity 0.25s, transform 0.25s; z-index: 31; white-space: nowrap; pointer-events: none; max-width: 92%; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.warn { border-color: rgba(255, 123, 110, 0.5); }
+/* 価格が取れないとき: カードの右側を伏せる */
+.plan .p.hidden { visibility: hidden; }
+.retry { background: none; border: 1px solid var(--border); border-radius: 999px; color: var(--text-body); font: inherit; font-size: min(1.5cqh, 13px); font-weight: 800; padding: 0.7cqh 2cqh; cursor: pointer; }
+/* 画面の入場 */
+.enter .hero, .enter .plans, .enter .feats, .enter .dock { animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.enter .plans { animation-delay: 0.06s; } .enter .feats { animation-delay: 0.12s; } .enter .dock { animation-delay: 0.18s; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .enter .hero, .enter .plans, .enter .feats, .enter .dock, .plan, .cta { animation: none !important; transition: none !important; } }
+/* Web (ブラウザ) 用: 売らないので案内だけ */
+.webNote { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; text-align: center; padding: 0 10%; }
+.webNote h3 { margin: 0; font-size: min(2.8cqh, 25px); font-weight: 900; color: var(--text-ink); line-height: 1.4; }
+.webNote p { margin: 0; font-size: min(1.7cqh, 15px); color: var(--text-sub); font-weight: 500; }
+.webNote a { margin-top: 1cqh; background: var(--primary); color: #fff; border-radius: 16px; padding: 1.6cqh 6cqh; font-size: min(1.9cqh, 17px); font-weight: 800; text-decoration: none; box-shadow: 0 4px 0 var(--primary-shadow); }

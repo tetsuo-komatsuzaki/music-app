@@ -12,7 +12,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
-import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
+import { useCanShowBillingEntryPoint } from "@/app/_hooks/useIsNativeApp"
 import styles from "./library.module.css"
 import PieceCatalog from "./PieceCatalog"
 import type { CatalogPiece } from "./loadPieceCatalog"
@@ -41,7 +41,7 @@ const TABS: { key: Tab; label: string }[] = [
 ]
 
 export default function LibraryClient({
-  userId, initialTab, pieces, catalog, categories, lessonTotal, ownScoreCount, canUpload = false, guest = false,
+  userId, initialTab, pieces, catalog, categories, lessonTotal, ownScoreCount, canUpload = false, guest = false, tryBanner = false,
 }: {
   userId: string
   initialTab: Tab
@@ -55,9 +55,12 @@ export default function LibraryClient({
   canUpload?: boolean
   /** ゲスト閲覧 (2026-09-06): 曲カードは曲の詳細 (ゲート) へ、アップロードはその場でゲート */
   guest?: boolean
+  /** 1 回ためし (2026-09-12): 未使用の端末に「登録なしで 1 回だけためせます。曲をえらんでください」の帯 */
+  tryBanner?: boolean
 }) {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>(initialTab)
+  const canShowBilling = useCanShowBillingEntryPoint()
   const [q, setQ] = useState("")
   // 曲を星ごとに見るタグ (SPEC-CHANGES 2026-08-20)。null = すべて
   const [starTag, setStarTag] = useState<number | null>(null)
@@ -88,6 +91,11 @@ export default function LibraryClient({
 
   return (
     <div className={styles.root}>
+      {tryBanner && (
+        <div data-testid="library-try-banner" style={{ margin: "10px 0 0", background: "var(--card-b)", border: "1px solid rgba(232,178,60,.34)", borderRadius: 12, padding: "10px 14px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", textAlign: "center" }}>
+          登録なしで 1 回だけためせます。曲をえらんでください
+        </div>
+      )}
       {gate && <GateSheet key="upload" title={GATE_TEXT.upload.title} items={[...GATE_TEXT.upload.items]} laterMode="hide" onLater={() => setGate(false)} />}
       {planModal && (
         <div role="dialog" aria-modal="true" aria-label="アルコプラスの案内"
@@ -108,7 +116,7 @@ export default function LibraryClient({
               {[
                 ["自分の楽譜を取り込む", "その曲も採点できる"],
                 ["採点が無制限", "1日8本の上限が外れる"],
-                ["はじめは無料でためせる", "いつでもやめられる"],
+                ["最初の 2 週間は無料", "いつでも解約できる"],
               ].map(([t, sub]) => (
                 <div key={t} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, color: "var(--text-sub)" }}>
                   <span style={{ color: "var(--gold)", fontWeight: 900, flex: "none" }}>+</span>
@@ -117,7 +125,7 @@ export default function LibraryClient({
               ))}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 16, alignItems: "center", flexWrap: "wrap" }}>
-              {canShowBillingEntryPoint() ? (
+              {canShowBilling ? (
                 <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`}
                   style={{ fontSize: 12, textDecoration: "none" }}>プランを見る</Link>
               ) : (
@@ -276,7 +284,7 @@ export default function LibraryClient({
               <span style={{ display: "block", fontSize: 11.5, color: "var(--text-sub)", marginTop: 6, lineHeight: 1.8 }}>
                 自分の楽譜を取り込むと、その曲も採点できるようになります。
               </span>
-              {canShowBillingEntryPoint() ? (
+              {canShowBilling ? (
                 <div style={{ marginTop: 11, display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`} style={{ fontSize: 11, textDecoration: "none" }}>プランを見る →</Link>
                 </div>

@@ -12,10 +12,13 @@ import { GUEST_ID } from "@/app/_libs/viewer"
 import { buildSampleAchievement, buildSampleReco, pickFeaturedScore, guestHref } from "./sample"
 import ReturningHome from "./ReturningHome"
 import { KNOWN_USER_BOOT_SCRIPT } from "@/app/_libs/knownUser"
+import { NATIVE_BOOT_SCRIPT } from "@/app/_libs/isNativeApp"
 import GateSheet from "@/app/components/guest/GateSheet"
 import GuestVisitPing from "@/app/components/guest/GuestVisitPing"
 import { GATE_TEXT } from "@/app/components/guest/gateText"
 import { safeReturnPath } from "@/app/_libs/returnTo"
+import { isAppleBilling, appStoreUrl } from "@/app/_libs/billingMode"
+import { getGuestTryState } from "@/app/actions/guestTry"
 import styles from "./guestHome.module.css"
 
 const SIGNUP = `/signUp?returnTo=${encodeURIComponent(`/${GUEST_ID}`)}`
@@ -23,7 +26,9 @@ const LOGIN = `/login?returnTo=${encodeURIComponent(`/${GUEST_ID}`)}`
 
 /** gate: 未ログインでログインが要る画面を開いた人が戻されてきたとき、この上にシートを出す (2026-09-06 Tetsuo確定) */
 export default async function GuestHome({ gate = false, returnTo = null }: { gate?: boolean; returnTo?: string | null } = {}) {
-  const [featured, ach, reco] = await Promise.all([pickFeaturedScore(), buildSampleAchievement(), buildSampleReco()])
+  const apple = isAppleBilling()
+  const storeUrl = appStoreUrl()
+  const [featured, ach, reco, tryState] = await Promise.all([pickFeaturedScore(), buildSampleAchievement(), buildSampleReco(), apple ? getGuestTryState() : Promise.resolve(null)])
   const pieces = featured
     ? [{ id: featured.id, title: featured.title, star: featured.star, cover: featured.cover, latest: 82, recentAvg: 78, badge: null, href: guestHref(`/scores/${featured.id}`) }]
     : []
@@ -34,6 +39,7 @@ export default async function GuestHome({ gate = false, returnTo = null }: { gat
       {gate && <GateSheet title={GATE_TEXT.generic.title} items={[...GATE_TEXT.generic.items]} laterMode="hide" returnTo={safeReturnPath(returnTo) ?? `/${GUEST_ID}`} />}
       {/* 案B (2026-09-06): 端末に記録がある人には、未登録者向けの中身 (.unregistered) を隠し、おかえりなさい画面を出す */}
       <script dangerouslySetInnerHTML={{ __html: KNOWN_USER_BOOT_SCRIPT }} />
+      {apple && <script dangerouslySetInnerHTML={{ __html: NATIVE_BOOT_SCRIPT }} />}
       <ReturningHome />
       <div className={styles.unregistered}>
       <div className={`${ds.card} ${styles.hero}`}>
@@ -41,7 +47,27 @@ export default async function GuestHome({ gate = false, returnTo = null }: { gat
         <div className={styles.lead}>バイオリンの練習を録音すると、<br />音程とリズムをその場で採点。</div>
         <div className={styles.sub}>先生がいなくても、弾くたびに何が良くなったかが残ります。</div>
         <div className={styles.heroActions}>
-          <Link href={SIGNUP} className={styles.cta}>無料で登録して始める</Link>
+          {/* 2026-09-12 要件整理 v2.7 §3: 「無料で登録」は使わない。Apple 課金では 1 回ためし → /start。
+              Web (ブラウザ) は App Store へ。Stripe (従来) は登録画面へ */}
+          {tryState?.used ? (
+            <>
+              <div className={styles.sub} style={{ padding: "0 0 8px" }}>{tryState.lastScore != null ? `さっきの ${tryState.lastScore} 点を残しておこう` : "さっきの採点を残しておこう"}</div>
+              <Link href="/start" className={styles.cta}>はじめる</Link>
+            </>
+          ) : apple ? (
+            <>
+              {/* iOS の殻 (C-2): 1 回ためす。Web (C-23): App Store へ。殻かどうかは NATIVE_BOOT_SCRIPT が html に立てる印で CSS が切り替える */}
+              <Link href={`/${GUEST_ID}/library?try=1`} className={`${styles.cta} ${styles.nativeOnly}`}>登録なしで 1 回ためす</Link>
+              <div className={styles.webOnly}>
+                {storeUrl ? <a href={storeUrl} className={styles.cta}>iPhone アプリで登録</a> : <span className={styles.cta}>iPhone アプリで登録</span>}
+                <div className={styles.sub} style={{ textAlign: "center", padding: "8px 0 0" }}>App Store で「アルコ」をダウンロード</div>
+              </div>
+            </>
+          ) : storeUrl ? (
+            <a href={storeUrl} className={styles.cta}>iPhone アプリで登録</a>
+          ) : (
+            <Link href={SIGNUP} className={styles.cta}>登録して始める</Link>
+          )}
           <Link href={LOGIN} className={styles.linkline}>アカウントがある人はログイン</Link>
         </div>
       </div>

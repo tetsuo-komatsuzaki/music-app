@@ -36,12 +36,14 @@ function rankOf(score: number): string {
 }
 
 export default function ArcoResultOverlay({
-  scoreId, userId, perf, onClose, events = [], rewardLit = false, songTitle,
+  scoreId, userId, perf, onClose, events = [], rewardLit = false, songTitle, guestTrial = false,
 }: {
   scoreId: string
   userId: string
   perf: { id: string; pitchAccuracy: number | null; timingAccuracy: number | null }
   onClose: () => void
+  /** 1 回ためし (2026-09-12 要件整理 v2.7 §3 手順 8): 下段を「この N 点を残してつづける」1 つにし、シェアとカルテは出さない */
+  guestTrial?: boolean
   /** この演奏で起きた節目 (achieve/master/rank_up/personal_best・祝い階層 2026-08-31) */
   events?: string[]
   /** 報酬体系キルスイッチ (宝物予告の文言用) */
@@ -251,6 +253,14 @@ export default function ArcoResultOverlay({
           )}
         </div>
 
+        {guestTrial ? (
+          <div className={styles.actions} style={{ flexDirection: "column", alignItems: "stretch" }}>
+            <Link href="/start" onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+              この {perf.pitchAccuracy != null && perf.timingAccuracy != null ? Math.round((perf.pitchAccuracy + perf.timingAccuracy) / 2) : "—"} 点を残してつづける
+            </Link>
+            <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>残さない場合は右上の × で閉じる</div>
+          </div>
+        ) : (
         <div className={styles.actions}>
           <Link href={`/${userId}/progress`} onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>カルテで成長記録をみる</Link>
           <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Share2 size={13} /> シェア</span></button>
@@ -272,6 +282,7 @@ export default function ArcoResultOverlay({
             </button>
           )}
         </div>
+        )}
 
         </div>
 

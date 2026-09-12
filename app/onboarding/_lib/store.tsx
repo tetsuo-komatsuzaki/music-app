@@ -29,7 +29,8 @@ export type ScreenId =
   | "SCR01" | "SCR02" | "SCR03" | "SCR04"
   | "L_G1" | "L_G2" | "L_G3" | "L_G3S" | "L_G4" | "L_G5" | "L_G6"
   | "SCR07" | "SCR08A" | "SCR08B" | "SCR10" | "SCR08C" | "SCR09"
-  | "SCR11" | "SCR11B" | "SCR11C" | "SCR12"
+  | "SCR11" | "SCR11B" | "SCR11C" | "SCR11D" | "SCR12"
+  | "SCR02B"
 
 export type Answers = {
   q2?: string
@@ -42,6 +43,10 @@ export type Answers = {
   q8?: string
   goalDate?: string | null
   goalSong?: string | null
+  // ▼ 2026-09-12 要件整理 v2.7: 登録画面を無くした代わりに、アルコの質問として聞く
+  nickname?: string
+  mailEmail?: string | null
+  mailOptIn?: boolean
 }
 
 type OnboardingState = {

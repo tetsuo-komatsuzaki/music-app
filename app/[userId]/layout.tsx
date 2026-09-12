@@ -7,6 +7,7 @@
 // 旧クライアントレイアウトは userShell.tsx に分離。
 
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import type { ReactNode } from "react"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -42,6 +43,14 @@ export default async function UserLayout({
     })
     if (dbUser) {
       viewerRole = dbUser.role
+      // ゲストの 1 回ためし (2026-09-12 要件整理 v2.7 §2): 匿名ユーザー (role = guest) はアカウントではない。
+      // 開けるのは「ためす曲の詳細」だけで、それ以外はゲストと同じ範囲 (/guest/...) に戻す。オンボーディングも出さない。
+      if (dbUser.role === "guest") {
+        const path = (await headers()).get("x-pathname") ?? ""  // middleware が付ける
+        const allowed = /^\/[0-9a-f-]{36}\/scores\/[A-Za-z0-9]+/.test(path)
+        if (!allowed && path) redirect(path.replace(`/${userId}`, `/${GUEST_ID}`))
+        return <UserShell role={dbUser.role}>{children}</UserShell>
+      }
       const onb = await prisma.onboardingProfile.findUnique({
         where: { userId: dbUser.id },
         select: { completedAt: true },
