@@ -36,7 +36,12 @@ const DRY = process.env.DRY === "1"
 const TARGET = process.env.TARGET ?? "all"
 const SPACING_MS = Number(process.env.SPACING_MS ?? 8000)
 const RELAY_URL = process.env.RELAY_URL
-const RELAY_KEY = process.env.RELAY_KEY
+// .env の名前は RELAY_API_KEY (app/_libs/pythonRunner.ts と同じ)。
+// RELAY_KEY だけを見ていたため、このスクリプトは起動直後に必ず落ちていた (2026-09-13 修正)。
+const RELAY_KEY = process.env.RELAY_API_KEY ?? process.env.RELAY_KEY
+// 投入は retryCount >= 3 の対象を relay が HTTP 422 で弾く。意図した一括再解析では
+// 先に 0 に戻す。RESET_RETRY=0 で無効化できる。
+const RESET_RETRY = process.env.RESET_RETRY !== "0"
 
 type Target =
   | { kind: "score"; id: string; title: string; ownerId: string }
@@ -130,9 +135,22 @@ async function verify(targets: Target[]) {
 }
 
 async function main() {
-  if (!DRY && (!RELAY_URL || !RELAY_KEY)) throw new Error("RELAY_URL / RELAY_KEY が未設定")
+  if (!DRY && (!RELAY_URL || !RELAY_KEY)) throw new Error("RELAY_URL / RELAY_API_KEY が未設定")
 
   const targets = await collect()
+
+  // relay は retryCount >= 3 を HTTP 422 で弾く。意図した一括再解析なので先に戻す。
+  if (!DRY && RESET_RETRY) {
+    const itemIds = targets.filter((t) => t.kind === "item").map((t) => t.id)
+    const scoreIds = targets.filter((t) => t.kind === "score").map((t) => t.id)
+    const a = itemIds.length
+      ? await prisma.practiceItem.updateMany({ where: { id: { in: itemIds }, retryCount: { gte: 1 } }, data: { retryCount: 0 } })
+      : { count: 0 }
+    const b = scoreIds.length
+      ? await prisma.score.updateMany({ where: { id: { in: scoreIds }, retryCount: { gte: 1 } }, data: { retryCount: 0 } })
+      : { count: 0 }
+    console.log(`retryCount を 0 に戻した: 教材 ${a.count}件 / 曲 ${b.count}件`)
+  }
   const nScore = targets.filter((t) => t.kind === "score").length
   const nItem = targets.filter((t) => t.kind === "item").length
   console.log(`対象: 曲 ${nScore}件 + 教材 ${nItem}件 = ${targets.length}件`)
