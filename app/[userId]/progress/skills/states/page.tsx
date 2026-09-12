@@ -61,7 +61,7 @@ export default async function SkillStatesPage({ params }: { params: Promise<{ us
         <div style={{ fontSize: 11.5, color: "var(--text-sub)", marginTop: 9, lineHeight: 1.9 }}>
           <b style={{ color: "var(--text-ink)" }}>教材を通ると</b> ロック・つぎに挑戦できる → 習得ずみ<br />
           <b style={{ color: "var(--text-ink)" }}>判定が8個たまると</b> 習得ずみ → 安定 または ゆらぎ中<br />
-          <b style={{ color: "var(--text-ink)" }}>70%をまたぐと</b> 安定 ⇄ ゆらぎ中<br />
+          <b style={{ color: "var(--text-ink)" }}>80%をまたぐと</b> 安定 ⇄ ゆらぎ中<br />
           <b style={{ color: "var(--text-ink)" }}>★が上がると</b> まだ先 → つぎに挑戦できる
         </div>
         <div style={{ fontSize: 10.5, color: "var(--text-muted)", marginTop: 10 }}>

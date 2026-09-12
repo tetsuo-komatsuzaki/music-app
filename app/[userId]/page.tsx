@@ -1,7 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
-import { SKILL_SUB_DEFS, SKILL_DEFS } from "@/app/_libs/growthKarte"
+import { SKILL_SUB_DEFS, SKILL_DEFS, STABLE_PCT } from "@/app/_libs/growthKarte"
 import { buildSubMap } from "@/app/_libs/growthLine"
 import {
   badgeKind,
@@ -420,7 +420,7 @@ export default async function HomePage({ params, searchParams }: PageProps) {
 
   // 編み込み案1 (2026-08-03): 選曲理由を成長ベースに ([[project_growth_woven_experience]])。
   // 曲のわざタグ × ユーザーの30日精度/習得状況 →
-  //   「◯◯が安定してきたから、次はこの曲」(精度70%以上) >「新しいわざ「◯◯」に挑戦できる曲」(未習得)。
+  //   「◯◯が安定してきたから、次はこの曲」(精度80%以上) >「新しいわざ「◯◯」に挑戦できる曲」(未習得)。
   // データが無ければ既定文言 (レベル文) のまま — でっち上げない。
   try {
     const recIds = nextPieceRecommendations.map((r) => r.practiceItem.id)
@@ -471,7 +471,7 @@ export default async function HomePage({ params, searchParams }: PageProps) {
         let fresh: string | null = null
         for (const n of names) {
           const pct = pctOfTag(n)
-          if (pct != null && pct >= 70 && (!stable || pct > stable.pct)) stable = { name: n, pct }
+          if (pct != null && pct >= STABLE_PCT && (!stable || pct > stable.pct)) stable = { name: n, pct }
           if (!fresh && !acquired.has(n)) fresh = n
         }
         if (stable) rec.reason = `${stable.name}が安定してきたから、次はこの曲`

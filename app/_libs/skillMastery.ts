@@ -7,6 +7,7 @@
 //   lock = nowより上の★ (順にのぼる)
 //   表示ランク = マスター済みの最大★ (順番飛ばしでマスターしても数える)
 import { prisma } from "@/app/_libs/prisma"
+import { MASTER_RECENT_COUNT } from "@/app/_libs/masteryRule"
 
 export type SkillLadderRow = {
   star: number
@@ -15,9 +16,13 @@ export type SkillLadderRow = {
   state: "done" | "now" | "lock"
   /** doneのとき: マスター日 (YYYY.MM.DD JST) */
   masteredAt?: string
-  /** nowのとき: いまの平均点 (音程+リズム/2・公式録音のみ)。録音なしはnull */
+  /** nowのとき: 直近5回の平均点 (音程+リズム/2・公式録音のみ)。録音なしはnull。
+      マスター判定 (lib/achievement.py MASTER_RECENT_COUNT=5 / MASTER_AVG=90) と同じ窓で数える */
   avg?: number | null
+  /** nowのとき: 採点済みの回数。5回に満たないうちはマスター判定が始まらない */
+  count?: number
 }
+
 
 export type SkillMasteryEntry = {
   /** マスター済みの最大★。1つも無ければnull */
@@ -49,15 +54,21 @@ export async function getSkillMastery(userId: string): Promise<Map<string, Skill
       }),
       prisma.performance.findMany({
         where: { userId, scoreId: { in: scoreIds }, pitchAccuracy: { not: null }, timingAccuracy: { not: null }, rangeFromNote: null },
+        orderBy: { createdAt: "desc" },
         select: { scoreId: true, pitchAccuracy: true, timingAccuracy: true },
       }),
     ])
     const masteredAt = new Map(achs.filter((a) => a.masteredAt != null).map((a) => [a.scoreId, a.masteredAt as Date]))
-    const avgBy = new Map<string, { sum: number; n: number }>()
+    // 新しい順に並べてあるので、曲ごとに先頭 MASTER_RECENT_COUNT 件だけを平均する。
+    // total は判定が始まるまでの残り回数を出すために全件を数える
+    const avgBy = new Map<string, { sum: number; n: number; total: number }>()
     for (const p of perfs) {
-      const e = avgBy.get(p.scoreId) ?? { sum: 0, n: 0 }
-      e.sum += ((p.pitchAccuracy as number) + (p.timingAccuracy as number)) / 2
-      e.n++
+      const e = avgBy.get(p.scoreId) ?? { sum: 0, n: 0, total: 0 }
+      e.total++
+      if (e.n < MASTER_RECENT_COUNT) {
+        e.sum += ((p.pitchAccuracy as number) + (p.timingAccuracy as number)) / 2
+        e.n++
+      }
       avgBy.set(p.scoreId, e)
     }
 
@@ -83,6 +94,7 @@ export async function getSkillMastery(userId: string): Promise<Map<string, Skill
           return {
             star: r.star, scoreId: r.scoreId, title: r.score.title, state: "now" as const,
             avg: e ? Math.round(e.sum / e.n) : null,
+            count: e?.total ?? 0,
           }
         }
         return { star: r.star, scoreId: r.scoreId, title: r.score.title, state: "lock" as const }

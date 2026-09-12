@@ -16,7 +16,11 @@ import { resolveObsTag } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
 import { moodTagPhrase } from "./moodTags"
 /** 派生サマリの diagnosis 部 (noteStoreSummary.DerivedSummary と同形) */
-type DiagnosisJson = { map_available?: boolean; per_subtask?: Record<string, { miss: number; target: number }> }
+type DiagnosisJson = { map_available?: boolean; per_subtask?: Record<string, { miss: number; target: number; undetected?: number }> }
+
+/** 安定とゆらぎ中を分ける線 (2026-09-12 Tetsuo指示で 70 → 80)。
+    説明ページ progress/skills/states と ホームの選曲理由も同じ値を使う */
+export const STABLE_PCT = 80
 
 export type KartePeriod = "7d" | "14d" | "30d" | "all"
 
@@ -704,7 +708,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
           state = d.star > currentStar ? "locked" : "ready"
         } else if (agg.target >= 8) {
           pct = Math.max(0, round(100 - (agg.miss / agg.target) * 100))
-          state = pct < 70 ? "wobble" : "stable"
+          state = pct < STABLE_PCT ? "wobble" : "stable"
         } else {
           state = "acquired_nodata"
         }
@@ -1011,7 +1015,14 @@ export interface SkillDetailData {
   provisional: boolean
   pct: number | null
   miss: number
+  /** 判定できた音の数 (音数)。2026-09-09 まで判定件数=音数x2 を出していた */
   target: number
+  /** 拾えなかった音の数 (分母には入らない)。2026-09-10 */
+  undetected: number
+  /** 判定できた音 / 対象の音。null=対象0。数字を出してよい録音かの判断に使う */
+  coverage: number | null
+  /** 直近の週と その前の週 の精度の差。null=2週ぶん揃っていない */
+  weekDelta: number | null
   practiceHref: string
   series: SkillSeriesPoint[]
   annotations: SkillAnnotation[]
@@ -1482,26 +1493,30 @@ export async function buildSkillDetail(
   }
   // 2026-09-09: target は判定件数 (1音につき pitch_ と rhythm_ の 2 件)。画面に「何音」と出すのは
   // notes (pitch_ 側の件数 = 音数)。旧: target をそのまま音数として表示し、2 倍に見えていた (1,824 音 → 実際 912 音)。
-  const aggOf = (summary: unknown): { miss: number; target: number; notes: number } => {
+  // 2026-09-10: und = 拾えなかった音の数 (音数ベース)。分母には入らないので別に持ち、
+  // 「判定できた音 / 対象の音」= 検出率 を画面に出せるようにする。
+  const aggOf = (summary: unknown): { miss: number; target: number; notes: number; und: number } => {
     const d = (summary as { diagnosis?: DiagnosisJson } | null)?.diagnosis
     let miss = 0
     let target = 0
     let notes = 0
     let rhythmOnly = 0
+    let und = 0
+    let undRhythmOnly = 0
     if (d?.per_subtask) {
       for (const [sid, v] of Object.entries(d.per_subtask)) {
         if (!inScope(sid) || typeof v?.miss !== "number" || typeof v?.target !== "number") continue
         miss += v.miss
         target += v.target
-        if (sid.startsWith("pitch_")) notes += v.target
-        else rhythmOnly += v.target
+        if (sid.startsWith("pitch_")) { notes += v.target; und += v.undetected ?? 0 }
+        else { rhythmOnly += v.target; undRhythmOnly += v.undetected ?? 0 }
       }
     }
-    return { miss, target, notes: notes || rhythmOnly }
+    return { miss, target, notes: notes || rhythmOnly, und: notes ? und : undRhythmOnly }
   }
 
   // 録音ごとの精度 (対象3音以上のみ点にする) + 聴き比べ候補
-  type Rec = { at: Date; title: string; audioPath: string | null; agg: { miss: number; target: number; notes: number } }
+  type Rec = { at: Date; title: string; audioPath: string | null; agg: { miss: number; target: number; notes: number; und: number } }
   const recs: Rec[] = [
     ...perfs.map((p) => ({ at: p.uploadedAt, title: p.score?.title ?? "曲", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),
     ...pracs.map((p) => ({ at: p.uploadedAt, title: p.practiceItem?.title ?? "教材", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),
@@ -1521,6 +1536,23 @@ export async function buildSkillDetail(
     (a, r) => ({ miss: a.miss + r.agg.miss, target: a.target + r.agg.target, notes: a.notes + r.agg.notes }),
     { miss: 0, target: 0, notes: 0 },
   )
+  // 拾えなかった音は scored の足切り (target>=3) に載らない録音にも溜まる。
+  // 「1音も拾えなかった録音」を落とすと検出率が実態より高く出るので、und だけは全録音から数える。
+  const undTotal = recs.reduce((a, r) => a + r.agg.und, 0)
+  const notesTotal = recs.reduce((a, r) => a + r.agg.notes, 0)
+
+  // 先週比 (2026-09-10): 週ごとに miss/target を足し直してから割る。
+  // 録音ごとの pct を平均すると 3 音の録音と 300 音の録音が同じ重みになるため。
+  const weekKey = (t: number) => { const d = new Date(t); d.setUTCHours(0, 0, 0, 0); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d.getTime() }
+  const byWeek = new Map<number, { miss: number; target: number }>()
+  for (const r of scored) {
+    const k = weekKey(r.at.getTime())
+    const e = byWeek.get(k) ?? { miss: 0, target: 0 }
+    e.miss += r.agg.miss; e.target += r.agg.target
+    byWeek.set(k, e)
+  }
+  const weeks = [...byWeek.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => Math.max(0, round(100 - (v.miss / v.target) * 100)))
+  const weekDelta = weeks.length >= 2 ? round(weeks[weeks.length - 1] - weeks[weeks.length - 2]) : null
   const clearSet = new Set(clears.map((c) => c.tagType + ":" + c.tagKey))
   const acqSet = new Set(acqs.map((c) => c.tagType + ":" + c.tagKey))
   let inClear = false
@@ -1540,7 +1572,7 @@ export async function buildSkillDetail(
     state = def.star > currentStar ? "locked" : "ready"
   } else if (total.target >= 8) {
     pct = Math.max(0, round(100 - (total.miss / total.target) * 100))
-    state = pct < 70 ? "wobble" : "stable"
+    state = pct < STABLE_PCT ? "wobble" : "stable"
   } else {
     state = "acquired_nodata"
   }
@@ -1662,6 +1694,9 @@ export async function buildSkillDetail(
     pct,
     miss: total.miss,
     target: total.notes,
+    undetected: undTotal,
+    coverage: notesTotal + undTotal > 0 ? notesTotal / (notesTotal + undTotal) : null,
+    weekDelta,
     practiceHref: def.practiceCat ? "/" + supabaseUserId + "/practice/" + def.practiceCat : "/" + supabaseUserId + "/practice",
     series,
     annotations,
