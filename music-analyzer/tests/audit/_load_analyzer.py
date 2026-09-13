@@ -18,15 +18,17 @@ _KEEP = (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.AsyncFunctionDef,
          ast.ClassDef, ast.Assign, ast.AnnAssign)
 
 
-def load():
+def load(src=None):
+    """src を与えると、その版の analyze_performance.py を読む (変更前との比較用)。"""
+    src = pathlib.Path(src) if src else SRC
     if str(ANALYZER_DIR) not in sys.path:
         sys.path.insert(0, str(ANALYZER_DIR))
-    tree = ast.parse(SRC.read_text(encoding="utf-8"), filename=str(SRC))
+    tree = ast.parse(src.read_text(encoding="utf-8"), filename=str(src))
     ns = types.ModuleType("analyzer_defs")
-    ns.__file__ = str(SRC)
+    ns.__file__ = str(src)
     ns.__dict__["__builtins__"] = __builtins__
     skipped = []
-    src_lines = SRC.read_text(encoding="utf-8").splitlines()
+    src_lines = src.read_text(encoding="utf-8").splitlines()
     for node in tree.body:
         if not isinstance(node, _KEEP):
             continue
@@ -37,7 +39,7 @@ def load():
             continue
         mod = ast.Module(body=[node], type_ignores=[])
         try:
-            exec(compile(mod, str(SRC), "exec"), ns.__dict__)
+            exec(compile(mod, str(src), "exec"), ns.__dict__)
         except Exception as e:  # sys.argv 依存の代入など
             skipped.append((getattr(node, "lineno", 0), type(e).__name__, str(e)[:60]))
     ns._skipped = skipped

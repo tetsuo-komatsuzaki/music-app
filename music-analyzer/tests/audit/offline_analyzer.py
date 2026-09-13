@@ -136,8 +136,27 @@ def analyze(wav_path, all_notes: list, bpm: float, *,
             log(f"  range: note_index {lo}..{hi} → {len(sliced)} notes")
 
     A._FRAME_INTERVAL_SEC = A.HOP_LENGTH / float(sr)
-    # 最初の音。本体の関数をそのまま呼ぶ (写経しない)
-    first_sound_time, _thr, _p90 = A.detect_first_sound_time(rms, time_all, f0, guide_offset_sec)
+    # 最初の音。新しい版は本体の関数をそのまま呼ぶ。
+    # 変更前の版と比べるときのために、関数が無ければ当時の手順を使う。
+    if hasattr(A, "detect_first_sound_time"):
+        first_sound_time, _thr, _p90 = A.detect_first_sound_time(rms, time_all, f0, guide_offset_sec)
+    else:
+        _thr = A.RMS_THRESHOLD * 2
+        pl = (rms > _thr) & (~np.isnan(f0[:len(rms)]))
+        if guide_offset_sec is not None:
+            pl = pl & (time_all[:len(pl)] >= max(0.0, guide_offset_sec - 0.3))
+        first_sound_time, run = 0.0, 0
+        for i in range(len(pl)):
+            if pl[i]:
+                run += 1
+                if run >= 15:
+                    first_sound_time = float(time_all[i - 14]); break
+            else:
+                run = 0
+        if first_sound_time == 0.0:
+            li = np.where(rms > _thr)[0]
+            if len(li):
+                first_sound_time = float(time_all[li[0]])
     log(f"  First sound at: {first_sound_time:.3f}s (thr={_thr:.5f})")
 
     _ignore_before = max(0.0, guide_offset_sec - 0.3) if guide_offset_sec is not None else 0.0
@@ -171,10 +190,14 @@ def analyze(wav_path, all_notes: list, bpm: float, *,
 
     # 2026-09-13 P1-6 と同じ規則。guide_offset が無い録音は録音の先頭が1拍目。
     # 区間録音は区間先頭ノートが録音先頭に整列する。
+    # 変更前の版と比べるときは当時のとおり None を渡す (探す位置が判定も兼ねる)。
+    _is_new = hasattr(A, "SEARCH_RANGE_BEATS_WIDE")
     if guide_offset_sec is not None:
         _judge_start = guide_offset_sec
-    else:
+    elif _is_new:
         _judge_start = 0.0 if _range_applied else float(notes_only[0]["start_time_sec"])
+    else:
+        _judge_start = None
 
     results = A.evaluate_notes(
         notes_only, all_notes, valid_time, valid_f0,
