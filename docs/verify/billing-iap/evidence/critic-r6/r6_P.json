@@ -1,0 +1,47 @@
+[
+ {
+  "name": "r6_P_chunks",
+  "found": [
+   {
+    "url": "ode_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js",
+    "snip": "            else if (description.startsWith(\"http://\") || description.startsWith(\"https://\") || description.startsWith(\"/\")) {"
+   },
+   {
+    "url": "/chunks/node_modules_next_dist_compiled_next-devtools_index_0553esy.js",
+    "snip": "`;function rL(e){return e.startsWith(\"https://nextjs.org\")?\"nextjs-link\":e.startsWith(\"https://\")||e.startsWith(\"http://\")?\"external-link\":null}function rI(e"
+   },
+   {
+    "url": "http://localhost:3101/_next/static/chunks/app_0w22sc5._.js",
+    "snip": "    return v && v.startsWith(\"https://\") ? v : null;"
+   },
+   {
+    "url": "http://localhost:3101/_next/static/chunks/app_0w22sc5._.js",
+    "snip": "e__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"default\"].env.NEXT_PUBLIC_APP_STORE_URL;"
+   },
+   {
+    "url": "http://localhost:3101/_next/static/chunks/app_121_9wk._.js",
+    "snip": "    return v && v.startsWith(\"https://\") ? v : null;"
+   },
+   {
+    "url": "http://localhost:3101/_next/static/chunks/app_121_9wk._.js",
+    "snip": "e__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"default\"].env.NEXT_PUBLIC_APP_STORE_URL;"
+   },
+   {
+    "url": "ode_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js",
+    "snip": "            else if (description.startsWith(\"http://\") || description.startsWith(\"https://\") || description.startsWith(\"/\")) {"
+   },
+   {
+    "url": "/chunks/node_modules_next_dist_compiled_next-devtools_index_0553esy.js",
+    "snip": "`;function rL(e){return e.startsWith(\"https://nextjs.org\")?\"nextjs-link\":e.startsWith(\"https://\")||e.startsWith(\"http://\")?\"external-link\":null}function rI(e"
+   },
+   {
+    "url": "http://localhost:3101/_next/static/chunks/app_0-f136g._.js",
+    "snip": "    return v && v.startsWith(\"https://\") ? v : null;"
+   },
+   {
+    "url": "http://localhost:3101/_next/static/chunks/app_0-f136g._.js",
+    "snip": "e__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[\"default\"].env.NEXT_PUBLIC_APP_STORE_URL;"
+   }
+  ]
+ }
+]

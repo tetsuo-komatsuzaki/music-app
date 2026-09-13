@@ -60,8 +60,9 @@
 .fine { font-size: min(1.35cqh, 12px); color: var(--text-muted); font-weight: 500; text-align: center; line-height: 1.45; }
 .fine b { color: var(--text-sub); }
 .legal { display: flex; gap: 1.8cqh; font-size: min(1.35cqh, 12px); color: var(--text-muted); font-weight: 500; flex-wrap: wrap; justify-content: center; line-height: 1.6; }
+.legal button:disabled { opacity: 0.45; cursor: default; }
 .legal a, .legal button { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; background: none; border: none; font: inherit; line-height: inherit; cursor: pointer; padding: 0; }
-.toast { position: absolute; left: 50%; bottom: 22%; transform: translateX(-50%) translateY(10px); background: var(--card-b); border: 1px solid var(--border); color: var(--text-ink); font-size: min(1.6cqh, 14px); font-weight: 700; border-radius: 999px; padding: 1cqh 2.4cqh; opacity: 0; transition: opacity 0.25s, transform 0.25s; z-index: 31; white-space: nowrap; pointer-events: none; max-width: 92%; }
+.toast { position: absolute; left: 50%; bottom: 22%; transform: translateX(-50%) translateY(10px); background: var(--card-b); border: 1px solid var(--border); color: var(--text-ink); font-size: min(1.6cqh, 14px); font-weight: 700; border-radius: 18px; padding: 1cqh 2.4cqh; opacity: 0; transition: opacity 0.25s, transform 0.25s; z-index: 31; white-space: normal; text-align: center; line-height: 1.5; box-sizing: border-box; width: max-content; pointer-events: none; max-width: 92%; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.warn { border-color: rgba(255, 123, 110, 0.5); }
 /* 価格が取れないとき: カードの右側を伏せる */
@@ -76,4 +77,5 @@
 .webNote { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqh; text-align: center; padding: 0 10%; }
 .webNote h3 { margin: 0; font-size: min(2.8cqh, 25px); font-weight: 900; color: var(--text-ink); line-height: 1.4; }
 .webNote p { margin: 0; font-size: min(1.7cqh, 15px); color: var(--text-sub); font-weight: 500; }
-.webNote a { margin-top: 1cqh; background: var(--primary); color: #fff; border-radius: 16px; padding: 1.6cqh 6cqh; font-size: min(1.9cqh, 17px); font-weight: 800; text-decoration: none; box-shadow: 0 4px 0 var(--primary-shadow); }
+.webNote a.webBack { background: none; color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; box-shadow: none; padding: 0.6cqh 0; font-weight: 600; font-size: min(1.5cqh, 13px); }
+.webNote a:not(.webBack) { margin-top: 1cqh; background: var(--primary); color: #fff; border-radius: 16px; padding: 1.6cqh 6cqh; font-size: min(1.9cqh, 17px); font-weight: 800; text-decoration: none; box-shadow: 0 4px 0 var(--primary-shadow); }

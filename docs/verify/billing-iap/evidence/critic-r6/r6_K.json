@@ -1,0 +1,321 @@
+[
+ {
+  "name": "r6_K_toast_verify_abort",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "通信できませんでした。電波のある場所で、購入を復元をお試しください",
+   "chars": 33,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 101,
+    "right": 302,
+    "width": 201,
+    "height": 82
+   },
+   "textBox": {
+    "left": 124,
+    "right": 278,
+    "width": 154
+   },
+   "lineRects": [
+    154,
+    154,
+    154
+   ],
+   "lines": 3,
+   "scrollWidth": 199,
+   "clientWidth": 199,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": []
+ },
+ {
+  "name": "r6_K_toast_verify_500",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "確認できませんでした。購入を復元をお試しください",
+   "chars": 24,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 101,
+    "right": 302,
+    "width": 201,
+    "height": 82
+   },
+   "textBox": {
+    "left": 124,
+    "right": 278,
+    "width": 154
+   },
+   "lineRects": [
+    154,
+    154,
+    28
+   ],
+   "lines": 3,
+   "scrollWidth": 199,
+   "clientWidth": 199,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": []
+ },
+ {
+  "name": "r6_K_toast_restore_abort",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "通信できませんでした。電波のある場所でもう一度お試しください",
+   "chars": 30,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 101,
+    "right": 302,
+    "width": 201,
+    "height": 82
+   },
+   "textBox": {
+    "left": 124,
+    "right": 278,
+    "width": 154
+   },
+   "lineRects": [
+    154,
+    154,
+    112
+   ],
+   "lines": 3,
+   "scrollWidth": 199,
+   "clientWidth": 199,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": [
+   "click: TimeoutError: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for"
+  ]
+ },
+ {
+  "name": "r6_K_toast_restore_conflict",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "この契約は別のアカウントに結ばれています。そのアカウントでログインしてください",
+   "chars": 39,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 101,
+    "right": 302,
+    "width": 201,
+    "height": 103
+   },
+   "textBox": {
+    "left": 124,
+    "right": 278,
+    "width": 154
+   },
+   "lineRects": [
+    154,
+    154,
+    154,
+    84
+   ],
+   "lines": 4,
+   "scrollWidth": 199,
+   "clientWidth": 199,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": [
+   "click: TimeoutError: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for"
+  ]
+ },
+ {
+  "name": "r6_K_toast_restore_500",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "確認できませんでした。時間をおいてもう一度お試しください",
+   "chars": 28,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 101,
+    "right": 302,
+    "width": 201,
+    "height": 82
+   },
+   "textBox": {
+    "left": 124,
+    "right": 278,
+    "width": 154
+   },
+   "lineRects": [
+    154,
+    154,
+    84
+   ],
+   "lines": 3,
+   "scrollWidth": 199,
+   "clientWidth": 199,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": [
+   "click: TimeoutError: page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for"
+  ]
+ },
+ {
+  "name": "r6_K_toast_purchase_cancel",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "購入をやめました。いつでも再開できます",
+   "chars": 19,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 101,
+    "right": 302,
+    "width": 201,
+    "height": 61
+   },
+   "textBox": {
+    "left": 124,
+    "right": 278,
+    "width": 154
+   },
+   "lineRects": [
+    154,
+    112
+   ],
+   "lines": 2,
+   "scrollWidth": 199,
+   "clientWidth": 199,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": []
+ },
+ {
+  "name": "r6_K_toast_purchase_pending",
+  "btnState": {
+   "disabled": false,
+   "rect": [
+    24,
+    827,
+    59,
+    19
+   ],
+   "inView": true
+  },
+  "geom": {
+   "text": "承認を待っています",
+   "chars": 9,
+   "fontSize": "13.984px",
+   "lineHeight": "20.976px",
+   "whiteSpace": "normal",
+   "maxWidth": "92%",
+   "box": {
+    "left": 116,
+    "right": 286,
+    "width": 170,
+    "height": 40
+   },
+   "textBox": {
+    "left": 138,
+    "right": 264,
+    "width": 126
+   },
+   "lineRects": [
+    126
+   ],
+   "lines": 1,
+   "scrollWidth": 168,
+   "clientWidth": 168,
+   "viewportW": 402,
+   "parentW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": []
+ }
+]

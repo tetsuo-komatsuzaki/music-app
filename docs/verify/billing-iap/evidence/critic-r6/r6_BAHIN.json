@@ -1,0 +1,227 @@
+[
+ {
+  "name": "r6_A_web_guest_song",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "laterOffset": {
+   "tag": "BUTTON",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 182,
+   "textW": 38,
+   "offset": 0
+  },
+  "loginOffset": {
+   "tag": "A",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 174,
+   "textW": 54,
+   "offset": 0
+  },
+  "afterEscape": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  },
+  "reopened": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterLater": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r6_A_web_guest_lesson",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "laterOffset": {
+   "tag": "BUTTON",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 182,
+   "textW": 38,
+   "offset": 0
+  },
+  "afterEscape": {
+   "open": false,
+   "bar": false,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r6_B_native_guest_try",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "登録なしで 1 回ためす",
+    "はじめる",
+    "ログイン"
+   ]
+  },
+  "loginLinkOffset": {
+   "tag": "A",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 176,
+   "textW": 50,
+   "offset": 0
+  },
+  "primaryOffset": {
+   "tag": "BUTTON",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 131,
+   "textW": 140,
+   "offset": 0
+  },
+  "secondaryOffset": {
+   "tag": "A",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 174,
+   "textW": 54,
+   "offset": 0
+  }
+ },
+ {
+  "name": "r6_H_click_restore_500",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 0
+  },
+  "toasts": [],
+  "trace": [
+   "0.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0"
+  ],
+  "errs": [
+   "clickRestore: TimeoutError: page.click: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has"
+  ]
+ },
+ {
+  "name": "r6_I_click_restore_401",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 0
+  },
+  "toasts": [],
+  "trace": [
+   "0.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0"
+  ],
+  "errs": [
+   "clickRestore: TimeoutError: page.click: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has"
+  ]
+ },
+ {
+  "name": "r6_N_click_restore_none_200",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 0
+  },
+  "toasts": [],
+  "trace": [
+   "0.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0"
+  ],
+  "errs": [
+   "clickRestore: TimeoutError: page.click: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has"
+  ]
+ }
+]

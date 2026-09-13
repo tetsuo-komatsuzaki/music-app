@@ -408,6 +408,22 @@ R1 = [
 for axis, req, pre, op, exp, judge, mode in R1:
     add(axis, req, pre, op, exp, judge, mode)
 
+
+# ---------- ラウンド 3〜5 の修正に対応する行 ----------
+R3 = [
+ ("A 正常系","REQ-013","契約切れ・REQUIRE_SUBSCRIPTION=true","曲のゲートの主ボタンと出口","主ボタン「再開する」(ログインは出ない)。「ライブラリにもどる」で本人のライブラリへ (CR-2-01・CR-3-01)","playwright","半自動"),
+ ("A 正常系","REQ-054","無料期間中","設定のプランカードの文言","「無料期間中は 1 日 8 本・10 分まで採点できます」(CR-3-02)","playwright","半自動"),
+ ("A 正常系","REQ-049","ログイン済み・殻","/start の出口","「ホームにもどる」(CR-3-01)。Web も同じ。App Store の URL があっても戻るリンクを出す (CR-4-04・CR-5-04)","playwright","半自動"),
+ ("I 外部の失敗","REQ-061","/start?step=purchase の続きで verify の通信が切れる","fetch を abort","1 秒以内に「通信できませんでした。電波のある場所で、購入を復元をお試しください」。?step= が消え CTA と復元が押せる (CR-4-01)。トーストは折り返して幅に収まる (CR-5-01)","playwright (批評者の手口 r5_D)","半自動"),
+ ("I 外部の失敗","REQ-060","/api/apple/restore が 500 / 401","restore の続き","「確認できませんでした。時間をおいてもう一度」。restore_none を記録しない (CR-5-05)","読解 + playwright","半自動"),
+ ("D 遷移と中断","REQ-049","購入成功後の着地前","CTA と「購入を復元」","着地まで disabled のまま。復元は薄く見える (CR-3-03・CR-4-05・CR-5-03)","playwright (r5_E)","半自動"),
+ ("K 端末と表示","REQ-042","1 回ためしのゲート","「ログイン」の位置","中央寄せ (CR-4-02・CR-5-02)","playwright","半自動"),
+ ("A 正常系","REQ-036","ログイン済みの契約ゲート","GuestEvent","gate_shown・gate_signup を記録しない (CR-3-04)","scripts (前後比較)","半自動"),
+ ("A 正常系","REQ-013","契約切れ・レッスンの動画","ゲートの出口","「レッスンの一覧にもどる」→ /<uuid>/lessons (CR-4-03)","読解","読解"),
+]
+for axis, req, pre, op, exp, judge, mode in R3:
+    add(axis, req, pre, op, exp, judge, mode)
+
 # ---------- 書き出し ----------
 with io.open("docs/verify/billing-iap/02_cases.csv", "w", encoding="utf-8", newline="") as f:
     w = csv.writer(f)

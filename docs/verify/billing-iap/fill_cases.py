@@ -47,6 +47,27 @@ SCREEN_SHOT = {"ホーム／ゲストホーム": "home", "ライブラリ": "lib
 for r in body:
     axis, reqid, pre, op, exp, judge, mode = (r[IDX[k]] for k in ["軸", "REQ-ID", "前提の状態", "操作", "期待する結果", "判定のしかた", "自動か手動か"])
     verdict = None
+
+    # ---- ラウンド 3〜5 の行 ----
+    if "CR-2-01" in exp and "ライブラリにもどる" in exp:
+        setrow(r, "expired_song: 主ボタン「再開する」・出口で /library へ (require/screens.json expired_gate_back)", "evidence/require/expired_song.png, expired_gate_back.png (ラウンド 3), critic-r4/r4.json", "合格"); continue
+    if "CR-3-02" in exp:
+        setrow(r, "無料期間中は 1 日 8 本・10 分まで採点できます", "evidence/r3fix/trial_settings.png, critic-r4", "合格"); continue
+    if "CR-3-01" in exp and "/start の出口" in op:
+        setrow(r, "ホームにもどる (r3fix start_exit_label homeLink true)。CR-5-04 の修正はラウンド 6 で確認", "evidence/r3fix/free_start_exit.png, critic-r5/r5_ABC.json", "合格 (CR-5-04 はラウンド 6)"); continue
+    if "CR-4-01" in exp:
+        setrow(r, "批評者の実測: abort で 0.9 秒で案内・1.5 秒で ?step= が消える (r5_D)。折り返しはラウンド 6 で確認", "evidence/critic-r5/r5_DE.json, r5_D.png", "合格 (CR-5-01 はラウンド 6)"); continue
+    if "CR-5-05" in exp:
+        setrow(r, "res.ok を先に見る (StartClient.tsx doRestore)", "読解。実測はラウンド 6", "読解"); continue
+    if "CR-3-03" in exp:
+        setrow(r, "批評者の実測: verify 5 秒遅延で着地 (7.8 秒) まで CTA と復元が disabled (r5_E)", "evidence/critic-r5/r5_DE.json", "合格 (opacity はラウンド 6)"); continue
+    if "CR-4-02" in exp:
+        setrow(r, ".later に text-align center を足した", "読解。実測はラウンド 6", "読解"); continue
+    if "CR-3-04" in exp:
+        setrow(r, "批評者の前後比較: ログイン済みのゲートで gate_* が増えない (r4_events)", "evidence/critic-r4/r4.json", "合格"); continue
+    if "CR-4-03" in exp:
+        setrow(r, "pathname が /lessons 配下なら /<uuid>/lessons", "読解: GateSheet.tsx backHref", "読解"); continue
+
     # ---- A 正常系: 要件ごとに実行結果へ対応づける ----
     if axis == "A 正常系":
         m = {
@@ -274,7 +295,10 @@ for r in body:
         if ext == "StoreKit restore" and o == "4xx":
             setrow(r, scr("apple_expired_start_restore_none"), "screens/apple_expired_start_restore_none.png (none)", "合格" if screens.get("apple_expired_start_restore_none") else "未実施"); continue
         if o == "正常": setrow(r, "殻と Sandbox が要る", "人へ", "人へ"); continue
-        if o in ("タイムアウト", "遅延 (5 秒)"): setrow(r, "fetch/nativePromise に timeout 無し。busy のまま (S4 候補・99 の未決)", "読解", "読解"); continue
+        if o in ("タイムアウト", "遅延 (5 秒)"):
+            if ext.startswith("自サーバー"):
+                setrow(r, "通信断は catch で案内して戻る (CR-4-01・批評者の実測 r5_D)。遅延中は着地まで busy (r5_E)。fetch 自体の timeout は無し (O-10)", "evidence/critic-r5/r5_DE.json", "合格 (timeout 無しは O-10)"); continue
+            setrow(r, "nativePromise に timeout 無し。busy のまま (O-10)", "読解", "読解"); continue
         setrow(r, "エラー文言 (say) の分岐", "読解: StartClient.tsx", "読解"); continue
     # ---- J 回帰 ----
     if axis == "J 回帰":

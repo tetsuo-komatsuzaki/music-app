@@ -1,0 +1,271 @@
+[
+ {
+  "name": "r5_D2_resume_restore_abort",
+  "pushed": "pushed",
+  "dest": "/start?step=restore&plan=year",
+  "hits": {
+   "verify": 0,
+   "restore": 2,
+   "rsc": 3,
+   "rewritten": 2
+  },
+  "toasts": [
+   "1.2s show: 通信できませんでした。電波のある場所でもう一度お試しください",
+   "3.6s hide"
+  ],
+  "trace": [
+   "0.3s /5ef76e97-d81f-48c4-87a0-7eb42e03f1dc cta=- restore=-(op=null) calls= verify=0 restore_api=0",
+   "0.6s /5ef76e97-d81f-48c4-87a0-7eb42e03f1dc cta=- restore=-(op=null) calls= verify=0 restore_api=0",
+   "1.0s /start?step=restore&plan=year cta=disabled+busy restore=disabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "1.2s /start?step=restore&plan=year cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "1.5s /start?step=restore&plan=year cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "1.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "2.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "2.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "2.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "2.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "3.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "3.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "3.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "3.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "4.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "4.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "4.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "4.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "5.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "5.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "5.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "6.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "6.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "6.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "6.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "7.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "7.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "7.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "7.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "8.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "8.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1",
+   "8.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,restore,getProducts verify=0 restore_api=1"
+  ],
+  "restoreClickAfter": {
+   "beforeCalls": 3,
+   "url": "/start",
+   "calls": "getProducts,restore,getProducts,restore",
+   "toast": "通信できませんでした。電波のある場所でもう一度お試しください",
+   "restoreApiHits": 2
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_FAILED",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ {
+  "name": "r5_F_click_verify_abort",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 1,
+   "restore": 0,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toasts": [
+   "0.3s show: 通信できませんでした。電波のある場所で、購入を復元をお試しください",
+   "2.4s hide"
+  ],
+  "trace": [
+   "0.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "0.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "0.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "7.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "7.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "7.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "7.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "8.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "8.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0"
+  ],
+  "restoreClickAfter": {
+   "beforeCalls": 3,
+   "url": "/start",
+   "calls": "getProducts,getProducts,purchase,restore",
+   "toast": "この Apple アカウントに契約はありません",
+   "restoreApiHits": 0
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ {
+  "name": "r5_H_click_restore_500",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toasts": [],
+  "trace": [
+   "0.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "6.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "6.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0"
+  ],
+  "restoreClickAfter": {
+   "beforeCalls": 2,
+   "url": "/start",
+   "calls": "getProducts,getProducts,restore",
+   "toast": "この Apple アカウントに契約はありません",
+   "restoreApiHits": 1
+  },
+  "errs": [
+   "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client",
+   "clickRestore: TimeoutError: page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:ha",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+ },
+ {
+  "name": "r5_I_click_restore_401",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toasts": [],
+  "trace": [
+   "0.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "0.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "2.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "3.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "4.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "5.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "6.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0",
+   "6.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts verify=0 restore_api=0"
+  ],
+  "restoreClickAfter": {
+   "beforeCalls": 2,
+   "url": "/start",
+   "calls": "getProducts,getProducts,restore",
+   "toast": "この Apple アカウントに契約はありません",
+   "restoreApiHits": 1
+  },
+  "errs": [
+   "clickRestore: TimeoutError: page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:ha",
+   "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+ },
+ {
+  "name": "r5_J_click_verify_500",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 1,
+   "restore": 0,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toasts": [
+   "0.3s show: 確認できませんでした。購入を復元をお試しください",
+   "2.6s hide"
+  ],
+  "trace": [
+   "0.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "0.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "0.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.9s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.4s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.7s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.2s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.5s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.0s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.6s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.8s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.1s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.3s /start cta=enabled restore=enabled(op=1) calls=getProducts,getProducts,purchase verify=1 restore_api=0"
+  ],
+  "restoreClickAfter": {
+   "beforeCalls": 3,
+   "url": "/start",
+   "calls": "getProducts,getProducts,purchase,restore",
+   "toast": "この Apple アカウントに契約はありません",
+   "restoreApiHits": 0
+  },
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+ }
+]

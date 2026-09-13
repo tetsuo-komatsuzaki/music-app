@@ -70,7 +70,7 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
 
   const say = useCallback((text: string, warn = false) => {
     setToast({ text, warn })
-    window.setTimeout(() => setToast(null), 2400)
+    window.setTimeout(() => setToast(null), warn ? 4200 : 2400)
   }, [])
 
   // 価格と期間は Apple から。取れなければ伏せて「読み込めませんでした」
@@ -154,6 +154,7 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
     }
     const d = await res.json().catch(() => ({}))
     if (res.status === 409 || d?.result === "conflict") { say("この契約は別のアカウントに結ばれています。そのアカウントでログインしてください", true); return false }
+    if (!res.ok) { say("確認できませんでした。時間をおいてもう一度お試しください", true); return false }
     if (d?.result !== "ok") { void recordGuestEvent("restore_none", "generic", "/start"); say("この Apple アカウントに契約はありません", true); return false }
     void recordGuestEvent("restore_ok", "generic", "/start")
     // 見つかったときはトーストではなく確認ダイアログ (殻では iOS のアラートになる)。読み終えてから移る
@@ -228,7 +229,8 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
               <p>はじまったらお知らせします。</p>
             </>
           )}
-          {url ? <a href={url}>App Store を開く</a> : session === "user" ? <Link href="/" className={styles.retry}>ホームにもどる</Link> : <Link href={`/${GUEST_ID}`} className={styles.retry}>ゲストにもどる</Link>}
+          {url && <a href={url}>App Store を開く</a>}
+          {session === "user" ? <Link href="/" className={styles.webBack}>ホームにもどる</Link> : <Link href={`/${GUEST_ID}`} className={styles.webBack}>ゲストにもどる</Link>}
         </div>
       </div>
     )

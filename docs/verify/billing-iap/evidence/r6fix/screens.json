@@ -1,0 +1,25 @@
+[
+ {
+  "name": "toast_short",
+  "text": "Apple でのサインインを開けませんでした",
+  "w": 307,
+  "left": 47,
+  "right": 355,
+  "lines": 2,
+  "whiteSpace": "normal",
+  "width": "307.125px"
+ },
+ {
+  "name": "toast_long",
+  "w": 370,
+  "left": 16,
+  "right": 386,
+  "lines": 3
+ },
+ {
+  "name": "web_back",
+  "text": "ホームにもどる",
+  "bg": "rgba(0, 0, 0, 0)",
+  "deco": "underline"
+ }
+]

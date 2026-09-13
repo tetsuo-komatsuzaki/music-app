@@ -1,0 +1,60 @@
+[
+ {
+  "name": "r6_W_web_free_appstore",
+  "rewrote": 3,
+  "links": [
+   {
+    "text": "App Store を開く",
+    "href": "https://apps.apple.com/jp/app/id0000000000",
+    "cls": "",
+    "rect": [
+     84,
+     464,
+     234,
+     53
+    ]
+   },
+   {
+    "text": "ホームにもどる",
+    "href": "/",
+    "cls": "start-module__sCVzTa__retry",
+    "rect": [
+     89,
+     539,
+     223,
+     55
+    ]
+   }
+  ],
+  "text": "アルコプラスは iPhone アプリではじめられます App Store で「アルコ」をダウンロードしてください。 App Store を開く ホームにもどる"
+ },
+ {
+  "name": "r6_W_web_guest_appstore",
+  "rewrote": 1,
+  "links": [
+   {
+    "text": "App Store を開く",
+    "href": "https://apps.apple.com/jp/app/id0000000000",
+    "cls": "",
+    "rect": [
+     84,
+     464,
+     234,
+     53
+    ]
+   },
+   {
+    "text": "ゲストにもどる",
+    "href": "/guest",
+    "cls": "start-module__sCVzTa__retry",
+    "rect": [
+     89,
+     539,
+     223,
+     55
+    ]
+   }
+  ],
+  "text": "アルコプラスは iPhone アプリではじめられます App Store で「アルコ」をダウンロードしてください。 App Store を開く ゲストにもどる"
+ }
+]

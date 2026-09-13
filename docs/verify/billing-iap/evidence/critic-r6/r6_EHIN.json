@@ -1,0 +1,147 @@
+[
+ {
+  "name": "r6_E_resume_verify_slow_ok",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 1,
+   "restore": 0
+  },
+  "toasts": [
+   "1.2s show: 反映しています…",
+   "3.3s hide"
+  ],
+  "trace": [
+   "0.7s /start?step=purchase&plan=year cta=disabled(op=0.55) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts verify=0 restore_api=0",
+   "1.2s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "1.7s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.2s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "2.8s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.3s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "3.8s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.3s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "4.8s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.3s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "5.8s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.3s /start?step=purchase&plan=year cta=disabled+busy(op=0.55) restore=disabled(op=0.45,cursor=default) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "6.8s / cta=-(op=null) restore=-(op=null,cursor=null) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "7.4s / cta=-(op=null) restore=-(op=null,cursor=null) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "7.9s /5ef76e97-d81f-48c4-87a0-7eb42e03f1dc cta=-(op=null) restore=-(op=null,cursor=null) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "8.4s /5ef76e97-d81f-48c4-87a0-7eb42e03f1dc cta=-(op=null) restore=-(op=null,cursor=null) calls=getProducts,getProducts,purchase verify=1 restore_api=0",
+   "8.9s /5ef76e97-d81f-48c4-87a0-7eb42e03f1dc cta=-(op=null) restore=-(op=null,cursor=null) calls=getProducts,getProducts,purchase verify=1 restore_api=0"
+  ],
+  "errs": []
+ },
+ {
+  "name": "r6_H_click_restore_500",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 1
+  },
+  "toasts": [
+   "0.3s show: 確認できませんでした。時間をおいてもう一度お試しください",
+   "2.6s hide"
+  ],
+  "trace": [
+   "0.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "0.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "0.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "5.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "5.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+ },
+ {
+  "name": "r6_I_click_restore_401",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 1
+  },
+  "toasts": [
+   "0.3s show: 確認できませんでした。時間をおいてもう一度お試しください",
+   "2.7s hide"
+  ],
+  "trace": [
+   "0.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "0.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "0.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "5.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "5.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+ },
+ {
+  "name": "r6_N_click_restore_none_200",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 0,
+   "restore": 1
+  },
+  "toasts": [
+   "0.3s show: この Apple アカウントに契約はありません",
+   "2.6s hide"
+  ],
+  "trace": [
+   "0.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "0.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "0.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "1.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.1s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.6s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "2.9s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.4s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "3.7s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.2s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.5s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "4.8s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "5.0s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1",
+   "5.3s /start cta=enabled(op=1) restore=enabled(op=1,cursor=pointer) calls=getProducts,getProducts,restore verify=0 restore_api=1"
+  ],
+  "errs": []
+ }
+]

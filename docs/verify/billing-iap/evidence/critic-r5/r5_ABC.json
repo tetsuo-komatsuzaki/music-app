@@ -1,0 +1,189 @@
+[
+ {
+  "name": "r5_A_web_guest_song",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "laterOffset": {
+   "tag": "BUTTON",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 182,
+   "textW": 38,
+   "offset": 0
+  },
+  "afterEscape": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  },
+  "reopened": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterVeilClick": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  },
+  "afterLater": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r5_A_web_guest_lesson",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterEscape": {
+   "open": false,
+   "bar": false,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r5_B_native_guest_try",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "登録なしで 1 回ためす",
+    "はじめる",
+    "ログイン"
+   ]
+  },
+  "loginLinkOffset": {
+   "tag": "A",
+   "textAlign": "start",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 24,
+   "textW": 50,
+   "offset": -152
+  },
+  "primaryOffset": {
+   "tag": "BUTTON",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 131,
+   "textW": 140,
+   "offset": 0
+  },
+  "secondaryOffset": {
+   "tag": "A",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 174,
+   "textW": 54,
+   "offset": 0
+  }
+ },
+ {
+  "name": "r5_C1_anon_native_guest_exit",
+  "key": "guest",
+  "native": true,
+  "linkText": "ゲストにもどる",
+  "links": [
+   {
+    "text": "ゲストにもどる",
+    "href": "/guest"
+   }
+  ],
+  "restoreIdle": {
+   "disabled": false,
+   "opacity": "1",
+   "color": "rgb(94, 112, 153)",
+   "cursor": "pointer"
+  },
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 2 週間無料ではじめる 最初の 2 週間は無料。その",
+  "clickErr": null,
+  "landed": "http://localhost:3101/guest",
+  "landedText": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 iPhone アプリで登録 App Sto",
+  "errs": []
+ },
+ {
+  "name": "r5_C2_user_native_home_exit",
+  "key": "free",
+  "native": true,
+  "linkText": "ホームにもどる",
+  "links": [
+   {
+    "text": "ホームにもどる",
+    "href": "/"
+   }
+  ],
+  "restoreIdle": {
+   "disabled": false,
+   "opacity": "1",
+   "color": "rgb(94, 112, 153)",
+   "cursor": "pointer"
+  },
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 2 週間無料ではじめる 最初の 2 週間は無料。その",
+  "clickErr": null,
+  "landed": "http://localhost:3101/",
+  "landedText": "",
+  "errs": []
+ },
+ {
+  "name": "r5_C3_user_web_home_exit",
+  "key": "free",
+  "native": false,
+  "linkText": "ホームにもどる",
+  "links": [
+   {
+    "text": "ホームにもどる",
+    "href": "/"
+   }
+  ],
+  "restoreIdle": null,
+  "text": "アルコプラスは iPhone アプリではじめられます App Store で「アルコ」をダウンロードしてください。 ホームにもどる",
+  "clickErr": null,
+  "landed": "http://localhost:3101/",
+  "landedText": "",
+  "errs": []
+ },
+ {
+  "name": "r5_C4_anon_web_guest_exit",
+  "key": "guest",
+  "native": false,
+  "linkText": "ゲストにもどる",
+  "links": [
+   {
+    "text": "ゲストにもどる",
+    "href": "/guest"
+   }
+  ],
+  "restoreIdle": null,
+  "text": "アルコプラスは iPhone アプリではじめられます App Store で「アルコ」をダウンロードしてください。 ゲストにもどる",
+  "clickErr": null,
+  "landed": "http://localhost:3101/guest",
+  "landedText": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 iPhone アプリで登録 App Sto",
+  "errs": []
+ }
+]

@@ -1,0 +1,101 @@
+[
+ {
+  "name": "r5_K_toast_verify_abort",
+  "geom": {
+   "text": "通信できませんでした。電波のある場所で、購入を復元をお試しください",
+   "chars": 33,
+   "fontSize": "13.984px",
+   "whiteSpace": "nowrap",
+   "maxWidth": "92%",
+   "overflow": "visible",
+   "box": {
+    "left": 16,
+    "right": 386,
+    "width": 370
+   },
+   "textBox": {
+    "left": 38,
+    "right": 499,
+    "width": 461
+   },
+   "scrollWidth": 482,
+   "clientWidth": 368,
+   "viewportW": 402,
+   "textOverflowsBox": true,
+   "textOutsideViewport": true
+  },
+  "errs": []
+ },
+ {
+  "name": "r5_K_toast_verify_500",
+  "geom": {
+   "text": "確認できませんでした。購入を復元をお試しください",
+   "chars": 24,
+   "fontSize": "13.984px",
+   "whiteSpace": "nowrap",
+   "maxWidth": "92%",
+   "overflow": "visible",
+   "box": {
+    "left": 16,
+    "right": 386,
+    "width": 370
+   },
+   "textBox": {
+    "left": 38,
+    "right": 374,
+    "width": 336
+   },
+   "scrollWidth": 368,
+   "clientWidth": 368,
+   "viewportW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": []
+ },
+ {
+  "name": "r5_K_toast_restore_abort",
+  "geom": {
+   "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded."
+  },
+  "errs": [
+   "click: TimeoutError: page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting fo"
+  ]
+ },
+ {
+  "name": "r5_K_toast_restore_conflict",
+  "geom": {
+   "error": "TimeoutError: page.waitForFunction: Timeout 8000ms exceeded."
+  },
+  "errs": [
+   "click: TimeoutError: page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting fo"
+  ]
+ },
+ {
+  "name": "r5_K_toast_purchase_cancel",
+  "geom": {
+   "text": "購入をやめました。いつでも再開できます",
+   "chars": 19,
+   "fontSize": "13.984px",
+   "whiteSpace": "nowrap",
+   "maxWidth": "92%",
+   "overflow": "visible",
+   "box": {
+    "left": 46,
+    "right": 356,
+    "width": 310
+   },
+   "textBox": {
+    "left": 68,
+    "right": 334,
+    "width": 266
+   },
+   "scrollWidth": 308,
+   "clientWidth": 308,
+   "viewportW": 402,
+   "textOverflowsBox": false,
+   "textOutsideViewport": false
+  },
+  "errs": []
+ }
+]
