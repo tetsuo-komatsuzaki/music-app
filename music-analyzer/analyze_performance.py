@@ -267,6 +267,9 @@ SEARCH_STEP_SEC = 0.01
 # 2026-09-13 P1-4(b): 全音で数えると重いので、粗く走査してから詰める
 SEARCH_COARSE_STEP_SEC = 0.05
 
+# 2026-09-13 P1-2: 終端の測り始めで読み飛ばせる上限 (音価に対する割合)
+END_SCAN_SKIP_MAX_RATIO = 0.5
+
 # 2026-09-13 P1-4(a): 探索幅の拡大。監査で、正しい位置が幅の外にある録音が見つかった
 # (実演奏B: 必要 -2.9s に対し幅 ±1.0s。届かないので先頭15音が 1/15 しか合わない)。
 # ただし広げるほど「遠くの偶然の一致」を拾う危険が増えるので、
@@ -750,7 +753,8 @@ def _try_match_at(t, expected_pitch, expected_duration, valid_time, valid_f0,
     refined_start = _refine_onset(
         seg_start, expected_pitch, expected_duration,
         valid_time, valid_f0)
-    actual_end = _detect_sound_end(refined_start, med, valid_time, valid_f0)
+    actual_end = _detect_sound_end(refined_start, med, valid_time, valid_f0,
+                                   expected_duration)
 
     return {
         "seg_start": refined_start,
@@ -859,8 +863,16 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
     return None
 
 
-def _detect_sound_end(seg_start, detected_pitch, valid_time, valid_f0):
-    """seg_start から先に、ピッチが途切れる位置を検出する"""
+def _detect_sound_end(seg_start, detected_pitch, valid_time, valid_f0, expected_duration=None):
+    """seg_start から先に、ピッチが途切れる位置を検出する
+
+    2026-09-13 P1-2: 測り始めの位置を直す。
+    区間の始まりが前の音の上に乗っていると、最初の3コマが期待の高さから外れて
+    そこで打ち切られ、長さが 0 になる。実演奏A では長さを持つ検出音 167 のうち
+    63 (38%) がこれで長さ 0 になっていた (dur_ratio=0 はスタッカートの合否を
+    無条件に通してしまう)。期待の高さに入る最初のコマまで読み飛ばしてから測る。
+    読み飛ばす上限は音価の 50%。そこまでに見つからなければ従来どおり先頭から測る。
+    """
     max_scan = seg_start + 30.0
     range_mask = (valid_time >= seg_start) & (valid_time <= max_scan)
     if np.sum(range_mask) == 0:
@@ -869,11 +881,21 @@ def _detect_sound_end(seg_start, detected_pitch, valid_time, valid_f0):
     rt = valid_time[range_mask]
     rf = valid_f0[range_mask]
 
+    start_i = 0
+    if expected_duration and expected_duration > 0 and len(rf):
+        cap_t = seg_start + float(expected_duration) * END_SCAN_SKIP_MAX_RATIO
+        j = 0
+        while j < len(rf) and rt[j] <= cap_t:
+            if rf[j] > 0 and abs(1200.0 * np.log2(rf[j] / detected_pitch)) <= PITCH_TOLERANCE_CENTS:
+                start_i = j
+                break
+            j += 1
+
     last_valid_time = seg_start
     gap_count = 0
     MAX_GAP = 3
 
-    for i in range(len(rf)):
+    for i in range(start_i, len(rf)):
         if rf[i] > 0 and abs(1200.0 * np.log2(rf[i] / detected_pitch)) <= PITCH_TOLERANCE_CENTS:
             last_valid_time = float(rt[i])
             gap_count = 0
@@ -1421,11 +1443,29 @@ def _check_harmonic_purity(
     }
 
 
+# 2026-09-13 P1-3: analysis.json の articulations (music21 のクラス名) から短音奏法を導く。
+# is_staccato 等の属性は analyze_musicxml.py が一度も出力しておらず、
+# 「高さ◯・時刻◯・長さ✗でも短音奏法なら合格」という経路が本番で一度も働いていなかった。
+# articulations は既に各音に載っているので、教材の再解析は要らない。
+# 取れない: Ricochet (music21 にクラスが無い) と サルタート (点+スラー。Staccato と区別できない)。
+SHORT_TECHNIQUE_ARTICULATIONS = ("Staccato", "Staccatissimo", "Pizzicato",
+                                 "Spiccato", "DetachedLegato")
+
+
 def _is_short_technique_note(note):
-    """note 属性に短音奏法フラグがあれば True。MusicXML パース未実装時は常に False。"""
+    """短音奏法の音なら True。
+
+    まず従来の属性を見る (将来 analyze_musicxml.py が出力するようになったとき用)。
+    無ければ articulations のクラス名から導く。
+    """
     for attr in SHORT_TECHNIQUE_ATTRS:
         if note.get(attr):
             return True
+    arts = note.get("articulations")
+    if arts:
+        for a in arts:
+            if str(a) in SHORT_TECHNIQUE_ARTICULATIONS:
+                return True
     return False
 
 
