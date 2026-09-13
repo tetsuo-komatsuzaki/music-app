@@ -265,6 +265,21 @@ SEARCH_RANGE_BEATS = 1.5
 SEARCH_RANGE_MIN_SEC = 0.5
 SEARCH_STEP_SEC = 0.01
 
+# 2026-09-13 P1-4(a): 探索幅の拡大。監査で、正しい位置が幅の外にある録音が見つかった
+# (実演奏B: 必要 -2.9s に対し幅 ±1.0s。届かないので先頭15音が 1/15 しか合わない)。
+# ただし広げるほど「遠くの偶然の一致」を拾う危険が増えるので、
+# 従来の幅の外は「出発点より一致数が MARGIN 以上多いときだけ」採る。
+# 従来の幅の中は挙動を変えない (実測で A 11/15・糸 12/15 は動かない)。
+SEARCH_RANGE_BEATS_WIDE = 4.0
+SEARCH_RANGE_MIN_SEC_WIDE = 3.0
+SEARCH_FAR_MARGIN = 2
+
+# 2026-09-13 P1-4(d): 物理制約。音が鳴っていない区間に音符を置く位置は採らない。
+# 監査で「音価 0.75s のうち 0.58s が無音」という位置が最良として選ばれていた。
+# しきい値は保守的に取る。実測では 0.3 なら 3 本とも最良が変わらず (= 明らかに
+# ありえない位置だけを弾く)、0.7 まで上げると正しい位置 (実演奏B の -3.10) も弾く。
+FIRST_NOTE_SOUND_RATIO_MIN = 0.3
+
 # 楽器別ピッチ範囲
 INSTRUMENT_PITCH_RANGE = {
     "violin":   ("G3", "E7"),
@@ -343,8 +358,10 @@ def apply_noise_gate(rms: np.ndarray, time_all: np.ndarray,
     else:
         # フォールバック: f0=NaN フレーム（ピッチ未検出 ≈ 無音）の RMS を使う
         nan_mask = np.isnan(f0[:len(rms)])
-        noise_floor = float(np.median(rms[nan_mask])) if nan_mask.sum() > 10 \
-                      else RMS_THRESHOLD / GATE_THRESHOLD_MULTIPLIER
+        # 2026-09-13: 下位パーセンタイルを床にする案は実測で不採用。実演奏A は
+        # 休符が少なく p10=0.0052 と高く出るため床が上がり、検出を 6 音失った。
+        # 無音の録音の保護は detect_first_sound_time 側で行う。
+        noise_floor = float(np.median(rms[nan_mask])) if nan_mask.sum() > 10                       else RMS_THRESHOLD / GATE_THRESHOLD_MULTIPLIER
 
     threshold = float(np.clip(
         noise_floor * GATE_THRESHOLD_MULTIPLIER,
@@ -476,6 +493,54 @@ def upload_to_storage(bucket: str, path: str, data: bytes, content_type: str = "
 # Step 1: 開始位置検出（ピッチスキャン）
 # =========================================================
 
+def detect_first_sound_time(rms, time_all, f0, guide_offset_sec=None):
+    """最初に音が鳴った時刻を返す。(first_sound_time, しきい値, p90)
+
+    2026-09-13 P1-1: 絶対しきい値 (RMS>0.02) は静かな録音で大きく遅れる。
+    監査の実演奏B は本当の出だしが 0.41s なのに 2.29s と出ていた (1.9s 遅い)。
+    first_sound_time が遅れると、ノイズフロアを取る窓に演奏が入り、床が過大になって
+    録音の 92% がゲートで落ちる。ここが連鎖の起点だった。
+    録音自身の大きさに対する相対しきい値にする。従来値を上限にするので、
+    大きい録音 (実演奏A) の挙動は変わらない。
+    """
+    MIN_SUSTAIN = 15
+    loud_p90 = float(np.percentile(rms, 90)) if len(rms) else 0.0
+    if loud_p90 < RMS_THRESHOLD * 2:
+        # 録音全体がほぼ無音 (上位10%でも従来のしきい値に届かない)。
+        # ここで相対にすると雑音を「最初の音」と拾い、床が下がって誤検出が増える。
+        # 実測: 無音の録音で 検出 10→13・音程合格 4→8 に悪化した。
+        thr = RMS_THRESHOLD * 2
+    else:
+        thr = max(GATE_THRESHOLD_MIN, min(RMS_THRESHOLD * 2, loud_p90 * 0.10))
+    pitched_loud = (rms > thr) & (~np.isnan(f0[:len(rms)]))
+    # 2026-08-27: アプリ版はカウントインの前からマイクを回すため、録音の頭に
+    # クリック音が入る。そこを「最初の音」と拾うと位置合わせが壊れるので、
+    # 1拍目の少し手前より前は見ない。少しの余裕は早入りのため。
+    if guide_offset_sec is not None:
+        pitched_loud = pitched_loud & (time_all[:len(pitched_loud)] >= max(0.0, guide_offset_sec - 0.3))
+    first_sound_time = 0.0
+    run_count = 0
+    for idx in range(len(pitched_loud)):
+        if pitched_loud[idx]:
+            run_count += 1
+            if run_count >= MIN_SUSTAIN:
+                first_sound_time = float(time_all[idx - MIN_SUSTAIN + 1])
+                break
+        else:
+            run_count = 0
+    if first_sound_time == 0.0:
+        loud_idx = np.where(rms > thr)[0]
+        if len(loud_idx) > 0:
+            first_sound_time = float(time_all[loud_idx[0]])
+    return first_sound_time, thr, loud_p90
+
+
+# 2026-09-13 段階0: 位置合わせの診断。comparison_result.json の diagnostics に載せる
+_ALIGN_DIAG = {}
+# フレーム間隔 (秒)。main() で実際の sr から入れる。hop/sr = 256/44100 ≒ 5.8ms
+_FRAME_INTERVAL_SEC = HOP_LENGTH / 44100.0
+
+
 def find_start_position(notes_only, valid_time, valid_f0, first_sound_time, beat_sec=None):
     first_note_start = float(notes_only[0]["start_time_sec"])
     check_notes = notes_only[:min(15, len(notes_only))]
@@ -484,13 +549,42 @@ def find_start_position(notes_only, valid_time, valid_f0, first_sound_time, beat
     best_shift = anchor
     best_matches = 0
 
+    near_matches = 0          # 従来の幅の中での最良 (診断用)
+    rejected_far = 0          # 余裕を満たさず見送った遠い候補の数
+    rejected_silent = 0       # 物理制約で弾いた候補の数
+
+    def _sounds_enough(candidate):
+        """1音目の区間のうち、音が鳴っているフレームの割合が下限以上か。
+
+        2026-09-13 P1-4(d)。音が鳴っていない区間に音符を置く位置は物理的にありえない。
+        しきい値は保守的 (0.3)。上げすぎると正しい位置まで弾く。
+        """
+        nt = check_notes[0]
+        t0 = float(nt["start_time_sec"]) + candidate
+        t1 = float(nt["end_time_sec"]) + candidate
+        if t1 <= t0:
+            return True
+        inside = np.sum((valid_time >= t0) & (valid_time <= t1))
+        # valid_time は有効フレームの時刻。フレーム間隔は hop/sr で一定なので、
+        # 全フレームの平均間隔から「区間にあるはずのフレーム数」を出す
+        if _FRAME_INTERVAL_SEC <= 0:
+            return True
+        expected_frames = (t1 - t0) / _FRAME_INTERVAL_SEC
+        if expected_frames <= 0:
+            return True
+        return (inside / expected_frames) >= FIRST_NOTE_SOUND_RATIO_MIN
+
     if len(valid_time) > 0 and len(check_notes) >= 2:
         # 2026-08-27: 拍基準。速い曲ほど広がる逆転を解消
-        _range = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS, SEARCH_RANGE_MIN_SEC)
+        _range_near = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS, SEARCH_RANGE_MIN_SEC)
+        # 2026-09-13 P1-4(a): 従来の幅の外も探す。ただし採用には余裕を課す
+        _range = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS_WIDE, SEARCH_RANGE_MIN_SEC_WIDE,
+                     _range_near)
         steps = int(_range / SEARCH_STEP_SEC)
         for abs_off in range(0, steps + 1):
             for sign in ([0] if abs_off == 0 else [-1, 1]):
                 candidate = anchor + abs_off * sign * SEARCH_STEP_SEC
+                is_far = abs(candidate - anchor) > _range_near
                 matches = 0
                 for nt in check_notes:
                     t0 = float(nt["start_time_sec"]) + candidate
@@ -503,11 +597,39 @@ def find_start_position(notes_only, valid_time, valid_f0, first_sound_time, beat
                         ep = float(nt["pitches"][0])
                         if med > 0 and abs(1200.0 * np.log2(med / ep)) <= PITCH_TOLERANCE_CENTS:
                             matches += 1
-                if matches > best_matches:
-                    best_matches = matches
-                    best_shift = candidate
+                if not is_far and matches > near_matches:
+                    near_matches = matches
+                if matches <= best_matches:
+                    continue
+                # 遠い候補は「出発点の近傍での最良より SEARCH_FAR_MARGIN 以上多い」ときだけ
+                if is_far and matches < near_matches + SEARCH_FAR_MARGIN:
+                    rejected_far += 1
+                    continue
+                # 物理制約は従来の幅の外だけに掛ける。中は挙動を変えない。
+                # ゲートが壊れている録音では有効フレームが少なく、中にも掛けると
+                # 正しい候補まで落ちる (実演奏B で実測)。
+                if is_far and not _sounds_enough(candidate):
+                    rejected_silent += 1
+                    continue
+                best_matches = matches
+                best_shift = candidate
 
-    print(f"  Start position: shift={best_shift:.4f}s ({best_matches}/{len(check_notes)} matches)")
+    n_check = len(check_notes)
+    print(f"  Start position: shift={best_shift:.4f}s ({best_matches}/{n_check} matches)")
+    if abs(best_shift - anchor) > 0.3:
+        print(f"  [align] 採用位置は最初の音から {best_shift - anchor:+.3f}s 離れている "
+              f"(近傍の最良 {near_matches}/{n_check}・遠い候補を見送り {rejected_far} 件・"
+              f"無音で却下 {rejected_silent} 件)")
+    _ALIGN_DIAG.update({
+        "anchor_sec": round(float(anchor), 4),
+        "shift_sec": round(float(best_shift), 4),
+        "shift_minus_anchor_sec": round(float(best_shift - anchor), 4),
+        "matches": int(best_matches),
+        "check_notes": int(n_check),
+        "near_best_matches": int(near_matches),
+        "rejected_far": int(rejected_far),
+        "rejected_silent": int(rejected_silent),
+    })
     return best_shift
 
 
@@ -1932,6 +2054,8 @@ try:
     fmin = librosa.note_to_hz(fmin_note)
     fmax = librosa.note_to_hz(fmax_note)
 
+    global _FRAME_INTERVAL_SEC
+    _FRAME_INTERVAL_SEC = HOP_LENGTH / float(sr)
     f0 = librosa.yin(y, fmin=fmin, fmax=fmax, sr=sr, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)
     time_all = librosa.frames_to_time(np.arange(len(f0)), sr=sr, hop_length=HOP_LENGTH)
     rms = librosa.feature.rms(y=y, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
@@ -1957,6 +2081,7 @@ try:
     notes_only = [n for n in all_notes if n.get("type") == "note" and n.get("pitches")]
     if not notes_only:
         raise RuntimeError("No note entries in analysis.json")
+    _range_applied = False
 
     # 区間録音 (部分練習 Phase 2): notes_only を選択区間 [RANGE_FROM, RANGE_TO] にスライス。
     # global_shift は単一加算オフセットなので、区間先頭ノートが録音先頭に整列し、
@@ -1969,32 +2094,13 @@ try:
         if len(sliced) >= 3:
             print(f"[range] 区間録音: note_index {lo}..{hi} → {len(sliced)}/{len(notes_only)} notes を部分採点")
             notes_only = sliced
+            _range_applied = True
         else:
             print(f"[range] 区間 {lo}..{hi} のノートが {len(sliced)} 個 (<3) → 全体採点にフォールバック")
 
-    MIN_SUSTAIN = 15
-    pitched_loud = (rms > RMS_THRESHOLD * 2) & (~np.isnan(f0[:len(rms)]))
-    # 2026-08-27: アプリ版はカウントインの前からマイクを回すため、録音の頭に
-    # クリック音が入る。そこを「最初の音」と拾うと位置合わせが壊れるので、
-    # 1拍目の少し手前より前は見ない。少しの余裕は早入りのため。
-    if GUIDE_OFFSET_SEC is not None:
-        _scan_from = max(0.0, GUIDE_OFFSET_SEC - 0.3)
-        pitched_loud = pitched_loud & (time_all[:len(pitched_loud)] >= _scan_from)
-    first_sound_time = 0.0
-    run_count = 0
-    for idx in range(len(pitched_loud)):
-        if pitched_loud[idx]:
-            run_count += 1
-            if run_count >= MIN_SUSTAIN:
-                first_sound_time = float(time_all[idx - MIN_SUSTAIN + 1])
-                break
-        else:
-            run_count = 0
-    if first_sound_time == 0.0:
-        loud_idx = np.where(rms > RMS_THRESHOLD * 2)[0]
-        if len(loud_idx) > 0:
-            first_sound_time = float(time_all[loud_idx[0]])
-    print(f"  First sound at: {first_sound_time:.3f}s")
+    first_sound_time, _sound_thr, _loud_p90 = detect_first_sound_time(
+        rms, time_all, f0, GUIDE_OFFSET_SEC)
+    print(f"  First sound at: {first_sound_time:.3f}s (threshold={_sound_thr:.5f}, p90={_loud_p90:.5f})")
 
     # ノイズゲートを適用して valid_mask / valid_time / valid_f0 を再構築
     # 2026-08-27: カウントインのクリックは 440Hz の正弦波 (ラの音) なので、
@@ -2062,7 +2168,16 @@ try:
     if judge_start_time is not None:
         print(f"[4/5] judge_start_time: {judge_start_time:.3f}s (カウントインの1拍目)")
     else:
-        print("[4/5] judge_start_time: なし → 従来どおり位置合わせを判定にも使う")
+        # 2026-09-13 P1-6: ここを「なし」にすると expected_pos_judge が expected_pos と
+        # 同じになり、音程の照合で決めた位置が時刻の基準まで兼ねてしまう。
+        # 監査の実演奏A では、その位置が最初の音より 1.26 秒前を指していた。
+        # Web版の録音は 1拍目ちょうどで録り始める (app/components/Recorder.tsx の
+        # 「Web版は…従来どおり1拍目で録り始める」)。したがって録音の 0 秒 = 楽譜の起点。
+        # 区間録音は区間先頭ノートが録音先頭に整列するので 0 秒。
+        judge_start_time = 0.0 if _range_applied else float(notes_only[0]["start_time_sec"])
+        print(f"[4/5] judge_start_time: {judge_start_time:.3f}s "
+              f"(guide_offset なし → 録音の先頭が1拍目。"
+              f"{'区間録音' if _range_applied else '通し録音'})")
 
     results = evaluate_notes(
         notes_only, all_notes, valid_time, valid_f0,
@@ -2115,10 +2230,31 @@ try:
     for w in warnings:
         print(f"  WARNING: {w}")
 
+    # 2026-09-13 段階0: 診断。判定は一切変えない。読み手は既存の
+    # version/warnings/results しか見ないので、キーを足すだけで影響しない。
+    diagnostics = {
+        "first_sound_time_sec": round(float(first_sound_time), 4),
+        "sound_threshold": round(float(_sound_thr), 6),
+        "rms_p90": round(float(_loud_p90), 6),
+        "gate_valid_frame_ratio": (round(float(np.sum(valid_mask)) / len(valid_mask), 4)
+                                   if len(valid_mask) else None),
+        "recording_bpm": RECORDING_BPM,
+        "guide_offset_sec": GUIDE_OFFSET_SEC,
+        "judge_start_time_sec": round(float(judge_start_time), 4),
+        "judge_origin": ("guide" if GUIDE_OFFSET_SEC is not None
+                         else ("range_start" if _range_applied else "recording_start")),
+        "time_scale": round(float(time_scale), 5),
+        "beat_sec": round(float(beat_sec), 5) if beat_sec else None,
+        "range_applied": bool(_range_applied),
+        "alignment": dict(_ALIGN_DIAG),
+    }
+    print("[diag] " + json.dumps(diagnostics, ensure_ascii=False))
+
     comparison_output = {
         "version": "3.0",
         "warnings": warnings,
         "results": results,
+        "diagnostics": diagnostics,
     }
 
     comparison_json = json.dumps(comparison_output, indent=2, ensure_ascii=False)

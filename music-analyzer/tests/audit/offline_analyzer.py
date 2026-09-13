@@ -126,33 +126,19 @@ def analyze(wav_path, all_notes: list, bpm: float, *,
         raise RuntimeError("音符が0件")
 
     # 区間録音 (本体と同じ: 3音未満なら全体採点に倒す)
+    _range_applied = False
     if range_from is not None and range_to is not None:
         lo, hi = int(range_from), int(range_to)
         sliced = [n for n in notes_only if lo <= int(n["note_index"]) <= hi]
         if len(sliced) >= 3:
             notes_only = sliced
+            _range_applied = True
             log(f"  range: note_index {lo}..{hi} → {len(sliced)} notes")
 
-    # 最初の音 (本体と同じ手順)
-    MIN_SUSTAIN = 15
-    pitched_loud = (rms > A.RMS_THRESHOLD * 2) & (~np.isnan(f0[:len(rms)]))
-    if guide_offset_sec is not None:
-        pitched_loud = pitched_loud & (time_all[:len(pitched_loud)] >= max(0.0, guide_offset_sec - 0.3))
-    first_sound_time = 0.0
-    run = 0
-    for idx in range(len(pitched_loud)):
-        if pitched_loud[idx]:
-            run += 1
-            if run >= MIN_SUSTAIN:
-                first_sound_time = float(time_all[idx - MIN_SUSTAIN + 1])
-                break
-        else:
-            run = 0
-    if first_sound_time == 0.0:
-        loud_idx = np.where(rms > A.RMS_THRESHOLD * 2)[0]
-        if len(loud_idx) > 0:
-            first_sound_time = float(time_all[loud_idx[0]])
-    log(f"  First sound at: {first_sound_time:.3f}s")
+    A._FRAME_INTERVAL_SEC = A.HOP_LENGTH / float(sr)
+    # 最初の音。本体の関数をそのまま呼ぶ (写経しない)
+    first_sound_time, _thr, _p90 = A.detect_first_sound_time(rms, time_all, f0, guide_offset_sec)
+    log(f"  First sound at: {first_sound_time:.3f}s (thr={_thr:.5f})")
 
     _ignore_before = max(0.0, guide_offset_sec - 0.3) if guide_offset_sec is not None else 0.0
     gate_mask = A.apply_noise_gate(rms, time_all, f0, first_sound_time, _ignore_before)
@@ -183,9 +169,16 @@ def analyze(wav_path, all_notes: list, bpm: float, *,
     spectral_noise_floor = A._estimate_spectral_noise_floor(
         stft_mag, stft_times, first_sound_time, _ignore_before)
 
+    # 2026-09-13 P1-6 と同じ規則。guide_offset が無い録音は録音の先頭が1拍目。
+    # 区間録音は区間先頭ノートが録音先頭に整列する。
+    if guide_offset_sec is not None:
+        _judge_start = guide_offset_sec
+    else:
+        _judge_start = 0.0 if _range_applied else float(notes_only[0]["start_time_sec"])
+
     results = A.evaluate_notes(
         notes_only, all_notes, valid_time, valid_f0,
-        global_shift, performance_start_time, guide_offset_sec, beat_sec,
+        global_shift, performance_start_time, _judge_start, beat_sec,
         onset_times=onset_times, time_scale=time_scale,
         timing_tolerance=timing_tolerance,
         stft_mag=stft_mag, stft_freqs=stft_freqs, stft_times=stft_times,
