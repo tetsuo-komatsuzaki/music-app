@@ -64,7 +64,7 @@ export default async function LibraryPage({
     // アップロードは有料プラン限定 (要件定義 2-4)
     prisma.user.findUnique({
       where: { id: dbUserId },
-      select: { plan: true, planStatus: true, createdAt: true },
+      select: { plan: true, planStatus: true, createdAt: true, planGrant: true },
     }),
     // 曲タブ = 曲カタログ (2026-08-21 曲をさがす統合)
     loadPieceCatalog(dbUserId, { officialOnly: guest }),   // ゲストは公式曲だけ (Q2)
@@ -73,7 +73,7 @@ export default async function LibraryPage({
   // 1 回ためし (2026-09-12): ゲスト・Apple 課金・未使用なら「曲をえらんでください」の帯
   const tryBanner = guest && isAppleBilling() ? !(await getGuestTryState()).used : false
   const canUpload = !guest && me
-    ? resolveEffectivePlan({ plan: me.plan, planStatus: me.planStatus, createdAt: me.createdAt }) === "plus"
+    ? resolveEffectivePlan({ plan: me.plan, planStatus: me.planStatus, createdAt: me.createdAt, planGrant: me.planGrant }) === "plus"
     : false
 
   const achByScore = new Map(achievements.map((a) => [a.scoreId, a]))

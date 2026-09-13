@@ -1,0 +1,101 @@
+{
+ "REQUIRE_SUBSCRIPTION": false,
+ "ENFORCE_LIMITS": true,
+ "guest": {
+  "plan": "free",
+  "unlimited": false,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": true,
+  "allowed": true,
+  "practiceAllowed": false,
+  "limit": 1,
+  "secondsLimit": 600,
+  "practiceLimit": 5,
+  "guestLastScore": null
+ },
+ "free": {
+  "plan": "free",
+  "unlimited": false,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ },
+ "trial": {
+  "plan": "trial",
+  "unlimited": false,
+  "isTrial": true,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ },
+ "active": {
+  "plan": "plus",
+  "unlimited": true,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ },
+ "cancel": {
+  "plan": "plus",
+  "unlimited": true,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ },
+ "expired": {
+  "plan": "free",
+  "unlimited": false,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ },
+ "internal": {
+  "plan": "plus",
+  "unlimited": true,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ },
+ "other": {
+  "plan": "plus",
+  "unlimited": true,
+  "isTrial": false,
+  "needsSubscription": false,
+  "isGuest": false,
+  "allowed": true,
+  "practiceAllowed": true,
+  "limit": 8,
+  "secondsLimit": 600,
+  "practiceLimit": 5
+ }
+}

@@ -12,7 +12,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
-import { useCanShowBillingEntryPoint } from "@/app/_hooks/useIsNativeApp"
+import { useCanShowBillingEntryPoint, useIsNativeApp } from "@/app/_hooks/useIsNativeApp"
+import { isAppleBilling } from "@/app/_libs/billingMode"
 import styles from "./library.module.css"
 import PieceCatalog from "./PieceCatalog"
 import type { CatalogPiece } from "./loadPieceCatalog"
@@ -61,6 +62,9 @@ export default function LibraryClient({
   const router = useRouter()
   const [tab, setTab] = useState<Tab>(initialTab)
   const canShowBilling = useCanShowBillingEntryPoint()
+  const native = useIsNativeApp()
+  // 1 回ためしは殻だけ (AMB-005)。Web + apple では帯を出さない (CR-2-05)
+  const showTryBanner = tryBanner && (!isAppleBilling() || native)
   const [q, setQ] = useState("")
   // 曲を星ごとに見るタグ (SPEC-CHANGES 2026-08-20)。null = すべて
   const [starTag, setStarTag] = useState<number | null>(null)
@@ -91,7 +95,7 @@ export default function LibraryClient({
 
   return (
     <div className={styles.root}>
-      {tryBanner && (
+      {showTryBanner && (
         <div data-testid="library-try-banner" style={{ margin: "10px 0 0", background: "var(--card-b)", border: "1px solid rgba(232,178,60,.34)", borderRadius: 12, padding: "10px 14px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", textAlign: "center" }}>
           登録なしで 1 回だけためせます。曲をえらんでください
         </div>
@@ -129,7 +133,7 @@ export default function LibraryClient({
                 <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`}
                   style={{ fontSize: 12, textDecoration: "none" }}>プランを見る</Link>
               ) : (
-                <span style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.7 }}>Webのアルコダからプランを確認できます</span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.7 }}>{isAppleBilling() ? "アルコプラスは iPhone アプリではじめられます" : "Webのアルコダからプランを確認できます"}</span>
               )}
               <button type="button" onClick={() => setPlanModal(false)} className={ds.pill}
                 style={{ fontSize: 12, marginLeft: "auto", cursor: "pointer" }}>とじる</button>
@@ -289,7 +293,7 @@ export default function LibraryClient({
                   <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`} style={{ fontSize: 11, textDecoration: "none" }}>プランを見る →</Link>
                 </div>
               ) : (
-                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 9 }}>Webのアルコダからプランを確認できます</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 9 }}>{isAppleBilling() ? "アルコプラスは iPhone アプリではじめられます" : "Webのアルコダからプランを確認できます"}</div>
               )}
             </div>
           )}

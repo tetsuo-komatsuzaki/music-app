@@ -1,0 +1,268 @@
+[
+ {
+  "case": "bundle 違い",
+  "result": {
+   "ok": false,
+   "reason": "bundle"
+  },
+  "user": {
+   "plan": "free",
+   "planStatus": null,
+   "planCurrentPeriodEnd": null,
+   "billingProvider": null,
+   "appleOriginalTransactionId": null,
+   "appleProductId": null,
+   "appleAutoRenew": null
+  }
+ },
+ {
+  "case": "製品違い",
+  "result": {
+   "ok": false,
+   "reason": "unknown_product"
+  },
+  "user": {
+   "plan": "free",
+   "planStatus": null,
+   "planCurrentPeriodEnd": null,
+   "billingProvider": null,
+   "appleOriginalTransactionId": null,
+   "appleProductId": null,
+   "appleAutoRenew": null
+  }
+ },
+ {
+  "case": "未結び → free に結ぶ (導入オファー = trialing)",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "trialing"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "trialing",
+   "planCurrentPeriodEnd": "2026-09-26T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": null
+  }
+ },
+ {
+  "case": "同じ otx を本人がもう一度 (更新・active・autoRenew)",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "active"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2027-09-12T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": true
+  }
+ },
+ {
+  "case": "別人 (trial) が同じ otx を復元 → conflict",
+  "result": {
+   "ok": false,
+   "reason": "conflict"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2027-10-17T17:21:21.416Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-TRIAL",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": true
+  }
+ },
+ {
+  "case": "通知経路 (forUserId 無し)・owner あり → owner を更新 (自動更新オフ・同じ期末)",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "active"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2027-09-12T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": false
+  }
+ },
+ {
+  "case": "通知経路・owner 無し・appAccountToken = other の UUID → other に結ぶ (新しい契約・期末は先)",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj5e500070cjy58n79n47",
+   "status": "active"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2027-10-17T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-TOKEN",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": null
+  }
+ },
+ {
+  "case": "stale: 本人 (other) に結び済みより古い期末の別契約 (OTX-OLD・期末過去・EXPIRED) が遅れて届く → 捨てる (CR-1-07 b)",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj5e500070cjy58n79n47",
+   "status": "active",
+   "stale": true
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2027-10-17T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-TOKEN",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": null
+  }
+ },
+ {
+  "case": "通知経路・owner 無し・token 無し → no_user",
+  "result": {
+   "ok": false,
+   "reason": "no_user"
+  }
+ },
+ {
+  "case": "通知経路・token が知らない UUID → no_user",
+  "result": {
+   "ok": false,
+   "reason": "no_user"
+  }
+ },
+ {
+  "case": "通知経路・token が UUID でない文字列 → no_user (落ちない)",
+  "result": {
+   "ok": false,
+   "reason": "no_user"
+  }
+ },
+ {
+  "case": "失効 (revocationDate) → expired・記録 (User) は残る (期末が古くても失効は通す)",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "expired"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "expired",
+   "planCurrentPeriodEnd": "2026-09-26T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": false
+  }
+ },
+ {
+  "case": "請求リトライ中 → expired",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "expired"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "expired",
+   "planCurrentPeriodEnd": "2026-09-15T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": true
+  }
+ },
+ {
+  "case": "リトライ成功 (DID_RENEW) → active に戻る",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "active"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2026-10-12T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": true
+  }
+ },
+ {
+  "case": "順序逆転: EXPIRED (expiresDate 過去) の後に古い DID_RENEW (expiresDate 未来) が届く",
+  "result": {
+   "before": {
+    "plan": "plus",
+    "planStatus": "active",
+    "planCurrentPeriodEnd": "2026-10-12T17:32:04.277Z",
+    "billingProvider": "apple",
+    "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+    "appleProductId": "com.arcodaviolin.app.plus.yearly",
+    "appleAutoRenew": true
+   },
+   "r": {
+    "ok": true,
+    "userId": "cmtylj4ic00010cjyeo41qub7",
+    "status": "active"
+   }
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2026-10-12T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": true
+  }
+ },
+ {
+  "case": "unique: other が持つ otx (VERIFY-OTX-TOKEN) を trial に直接書く → P2002",
+  "result": {
+   "threw": "\nInvalid `prisma.user.update()` invocation in\nC:\\Users\\tetsu\\OneDrive\\Desktop\\shiftB\\music-app\\music-app\\scripts\\_tmp_verify_apply.ts:40:97\n\n  37   const r = aw"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2027-10-17T17:21:21.416Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-TRIAL",
+   "appleProductId": "com.arcodaviolin.app.plus.yearly",
+   "appleAutoRenew": true
+  }
+ },
+ {
+  "case": "プラン変更 (DID_CHANGE_RENEWAL_PREF): 月額の tx → appleProductId が月額に",
+  "result": {
+   "ok": true,
+   "userId": "cmtylj4ic00010cjyeo41qub7",
+   "status": "active"
+  },
+  "user": {
+   "plan": "plus",
+   "planStatus": "active",
+   "planCurrentPeriodEnd": "2026-10-12T17:32:04.277Z",
+   "billingProvider": "apple",
+   "appleOriginalTransactionId": "VERIFY-OTX-NEW",
+   "appleProductId": "com.arcodaviolin.app.plus.monthly",
+   "appleAutoRenew": true
+  }
+ }
+]

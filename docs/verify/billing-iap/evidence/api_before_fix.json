@@ -1,0 +1,128 @@
+[
+ {
+  "name": "notif: 本文無し",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 349
+ },
+ {
+  "name": "notif: 壊れた JSON",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 27
+ },
+ {
+  "name": "notif: signedPayload 無し",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 22
+ },
+ {
+  "name": "notif: signedPayload 空",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 19
+ },
+ {
+  "name": "notif: 型違い (数値)",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 20
+ },
+ {
+  "name": "notif: 壊れた JWS (ドット 1 つ)",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 18
+ },
+ {
+  "name": "notif: x5c 無し",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 22
+ },
+ {
+  "name": "notif: 自前 CA (root 不一致)",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 21
+ },
+ {
+  "name": "notif: 巨大 5MB",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 71
+ },
+ {
+  "name": "notif: GET は無い",
+  "path": "/api/apple/notifications",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 44
+ },
+ {
+  "name": "verify: 未認証・本文無し",
+  "path": "/api/apple/verify",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 26
+ },
+ {
+  "name": "verify: 未認証・jws あり",
+  "path": "/api/apple/verify",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 17
+ },
+ {
+  "name": "restore: 未認証",
+  "path": "/api/apple/restore",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 13
+ },
+ {
+  "name": "cron: Bearer 無し",
+  "path": "/api/cron/guest-cleanup",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 12
+ },
+ {
+  "name": "cron: Bearer 違い",
+  "path": "/api/cron/guest-cleanup",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 13
+ },
+ {
+  "name": "cron: Bearer 空",
+  "path": "/api/cron/guest-cleanup",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 12
+ },
+ {
+  "name": "cron: POST は無い",
+  "path": "/api/cron/guest-cleanup",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 14
+ },
+ {
+  "name": "usage: 未認証",
+  "path": "/api/plan/usage",
+  "status": 401,
+  "body": "{\"error\":\"Unauthorized\"}",
+  "ms": 10
+ }
+]

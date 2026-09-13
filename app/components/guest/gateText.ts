@@ -6,6 +6,12 @@
 export type GateItem = { title: string; detail: string }
 export type GateText = { title: string; items: GateItem[] }
 
+/** 契約なし・契約切れの人の入口に重ねるゲート (要件整理 v2.7 §2・§8-8)。planStatus で「再開する」と「はじめる」を分ける */
+export function subscriptionGate(planStatus: string | null | undefined): { text: GateText; label: string } {
+  const ended = planStatus === "expired" || planStatus === "canceled"
+  return { text: ended ? GATE_TEXT.resume : GATE_TEXT.subscribe, label: ended ? "再開する" : "はじめる" }
+}
+
 export const GATE_TEXT = {
   song: (title: string): GateText => ({
     title: `${title}を練習するには、登録かログインが必要です`,
@@ -33,7 +39,16 @@ export const GATE_TEXT = {
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   }),
-  // ▼ 契約なし・契約切れ (ゲストと同じ範囲・§8-8)。主ボタンは「再開する」→ /start
+  // ▼ 一度も契約していないアカウント (REQUIRE_SUBSCRIPTION=true のとき)。主ボタンは「はじめる」→ /start (CR-1-10)
+  subscribe: {
+    title: "アルコプラスをはじめると、採点と基礎練が使えます",
+    items: [
+      { title: "録音して採点", detail: "音程とリズムを 1 音ずつ" },
+      { title: "毎日の基礎練", detail: "最初の 2 週間は無料、その後 月 1,280 円" },
+      { title: "成長カルテ", detail: "弾くたびに変化が残る" },
+    ],
+  } as GateText,
+  // ▼ 契約切れ (ゲストと同じ範囲・§8-8)。主ボタンは「再開する」→ /start
   resume: {
     title: "アルコプラスが終了しています",
     items: [

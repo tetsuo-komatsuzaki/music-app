@@ -1,0 +1,257 @@
+[
+ {
+  "name": "r4_A1_web_guest_song",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "laterOffset": {
+   "tag": "BUTTON",
+   "cls": "GateSheet-module__dfpXrW__later",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 182,
+   "textW": 38,
+   "offset": 0
+  },
+  "afterEscape": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  },
+  "reopened": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterVeilClick": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  },
+  "afterLater": {
+   "open": false,
+   "bar": true,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r4_A2_web_guest_upload",
+  "uploadButtonFound": 0,
+  "open": {
+   "open": false,
+   "bar": false,
+   "buttons": []
+  },
+  "afterLater": {
+   "open": false,
+   "bar": false,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r4_A3_web_guest_lesson",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterEscape": {
+   "open": false,
+   "bar": false,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r4_A4_web_guest_home_generic",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterVeilClick": {
+   "open": false,
+   "bar": false,
+   "buttons": []
+  }
+ },
+ {
+  "name": "r4_B_native_guest_try",
+  "open": {
+   "open": true,
+   "bar": false,
+   "buttons": [
+    "登録なしで 1 回ためす",
+    "はじめる",
+    "ログイン"
+   ]
+  },
+  "laterLinkOffset": {
+   "tag": "A",
+   "cls": "GateSheet-module__dfpXrW__later",
+   "textAlign": "start",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 24,
+   "textW": 50,
+   "offset": -152
+  },
+  "primaryOffset": {
+   "tag": "BUTTON",
+   "cls": "GateSheet-module__dfpXrW__primary",
+   "textAlign": "center",
+   "display": "block",
+   "boxLeft": 16,
+   "boxW": 370,
+   "textLeft": 131,
+   "textW": 140,
+   "offset": 0
+  }
+ },
+ {
+  "name": "r4_C1_start_exit_anon",
+  "exits": [
+   {
+    "text": "ゲストにもどる",
+    "href": "/guest"
+   }
+  ],
+  "landed": "http://localhost:3101/start"
+ },
+ {
+  "name": "r4_C2_start_exit_user",
+  "exits": [
+   {
+    "text": "ホームにもどる",
+    "href": "/"
+   }
+  ],
+  "landed": "http://localhost:3101/start",
+  "restoreDisabledIdle": false
+ },
+ {
+  "name": "r4_C3_start_web_user",
+  "text": "アルコプラスは iPhone アプリではじめられます App Store で「アルコ」をダウンロードしてください。 ゲストにもどる",
+  "links": [
+   {
+    "text": "ゲストにもどる",
+    "href": "/guest"
+   }
+  ]
+ },
+ {
+  "name": "r4_D_resume_verify_abort",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "反映しています… / 反映しています… / 反映しています…",
+  "trace": [
+   "1s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls= verify=0",
+   "2s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "3s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "4s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "5s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "6s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "7s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "8s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "9s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "10s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "11s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "12s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "13s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "14s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/start?step=purchase&plan=year",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_FAILED",
+   "pageerror: TypeError: Failed to fetch"
+  ]
+ },
+ {
+  "name": "r4_E_resume_verify_slow_ok",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "",
+  "trace": [
+   "1s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls= verify=0",
+   "2s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "3s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "4s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "5s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "6s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "7s / cta=- calls=getProducts,getProducts,purchase verify=1",
+   "8s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "9s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/99855634-18bb-4f94-bf23-573cf06776f0",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": []
+ },
+ {
+  "name": "r4_F_click_verify_abort",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "",
+  "trace": [
+   "1s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "2s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "3s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "4s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "5s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "6s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "7s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "8s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "9s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/99855634-18bb-4f94-bf23-573cf06776f0",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_FAILED",
+   "pageerror: TypeError: Failed to fetch"
+  ]
+ }
+]

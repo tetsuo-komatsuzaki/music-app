@@ -1,0 +1,32 @@
+[
+ {
+  "key": "internal",
+  "canUpload": true,
+  "limited": false,
+  "note": ""
+ },
+ {
+  "key": "active",
+  "canUpload": true,
+  "limited": false,
+  "note": ""
+ },
+ {
+  "key": "trial",
+  "canUpload": true,
+  "limited": true,
+  "note": "プランを見る"
+ },
+ {
+  "key": "free",
+  "canUpload": true,
+  "limited": true,
+  "note": "プランを見る"
+ },
+ {
+  "key": "expired",
+  "canUpload": true,
+  "limited": true,
+  "note": "プランを見る"
+ }
+]

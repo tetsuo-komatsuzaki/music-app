@@ -3,6 +3,7 @@
 // 判定(窓あき発音チェック)と進行はすべてクライアント (確定#3)。
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
+import { getGradingQuota } from "@/app/_libs/plan"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -48,6 +49,9 @@ export default async function LessonDetailPage({
     select: { id: true },
   })
   if (!dbUser) redirect("/login")
+  // 契約なし・契約切れ (要件整理 v2.7 §2 表・CR-1-03): レッスンもゲート。一覧の上にシートを出す既存の仕組みに乗せる
+  const quota = await getGradingQuota(dbUser.id)
+  if (quota.needsSubscription) redirect(`/${userId}/lessons?gate=${lessonId}&plan=1`)
 
   const [inventory, state] = await Promise.all([
     getLessonInventory(),

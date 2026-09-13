@@ -1,0 +1,59 @@
+{
+ "REQ-001": {
+  "総数": 12,
+  "許容外": []
+ },
+ "REQ-001_ok": true,
+ "REQ-002": [
+  "app/[userId]/library/LibraryClient.tsx:136:                <span style={{ fontSize: 11, color: \"var(--text-muted)\", lineHeight: 1.7 }}>{isAppleBilling() ? \"アルコプラスは iPhone アプリではじめられます\" : \"Webのアルコダからプランを確認できます\"}</span>",
+  "app/[userId]/library/LibraryClient.tsx:296:                <div style={{ fontSize: 10, color: \"var(--text-muted)\", marginTop: 9 }}>{isAppleBilling() ? \"アルコプラスは iPhone アプリではじめられます\" : \"Webのアルコダからプランを確認できます\"}</div>"
+ ],
+ "REQ-002_ok": true,
+ "REQ-003": [
+  "app/onboarding/onboardingClient.tsx:739:          const r = await fetch(\"/api/stripe/checkout\", {"
+ ],
+ "REQ-005": [],
+ "REQ-005_ok": true,
+ "REQ-050": [
+  "app/[userId]/settings/PlanCard.tsx:122:              <p style={{ fontSize: \"var(--fs-caption)\", color: \"var(--text-muted)\", margin: \"8px 0 0\" }}>最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円</p>"
+ ],
+ "REQ-057": [
+  "app/[userId]/home.tsx:14:import { TEACHER_FEATURE_ENABLED } from \"@/app/_libs/features\"",
+  "app/[userId]/home.tsx:256:      {TEACHER_FEATURE_ENABLED && <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />}"
+ ],
+ "planGrant": [],
+ "getDeviceKey": [
+  "app/start/StartClient.tsx:22:import { getDeviceKey } from \"@/app/_libs/deviceKey\"",
+  "app/start/StartClient.tsx:96:    const r = await ensureGuestUser(await getDeviceKey())"
+ ],
+ "events": [],
+ "laterMode": [
+  "app/components/guest/GuestGate.tsx:23:      <GateSheet title={title} items={items} laterMode=\"bar\" tryScoreId={tryScoreId} primaryHref={primaryHref} primaryLabel={primaryLabel} noLater={noLater} />",
+  "app/[userId]/lessons/page.tsx:77:      {gateOpen && <GateSheet key={String(sp.gate)} title={GATE_TEXT.lesson.title} items={[...GATE_TEXT.lesson.items]} laterMode=\"hide\" returnTo={`/${userId}/lessons`} />}",
+  "app/[userId]/lessons/page.tsx:78:      {subGate && <GateSheet key={`plan-${sp.gate}`} title={subGate.text.title} items={[...subGate.text.items]} laterMode=\"hide\" primaryHref=\"/start\" primaryLabel={subGate.label} noLater />}",
+  "app/[userId]/library/LibraryClient.tsx:103:      {gate && <GateSheet key=\"upload\" title={GATE_TEXT.upload.title} items={[...GATE_TEXT.upload.items]} laterMode=\"hide\" onLater={() => setGate(false)} />}",
+  "app/[userId]/_guest/GuestHome.tsx:39:      {gate && <GateSheet title={GATE_TEXT.generic.title} items={[...GATE_TEXT.generic.items]} laterMode=\"hide\" returnTo={safeReturnPath(returnTo) ?? `/${GUEST_ID}`} />}"
+ ],
+ "REQ-064": [
+  "app/[userId]/settings/PlanCard.tsx:13:import { showManageSubscriptions } from \"@/app/_libs/appleStore\"",
+  "app/[userId]/settings/PlanCard.tsx:30:const APPLE_MANAGE_URL = \"https://account.apple.com/account/manage/section/subscriptions\"",
+  "app/[userId]/settings/PlanCard.tsx:71:        const ok = await showManageSubscriptions()",
+  "app/[userId]/settings/PlanCard.tsx:72:        if (!ok) window.open(APPLE_MANAGE_URL, \"_blank\")",
+  "app/[userId]/settings/PlanCard.tsx:74:        window.open(APPLE_MANAGE_URL, \"_blank\")"
+ ],
+ "REQ-074": [],
+ "REQ-091": [],
+ "REQ-100": [],
+ "appleRefreshToken": [],
+ "console": [],
+ "apiLimit": [],
+ "resolveEffectivePlan_planGrant": [
+  "app/onboarding/page.tsx:34:  if (isAppleBilling() && resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, planGrant: dbUser.planGrant }) === \"free\") redirect(homePath)",
+  "app/[userId]/layout.tsx:65:      const contracted = !isAppleBilling() || resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, planGrant: dbUser.planGrant }) !== \"free\"",
+  "app/[userId]/library/page.tsx:76:    ? resolveEffectivePlan({ plan: me.plan, planStatus: me.planStatus, createdAt: me.createdAt, planGrant: me.planGrant }) === \"plus\"",
+  "app/[userId]/page.tsx:822:        const eff = resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, planGrant: dbUser.planGrant })",
+  "app/[userId]/settings/page.tsx:39:  const eff = resolveEffectivePlan({",
+  "app/_libs/plan.ts:292:  const plan = resolveEffectivePlan({ ...user, now })"
+ ],
+ "resolveEffectivePlan_planGrant_ok": true
+}

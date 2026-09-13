@@ -103,7 +103,7 @@ export function derivePlanStatus(tx: AppleTransaction, renewal: AppleRenewalInfo
   return "active"
 }
 
-export type ApplyResult = { ok: true; userId: string; status: string } | { ok: false; reason: "no_user" | "conflict" | "unknown_product" | "bundle" }
+export type ApplyResult = { ok: true; userId: string; status: string; stale?: boolean } | { ok: false; reason: "no_user" | "conflict" | "unknown_product" | "bundle" }
 
 /**
  * 検証済みの取引を User に写す。持ち主は appAccountToken (supabaseUserId) か既存の originalTransactionId で引く。
@@ -125,6 +125,15 @@ export async function applyTransaction(tx: AppleTransaction, renewal: AppleRenew
     target = await prisma.user.findUnique({ where: { supabaseUserId: tx.appAccountToken }, select: { id: true } })
   }
   if (!target) return { ok: false, reason: "no_user" }
+
+  // 順序逆転の防御 (2026-09-13 検証ループ CR-1-07): 本人に既に写してある期末より古い期末の取引が後から届いても巻き戻さない。
+  // 別の契約 (Apple ID を変えて再契約したあとの古い契約の遅い通知) も同じ規則で捨てる。
+  // 失効 (revocationDate) と請求リトライ中 (isInBillingRetryPeriod) は期末が同じでも状態を変えるので対象外
+  const current = await prisma.user.findUnique({ where: { id: target.id }, select: { planStatus: true, planCurrentPeriodEnd: true } })
+  if (current?.planCurrentPeriodEnd && tx.expiresDate != null && !tx.revocationDate && !renewal?.isInBillingRetryPeriod
+    && tx.expiresDate < current.planCurrentPeriodEnd.getTime()) {
+    return { ok: true, userId: target.id, status: current.planStatus ?? "", stale: true }
+  }
 
   const status = derivePlanStatus(tx, renewal)
   await prisma.user.update({

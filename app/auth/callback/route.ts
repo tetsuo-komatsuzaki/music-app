@@ -43,7 +43,8 @@ export async function GET(request: Request) {
         const appleName = (meta.full_name || meta.name || "").trim()
         await prisma.user.updateMany({
           where: { supabaseUserId: u.id, role: "guest" },
-          data: { role: "student", guestDeviceKey: null, guestExpiresAt: null, ...(appleName ? { name: appleName } : {}) },
+          // 氏名が取れない (2 回目以降のサインイン) なら仮名「ゲスト」を「あなた」に (AMB-004・CR-1-16)。SCR-02b で上書きされる
+          data: { role: "student", guestDeviceKey: null, guestExpiresAt: null, name: appleName || "あなた" },
         })
         // Apple で初めて来た人 (匿名を経ていない) には User 行が無い。ここで作る
         const exists = await prisma.user.findUnique({ where: { supabaseUserId: u.id }, select: { id: true } })

@@ -1,0 +1,193 @@
+[
+ {
+  "name": "apple_expired_start_nointro",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。 選んだプランの料金で、今日から再開できます。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "start_nointro_check",
+  "hasFreeLine": false
+ },
+ {
+  "name": "apple_expired_start_cancel_toast",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。 選んだプランの料金で、今日から再開できます。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_start_restore_none",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。 選んだプランの料金で、今日から再開できます。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w320_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "k_w320_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w320_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w320_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_font200_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "k_font200_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_font200_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_font200_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_dark_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "k_dark_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_dark_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_dark_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_start2",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_back_link",
+  "found": true,
+  "href": "/guest"
+ },
+ {
+  "name": "anon_back_to_guest2",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 iPhone アプリで登録 App Store で「アルコ」をダウンロード アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [
+   "error: Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. C"
+  ],
+  "hydration": 0,
+  "hscroll": true
+ }
+]

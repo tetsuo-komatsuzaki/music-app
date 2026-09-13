@@ -65,7 +65,7 @@ export default async function GuestStatsPage({ params }: { params: Promise<{ use
         <div className={ds.lab}>シートが出た場所</div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ borderCollapse: "collapse", width: "100%", marginTop: 6 }}>
-            <thead><tr><th style={head}>場所</th><th style={head}>出た回数</th><th style={head}>無料で登録</th><th style={head}>ログイン</th><th style={head}>あとで</th><th style={head}>進んだ比率</th></tr></thead>
+            <thead><tr><th style={head}>場所</th><th style={head}>出た回数</th><th style={head}>登録へ</th><th style={head}>ログイン</th><th style={head}>あとで</th><th style={head}>進んだ比率</th></tr></thead>
             <tbody>
               {places.map((p) => {
                 const shown = count("gate_shown", p), su = count("gate_signup", p), lo = count("gate_login", p), la = count("gate_later", p)

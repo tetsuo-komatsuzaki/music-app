@@ -1,0 +1,130 @@
+[
+ {
+  "name": "r4_D_resume_verify_abort",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "反映しています… / 反映しています… / 反映しています…",
+  "trace": [
+   "1s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "2s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "3s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "4s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "5s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "6s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "7s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "8s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "9s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "10s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "11s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "12s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "13s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "14s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/start?step=purchase&plan=year",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_FAILED",
+   "pageerror: TypeError: Failed to fetch"
+  ]
+ },
+ {
+  "name": "r4_E_resume_verify_slow_ok",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "反映しています… / 反映しています… / 反映しています…",
+  "trace": [
+   "1s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "2s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "3s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "4s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "5s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "6s /start?step=purchase&plan=year cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "7s / cta=- calls=getProducts,getProducts,purchase verify=1",
+   "8s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "9s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/99855634-18bb-4f94-bf23-573cf06776f0",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": []
+ },
+ {
+  "name": "r4_F_click_verify_abort",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "反映しています… / 反映しています…",
+  "trace": [
+   "1s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "2s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "3s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "4s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "5s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "6s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "7s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "8s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "9s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "10s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "11s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "12s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "13s /start cta=enabled calls=getProducts,getProducts,purchase verify=1",
+   "14s /start cta=enabled calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/start",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_FAILED",
+   "pageerror: TypeError: Failed to fetch"
+  ]
+ },
+ {
+  "name": "r4_G_click_verify_slow_ok",
+  "pushed": "pushed",
+  "dest": "/start",
+  "hits": {
+   "verify": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "反映しています… / 反映しています…",
+  "trace": [
+   "1s /start cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "2s /start cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "3s /start cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "4s /start cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "5s /start cta=disabled+busy calls=getProducts,getProducts,purchase verify=1",
+   "6s / cta=- calls=getProducts,getProducts,purchase verify=1",
+   "7s / cta=- calls=getProducts,getProducts,purchase verify=1",
+   "8s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1",
+   "9s /99855634-18bb-4f94-bf23-573cf06776f0 cta=- calls=getProducts,getProducts,purchase verify=1"
+  ],
+  "restoreClickAfter": {
+   "url": "/99855634-18bb-4f94-bf23-573cf06776f0",
+   "calls": "getProducts,getProducts,purchase",
+   "toast": ""
+  },
+  "errs": []
+ }
+]

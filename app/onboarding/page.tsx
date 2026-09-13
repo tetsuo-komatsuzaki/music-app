@@ -8,6 +8,8 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
+import { isAppleBilling } from "@/app/_libs/billingMode"
+import { resolveEffectivePlan } from "@/app/_libs/plan"
 import OnboardingClient from "./onboardingClient"
 import { CATALOG, type CatalogCategory } from "./_lib/catalog"
 import type { OnboardingPublicState } from "./_lib/store"
@@ -18,14 +20,18 @@ export default async function OnboardingPage() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect("/login")
+  // 匿名 (1 回ためし中) はアカウントではないのでオンボーディングに入れない (要件整理 v2.7 §3・O-3)
+  if (user.is_anonymous) redirect("/guest")
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: user.id },
-    select: { id: true },
+    select: { id: true, plan: true, planStatus: true, createdAt: true, planGrant: true },
   })
   if (!dbUser) redirect("/login")
 
   const homePath = `/${user.id}`
+  // Apple 課金ではオンボーディングは契約した人だけ (v2.7 §0)。契約なしで URL を直接開いたらホームへ (O-3)
+  if (isAppleBilling() && resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, planGrant: dbUser.planGrant }) === "free") redirect(homePath)
 
   const [profile, songs] = await Promise.all([
     prisma.onboardingProfile.findUnique({ where: { userId: dbUser.id } }),

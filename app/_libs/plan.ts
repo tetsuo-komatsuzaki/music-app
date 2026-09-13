@@ -168,6 +168,8 @@ export type GradingQuota = {
   isGuest: boolean
   /** ゲストの直近の点数 (1 回ためしの結果)。録音画面のカード「N 点を残してつづける」に使う */
   guestLastScore?: number | null
+  /** 契約の状態 (expired / canceled なら「終了しています」、それ以外の未加入は「はじめると使えます」の文言に使う) */
+  planStatus?: string | null
   plan: EffectivePlan
 }
 
@@ -258,8 +260,15 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
 
   // ゲストの 1 回ためし (要件整理 v2.7 §2): 公式曲を 1 回だけ。基礎練は不可。加入は求めない (まだアカウントではない)
   if (user.role === "guest") {
+    // アップロード途中で切れて queued のまま残った行は 15 分で「取り直せる」扱いにする (CR-1-12)。error も数えない
     const guestUsed = await prisma.performance.count({
-      where: { userId: dbUserId, analysisStatus: { in: ["queued", "processing", "done", "retrying"] } },
+      where: {
+        userId: dbUserId,
+        OR: [
+          { analysisStatus: { in: ["processing", "done", "retrying"] } },
+          { analysisStatus: "queued", createdAt: { gt: new Date(now.getTime() - 15 * 60 * 1000) } },
+        ],
+      },
     })
     const last = guestUsed > 0
       ? await prisma.performance.findFirst({ where: { userId: dbUserId }, orderBy: { createdAt: "desc" }, select: { pitchAccuracy: true, timingAccuracy: true } })
@@ -301,6 +310,7 @@ export async function getGradingQuota(dbUserId: string, now: Date = new Date()):
       !ENFORCE_LIMITS ||
       (unlimited ? true : !needsSubscription && practiceUsed < TRIAL_DAILY_PRACTICE_GRADINGS),
     isGuest: false,
+    planStatus: user.planStatus,
     plan,
   }
 }

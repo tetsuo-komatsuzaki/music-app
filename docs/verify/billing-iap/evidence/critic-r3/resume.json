@@ -1,0 +1,239 @@
+[
+ {
+  "name": "r3b_control_no_rewrite",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rsc": 1,
+   "rewritten": 0
+  },
+  "toast": "",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ ",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /start?step=purchase&plan=year calls=getProducts,getProducts verify=0 restore=0",
+   "3s /start?step=purchase&plan=year calls=getProducts,getProducts verify=0 restore=0",
+   "4s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,getProducts verify=0 restore=0",
+   "5s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,getProducts verify=0 restore=0",
+   "6s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,getProducts verify=0 restore=0",
+   "7s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,getProducts verify=0 restore=0"
+  ],
+  "errs": []
+ },
+ {
+  "name": "r3b_purchase_ok",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13",
+  "hits": {
+   "verify": 1,
+   "restore": 0,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "反映しています… / 反映しています…",
+  "text": "Arcoda こんにちは、verify-billing-trialさん 無料期間はあと 12 日 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "3s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "4s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "5s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "6s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "7s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "8s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "9s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "10s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "11s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "12s / calls=getProducts,getProducts,purchase verify=1 restore=0"
+  ],
+  "errs": []
+ },
+ {
+  "name": "r3b_purchase_cancel",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/start",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rsc": 3,
+   "rewritten": 2
+  },
+  "toast": "購入をやめました。いつでも再開できます / 購入をやめました。いつでも再開できます",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる ",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /start?step=purchase&plan=year calls=getProducts,getProducts verify=0 restore=0",
+   "3s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "4s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "5s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "6s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "7s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "8s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "9s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "10s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "11s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "12s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "13s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "14s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "15s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "16s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "17s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "18s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "19s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "20s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "21s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "22s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "23s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "24s /start calls=getProducts,getProducts,purchase verify=0 restore=0",
+   "25s /start calls=getProducts,getProducts,purchase verify=0 restore=0"
+  ],
+  "errs": []
+ },
+ {
+  "name": "r3b_purchase_verify500",
+  "pushed": "pushed",
+  "dest": "/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/start",
+  "hits": {
+   "verify": 1,
+   "restore": 0,
+   "rsc": 2,
+   "rewritten": 2
+  },
+  "toast": "確認できませんでした。購入を復元をお試しください / 確認できませんでした。購入を復元をお試しください",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる ",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "3s /start?step=purchase&plan=year calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "4s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "5s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "6s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "7s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "8s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "9s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "10s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "11s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "12s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "13s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "14s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "15s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "16s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "17s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "18s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "19s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "20s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "21s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "22s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "23s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "24s /start calls=getProducts,getProducts,purchase verify=1 restore=0",
+   "25s /start calls=getProducts,getProducts,purchase verify=1 restore=0"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+ },
+ {
+  "name": "r3b_restore_ok_dialog",
+  "text": "契約が見つかりました\nこの Apple アカウントのアルコプラスを、このアカウントに結びました。"
+ },
+ {
+  "name": "r3b_restore_ok",
+  "pushed": "pushed",
+  "dest": "/start?step=restore&plan=year",
+  "final": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13",
+  "hits": {
+   "verify": 0,
+   "restore": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ ",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /start?step=restore&plan=year calls=getProducts,restore,getProducts verify=0 restore=1",
+   "3s / calls=getProducts,restore,getProducts verify=0 restore=1",
+   "4s / calls=getProducts,restore,getProducts verify=0 restore=1",
+   "5s / calls=getProducts,restore,getProducts verify=0 restore=1",
+   "6s / calls=getProducts,restore,getProducts verify=0 restore=1",
+   "7s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,restore,getProducts verify=0 restore=1"
+  ],
+  "errs": []
+ },
+ {
+  "name": "r3b_restore_ok_not_onboarded_dialog",
+  "text": "契約が見つかりました\nこの Apple アカウントのアルコプラスを、このアカウントに結びました。"
+ },
+ {
+  "name": "r3b_restore_ok_not_onboarded",
+  "pushed": "pushed",
+  "dest": "/start?step=restore&plan=year",
+  "final": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13",
+  "hits": {
+   "verify": 0,
+   "restore": 1,
+   "rsc": 1,
+   "rewritten": 1
+  },
+  "toast": "",
+  "text": "Arcoda 音を調えています・・・ Arcoda ホーム ライブラリ カルテ",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /start?step=restore&plan=year calls= verify=0 restore=0",
+   "3s /start?step=restore&plan=year calls=getProducts,restore,getProducts verify=0 restore=1",
+   "4s /onboarding calls=getProducts,restore,getProducts verify=0 restore=1",
+   "5s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,restore,getProducts verify=0 restore=1",
+   "6s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,restore,getProducts verify=0 restore=1",
+   "7s /4aa1d270-e970-4ac5-b282-490e80099d13 calls=getProducts,restore,getProducts verify=0 restore=1"
+  ],
+  "errs": []
+ },
+ {
+  "name": "r3b_restore_none",
+  "pushed": "pushed",
+  "dest": "/start?step=restore&plan=year",
+  "final": "http://localhost:3101/start",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rsc": 2,
+   "rewritten": 2
+  },
+  "toast": "この Apple アカウントに契約はありません / この Apple アカウントに契約はありません",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる ",
+  "trace": [
+   "1s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "2s /4aa1d270-e970-4ac5-b282-490e80099d13 calls= verify=0 restore=0",
+   "3s /start?step=restore&plan=year calls=getProducts,restore,getProducts verify=0 restore=0",
+   "4s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "5s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "6s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "7s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "8s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "9s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "10s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "11s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "12s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "13s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "14s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "15s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "16s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "17s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "18s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "19s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "20s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "21s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "22s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "23s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "24s /start calls=getProducts,restore,getProducts verify=0 restore=0",
+   "25s /start calls=getProducts,restore,getProducts verify=0 restore=0"
+  ],
+  "errs": []
+ }
+]

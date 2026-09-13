@@ -1,0 +1,220 @@
+[
+ {
+  "name": "r3_anon_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる"
+ },
+ {
+  "name": "r3_anon_login_form",
+  "ok": true
+ },
+ {
+  "name": "r3_anon_then_login_free",
+  "url": "http://localhost:3101/99a70158-2ce8-46b7-aec4-c78fb8554831",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-freeさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1"
+ },
+ {
+  "name": "r3_trial_login_redirect",
+  "url": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13?returnTo=%2Fguest%2Flibrary",
+  "ok": true
+ },
+ {
+  "name": "r3_trial_settings",
+  "url": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 無料期間中 アルコの採点は無制限で使えます。無料期間は 2026年9月25日 までです。 契約を管理 ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_active_settings",
+  "url": "http://localhost:3101/c9fc01ed-1ce4-409d-a55b-533af9fd86bb/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 契約中 アルコの採点は無制限で使えます。次回の更新日は 2026年10月27日 です。 契約を管理 ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_cancel_settings",
+  "url": "http://localhost:3101/7328df3a-7aa4-4596-8793-18ba011c7972/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 更新しない予定 2026年10月27日 まで使えます。そのあと採点は止まります。続けるには契約を管理から。 契約を管理 ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_expired_settings",
+  "url": "http://localhost:3101/15a6f857-4268-4dca-bf0d-71669fc953f4/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 契約切れ 採点と基礎練が止まっています。記録は残っています。 再開する ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_internal_settings",
+  "url": "http://localhost:3101/8587d0d8-1ca9-4ad4-ab8d-54b6c67f9026/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 運営 運営用のアカウントです。採点は無制限で使えます。 ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_free_settings",
+  "url": "http://localhost:3101/99a70158-2ce8-46b7-aec4-c78fb8554831/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスをはじめる 最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円 ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_free_onboarding_direct",
+  "url": "http://localhost:3101/99a70158-2ce8-46b7-aec4-c78fb8554831",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-freeさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1"
+ },
+ {
+  "name": "r3_trial_onboarding_direct",
+  "url": "http://localhost:3101/4aa1d270-e970-4ac5-b282-490e80099d13",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-trialさん 無料期間はあと 12 日 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「"
+ },
+ {
+  "name": "r3_anon_onboarding_direct",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ログアウト中 verify-billing-trialさんの前回の画面です。ログインすると続きから練習できます ログイン こんにちは、verify-billing-trialさん 無料期間はあと 12 日 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_anon_own_settings",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_web_guest_library",
+  "url": "http://localhost:3101/guest/library?try=1",
+  "text": "Arcoda ログイン ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死"
+ },
+ {
+  "name": "r3_web_guest_library_banner",
+  "present": 0
+ },
+ {
+  "name": "r3_web_guest_song_gate",
+  "url": "http://localhost:3101/guest/scores/cmq2kczlb000204kyn696mqma",
+  "text": "Arcoda ログイン ‹ ライブラリ かっこう ♡ 演奏 ふりかえり 練習後カルテ 楽譜 ひろげる = 100 3 5 7 9 10 12 この曲に出てくる記号 ▼ 開く・2 譜面に書き込む お手本 ♩100 テンポ メトロ 録音して採点 ARCODA かっこうを、登録なしで 1 回だけ採点してみられます + 録音して採点 ・ 音程とリズムを 1 音ずつ + この 1 回は登録なし ・ 弾いてから決められる + 続けるには登録 ・ 最初の 2 週間は無料、その後 月 1,280 円 iPhone アプリで登録 ログイン あとで ホーム ライブラリ カルテ"
+ },
+ {
+  "name": "r3_gate_veil_over_tabs",
+  "tab": "ライブラリ",
+  "topElementClass": "GateSheet-module__dfpXrW__later",
+  "isVeil": true
+ },
+ {
+  "name": "r3_native_guest_library",
+  "url": "http://localhost:3101/guest/library?try=1",
+  "text": "Arcoda ログイン 登録なしで 1 回だけためせます。曲をえらんでください ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイ"
+ },
+ {
+  "name": "r3_native_guest_library_banner",
+  "present": 1
+ },
+ {
+  "name": "r3_resume_purchase_ok",
+  "start": "http://localhost:3101/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rewrite": 1
+  },
+  "toast": "",
+  "text": "音を調えています・・・ Arcoda"
+ },
+ {
+  "name": "r3_resume_purchase_ok_console",
+  "errs": [
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=hTybMb0q63G9X_WR2EBkc' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=hTybMb0q63G9X_WR2EBkc' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=hTybMb0q63G9X_WR2EBkc' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=hTybMb0q63G9X_WR2EBkc' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=hTybMb0q63G9X_WR2EBkc' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=hTybMb0q63G9X_WR2EBkc' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS"
+  ]
+ },
+ {
+  "name": "r3_resume_purchase_cancel",
+  "start": "http://localhost:3101/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rewrite": 1
+  },
+  "toast": "",
+  "text": "音を調えています・・・ Arcoda"
+ },
+ {
+  "name": "r3_resume_purchase_cancel_console",
+  "errs": [
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=yVLbgY_Hhx0we09JeBvp7' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=yVLbgY_Hhx0we09JeBvp7' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=yVLbgY_Hhx0we09JeBvp7' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=yVLbgY_Hhx0we09JeBvp7' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=yVLbgY_Hhx0we09JeBvp7' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=yVLbgY_Hhx0we09JeBvp7' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS"
+  ]
+ },
+ {
+  "name": "r3_resume_purchase_verify500",
+  "start": "http://localhost:3101/start?step=purchase&plan=year",
+  "final": "http://localhost:3101/start?step=purchase&plan=year",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rewrite": 1
+  },
+  "toast": "",
+  "text": "音を調えています・・・ Arcoda"
+ },
+ {
+  "name": "r3_resume_purchase_verify500_console",
+  "errs": [
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=W1conqXG8kcP-2TDegvYy' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=W1conqXG8kcP-2TDegvYy' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=W1conqXG8kcP-2TDegvYy' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=W1conqXG8kcP-2TDegvYy' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=W1conqXG8kcP-2TDegvYy' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=W1conqXG8kcP-2TDegvYy' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS"
+  ]
+ },
+ {
+  "name": "r3_resume_restore_ok",
+  "start": "http://localhost:3101/start?step=restore&plan=year",
+  "final": "http://localhost:3101/start?step=restore&plan=year",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rewrite": 1
+  },
+  "toast": "",
+  "text": "音を調えています・・・ Arcoda"
+ },
+ {
+  "name": "r3_resume_restore_ok_console",
+  "errs": [
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=jVdcNZYU1btsukSrckyiH' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=jVdcNZYU1btsukSrckyiH' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=jVdcNZYU1btsukSrckyiH' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=jVdcNZYU1btsukSrckyiH' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=jVdcNZYU1btsukSrckyiH' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=jVdcNZYU1btsukSrckyiH' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS"
+  ]
+ },
+ {
+  "name": "r3_resume_restore_none",
+  "start": "http://localhost:3101/start?step=restore&plan=year",
+  "final": "http://localhost:3101/start?step=restore&plan=year",
+  "hits": {
+   "verify": 0,
+   "restore": 0,
+   "rewrite": 1
+  },
+  "toast": "",
+  "text": "音を調えています・・・ Arcoda"
+ },
+ {
+  "name": "r3_resume_restore_none_console",
+  "errs": [
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=MsosAm-riie_nqzG2Szie' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=MsosAm-riie_nqzG2Szie' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=MsosAm-riie_nqzG2Szie' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=MsosAm-riie_nqzG2Szie' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=MsosAm-riie_nqzG2Szie' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS",
+   "WebSocket connection to 'ws://localhost:3101/_next/webpack-hmr?id=MsosAm-riie_nqzG2Szie' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS"
+  ]
+ },
+ {
+  "name": "r3_resume_control_no_rewrite",
+  "final": "http://localhost:3101/start?step=purchase&plan=year",
+  "verifyHits": 0
+ }
+]

@@ -822,7 +822,11 @@ export default async function HomePage({ params, searchParams }: PageProps) {
         const eff = resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, planGrant: dbUser.planGrant })
         const end = dbUser.planCurrentPeriodEnd?.toISOString() ?? null
         if (eff === "trial") return { kind: "trial" as const, periodEnd: end }
-        if (eff === "free" && REQUIRE_SUBSCRIPTION) return { kind: "expired" as const, periodEnd: end }
+        if (eff === "free" && REQUIRE_SUBSCRIPTION && !teacherSummary) {
+          // 一度も契約していない人に「終了しています」と言わない (CR-1-10)
+          const ended = dbUser.planStatus === "expired" || dbUser.planStatus === "canceled"
+          return { kind: ended ? ("expired" as const) : ("unsubscribed" as const), periodEnd: end }
+        }
         return { kind: "none" as const, periodEnd: end }
       })(),
       streak,

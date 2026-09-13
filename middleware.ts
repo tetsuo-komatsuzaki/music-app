@@ -19,6 +19,11 @@ const PUBLIC_API_PATHS: readonly string[] = [
   "/api/stripe/webhook",
   // LPのウェイティングリスト登録 (2026-08-23): 未ログインの訪問者から届く
   "/api/waitlist",
+  // App Store Server Notifications V2 (2026-09-13 検証ループで発見): Apple のサーバーから cookie なしで届く。
+  // 認証は route 内の署名検証 (Apple Root CA G3 まで辿る) が担う。ここで遮断すると契約の反映が全滅する
+  "/api/apple/notifications",
+  // Vercel Cron のゲスト削除 (同上): cookie は無く、Authorization: Bearer CRON_SECRET を route 内で照合する
+  "/api/cron/guest-cleanup",
 ]
 
 function isPublicApiPath(pathname: string): boolean {
@@ -73,7 +78,8 @@ export async function middleware(request: NextRequest) {
 
   // --- 既ログインで /login を開いたら自分のホームへ (2026-08-08 調査Wave7発見#2) ---
   // ログイン済みなのにログインフォームが見える綻びを解消。
-  if (user && pathname === "/login") {
+  // 匿名 (1 回ためし中) はアカウントではないので /login を通す。既存アカウントの人が先にためしていても入れるように (CR-2-03)
+  if (user && !user.is_anonymous && pathname === "/login") {
     const url = request.nextUrl.clone()
     url.pathname = `/${user.id}`
     return NextResponse.redirect(url)

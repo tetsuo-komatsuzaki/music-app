@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import { isAppleBilling } from "@/app/_libs/billingMode"
 import { getGuestTryState } from "@/app/actions/guestTry"
 import GuestGate from "@/app/components/guest/GuestGate"
-import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GATE_TEXT, subscriptionGate } from "@/app/components/guest/gateText"
+import { getGradingQuota } from "@/app/_libs/plan"
 import { getOfficialUserIds } from "@/app/_libs/officialUsers"
 import { GUEST_DB_PLACEHOLDER, GUEST_ID } from "@/app/_libs/viewer"
 import { badgeKind } from "@/app/_libs/starProgress"
@@ -339,7 +340,10 @@ export default async function Page({
       </GuestGate>
     )
   }
-  return (
+  // 契約なし・契約切れ (要件整理 v2.7 §2 表・§8-8・CR-1-03): 曲を開いた時点でゲート「再開する」。中身は薄く見えるだけ
+  const quota = viewerIsGuest ? null : await getGradingQuota(dbUser.id)
+  const subGate = quota?.needsSubscription ? subscriptionGate(quota.planStatus) : null
+  const body = (
     <>
       {pendingLessons.length > 0 && (
         <LessonGateBanner
@@ -373,4 +377,6 @@ export default async function Page({
       />
     </>
   )
+  if (subGate) return <GuestGate title={subGate.text.title} items={subGate.text.items} primaryHref="/start" primaryLabel={subGate.label} noLater>{body}</GuestGate>
+  return body
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import { recordGuestEvent } from "@/app/actions/recordGuestEvent"
 import ArcoMotion from "./ArcoMotion"
 import { Palette, Trophy, Share2, Ear } from "lucide-react"
 import ShareSheet from "./ShareSheet"
@@ -54,6 +55,8 @@ export default function ArcoResultOverlay({
   const [mounted, setMounted] = useState(false)
   const [ach, setAch] = useState<Ach | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  // 1 回ためしの結果が出たことを記録する (要件整理 v2.7 §4 try_result・CR-1-11)
+  useEffect(() => { if (guestTrial) void recordGuestEvent("try_result", "song", `/scores/${scoreId}`) }, [guestTrial, scoreId])
   const [praise, setPraise] = useState<Praise | null>(null)
   const [strengthCount, setStrengthCount] = useState(0)
   const [hasTeacher, setHasTeacher] = useState(false)
@@ -258,7 +261,9 @@ export default function ArcoResultOverlay({
             <Link href="/start" onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
               この {perf.pitchAccuracy != null && perf.timingAccuracy != null ? Math.round((perf.pitchAccuracy + perf.timingAccuracy) / 2) : "—"} 点を残してつづける
             </Link>
-            <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>残さない場合は右上の × で閉じる</div>
+            {/* 先が支払い (はじめる手続き) だと分かる 1 行 (2026-09-13 Tetsuo 承認・検証ループ §7) */}
+            <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 8 }}>はじめる手続き・最初の 2 週間は無料</div>
+            <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>残さない場合は右上の × で閉じる</div>
           </div>
         ) : (
         <div className={styles.actions}>

@@ -13,11 +13,13 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { setReturnToCookie } from "@/app/_libs/returnTo"
-import { isAppleBilling } from "@/app/_libs/billingMode"
+import { isAppleBilling, appStoreUrl } from "@/app/_libs/billingMode"
+import { useIsNativeApp } from "@/app/_hooks/useIsNativeApp"
 import { startGuestTry } from "@/app/_libs/guestTryClient"
 import { readKnownUser } from "@/app/_libs/knownUser"
 import { recordGuestEvent } from "@/app/actions/recordGuestEvent"
 import { placeOf } from "@/app/_libs/guestEvents"
+import { GUEST_ID } from "@/app/_libs/viewer"
 import styles from "./GateSheet.module.css"
 
 import type { GateItem } from "./gateText"
@@ -54,8 +56,20 @@ export default function GateSheet({ title, items, primaryLabel, onLater, laterMo
   const dest = returnTo ?? pathname ?? "/guest"
   // Apple 課金 (2026-09-12): 登録の入口は /start (アルコプラスをはじめる)。Stripe (従来) は /signUp
   const apple = isAppleBilling()
-  const startHref = primaryHref ?? (apple ? START : SIGNUP)
-  const startLabel = primaryLabel ?? (apple ? "はじめる" : "登録する")
+  const native = useIsNativeApp()
+  // 1 回ためしは殻だけ (AMB-005・CR-1-13)。Web (ブラウザ) + apple では試させず、ゲストホームと同じ「iPhone アプリで登録」に揃える
+  const canTryHere = !!tryScoreId && (!apple || native)
+  const webApple = apple && !native
+  const startHref = primaryHref ?? (webApple ? (appStoreUrl() ?? SIGNUP) : apple ? START : SIGNUP)
+  const startLabel = primaryLabel ?? (webApple ? "iPhone アプリで登録" : apple ? "はじめる" : "登録する")
+  // 契約切れ・未契約のゲート (primaryHref を明示して呼ばれる) は、端末の「登録済み」の印に関係なく主ボタンを固定する (CR-2-01)。
+  // ログイン済みの人にログインを勧めても、middleware がホームへ送り返すだけで再開の動線にならない
+  const fixedPrimary = !!primaryHref
+  // 契約ゲートは下のタブまで覆うので、一覧へ戻る出口を 1 つ置く (CR-3-01)。本人 URL ならそのライブラリ、それ以外はゲストのライブラリ
+  const uidInPath = (pathname ?? "").match(/^\/([0-9a-f-]{36})(?:\/|$)/)?.[1]
+  const onLessons = /^\/[0-9a-f-]{36}\/lessons(?:\/|$)/.test(pathname ?? "")
+  const backHref = uidInPath ? (onLessons ? `/${uidInPath}/lessons` : `/${uidInPath}/library`) : `/${GUEST_ID}/library`
+  const backLabel = onLessons ? "レッスンの一覧にもどる" : "ライブラリにもどる"
 
   const onTry = async () => {
     if (!tryScoreId || trying) return
@@ -70,18 +84,19 @@ export default function GateSheet({ title, items, primaryLabel, onLater, laterMo
   useEffect(() => { setKnown(readKnownUser() != null) }, [])
   // 計測 (2026-09-06): シートが出た場所と、そこから進んだか去ったか。場所は URL から決める
   const place = placeOf(pathname ?? "")
-  useEffect(() => { void recordGuestEvent("gate_shown", place, pathname) }, [place, pathname])
+  // ログイン済みの契約ゲート (fixedPrimary) はゲストの導線ではないので計測に入れない (CR-3-04)
+  useEffect(() => { if (!fixedPrimary) void recordGuestEvent("gate_shown", place, pathname) }, [place, pathname, fixedPrimary])
   const shownTitle = known ? title.replace("登録かログイン", "ログイン") : title
 
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") later() }
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !noLater) later() }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const remember = (kind: "gate_signup" | "gate_login") => () => { setReturnToCookie(dest); void recordGuestEvent(kind, place, pathname) }
+  const remember = (kind: "gate_signup" | "gate_login") => () => { setReturnToCookie(dest); if (!fixedPrimary) void recordGuestEvent(kind, place, pathname) }
   const later = () => { setOpen(false); onLater?.(); void recordGuestEvent("gate_later", place, pathname) }
   const q = `?returnTo=${encodeURIComponent(dest)}`
 
@@ -96,7 +111,7 @@ export default function GateSheet({ title, items, primaryLabel, onLater, laterMo
     )
   }
   return (
-    <div className={styles.veil} role="dialog" aria-modal="true" aria-label={title} onClick={later}>
+    <div className={styles.veil} role="dialog" aria-modal="true" aria-label={title} onClick={noLater ? undefined : later}>
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
         <div className={styles.handle} />
         <div className={styles.eyebrow}>ARCODA</div>
@@ -109,7 +124,12 @@ export default function GateSheet({ title, items, primaryLabel, onLater, laterMo
             </div>
           ))}
         </div>
-        {tryScoreId ? (
+        {fixedPrimary ? (
+          <>
+            <Link href={startHref} className={styles.primary} onClick={remember("gate_signup")}>{startLabel}</Link>
+            <Link href={backHref} className={styles.later} style={{ textDecoration: "none", display: "block", textAlign: "center" }}>{backLabel}</Link>
+          </>
+        ) : canTryHere ? (
           <>
             <button type="button" className={styles.primary} disabled={trying} onClick={() => void onTry()}>{trying ? "準備しています…" : "登録なしで 1 回ためす"}</button>
             {tryError && <div className={styles.row} style={{ marginTop: 8, color: "var(--text-error)" }}>{tryError}</div>}
@@ -127,7 +147,7 @@ export default function GateSheet({ title, items, primaryLabel, onLater, laterMo
             <Link href={`${LOGIN}${q}`} className={styles.secondary} onClick={remember("gate_login")}>ログイン</Link>
           </>
         )}
-        {!noLater && !tryScoreId && <button type="button" className={styles.later} onClick={later}>あとで</button>}
+        {!noLater && !canTryHere && <button type="button" className={styles.later} onClick={later}>あとで</button>}
       </div>
     </div>
   )

@@ -22,7 +22,7 @@ function AppleNativeRedirect() {
 
 const MIN_PASSWORD_LEN = 8
 
-export default function loginPage() {
+export default function SignUpPage() {
 
   const native = useIsNativeApp()
   const [email, setEmail] = useState("")

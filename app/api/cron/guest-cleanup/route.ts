@@ -25,7 +25,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 })
   }
   const expired = await prisma.user.findMany({
-    where: { role: "guest", guestExpiresAt: { lt: new Date() } },
+    // 安全網 (CR-1-17): 何かの手違いで契約が付いた行 (昇格に失敗したまま購入が通った等) は消さない
+    where: { role: "guest", guestExpiresAt: { lt: new Date() }, billingProvider: null, plan: "free" },
     select: { id: true, supabaseUserId: true },
     take: 200,
   })

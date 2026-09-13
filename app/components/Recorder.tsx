@@ -311,7 +311,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   // idle に戻るたびに再取得 (採点1回で消費が増えるため)。無制限 (プラス/先生接続) は非表示。
   const [quota, setQuota] = useState<{
     unlimited: boolean; used: number; limit: number
-    secondsUsed?: number; secondsLimit?: number; isGuest?: boolean; needsSubscription?: boolean; guestLastScore?: number | null
+    secondsUsed?: number; secondsLimit?: number; isGuest?: boolean; needsSubscription?: boolean; guestLastScore?: number | null; planStatus?: string | null
   } | null>(null)
   useEffect(() => {
     if (status !== "idle") return
@@ -1051,10 +1051,10 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           {quota?.needsSubscription ? (
             /* 契約なし・契約切れ (2026-09-12 要件整理 v2.7 §2): 録音ボタンを畳んで「再開する」→ /start */
             <div data-testid="recorder-needs-plan" style={{ width: "100%", textAlign: "center", background: "var(--card-b)", border: "1px solid rgba(232,178,60,.34)", borderRadius: 16, padding: "16px 14px" }}>
-              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>アルコプラスが終了しています</div>
-              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 4 }}>採点と基礎練が止まっています。記録は残っています</div>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>{quota.planStatus === "expired" || quota.planStatus === "canceled" ? "アルコプラスが終了しています" : "アルコプラスをはじめると採点できます"}</div>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 4 }}>{quota.planStatus === "expired" || quota.planStatus === "canceled" ? "採点と基礎練が止まっています。記録は残っています" : "最初の 2 週間は無料、その後 月 1,280 円"}</div>
               {canShowBilling && (
-                <Link href="/start" style={{ display: "inline-block", marginTop: 10, background: "#b8862e", color: "#fff", borderRadius: 9, padding: "9px 22px", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>再開する</Link>
+                <Link href="/start" style={{ display: "inline-block", marginTop: 10, background: "#b8862e", color: "#fff", borderRadius: 9, padding: "9px 22px", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>{quota.planStatus === "expired" || quota.planStatus === "canceled" ? "再開する" : "はじめる"}</Link>
               )}
             </div>
           ) : quota?.isGuest && quota.used >= quota.limit ? (

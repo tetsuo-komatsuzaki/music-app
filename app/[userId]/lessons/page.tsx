@@ -17,7 +17,8 @@ import LessonCardStatus from "./_components/LessonCardStatus"
 import styles from "./lessons.module.css"
 import ds from "@/app/components/ds.module.css"
 import GateSheet from "@/app/components/guest/GateSheet"
-import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GATE_TEXT, subscriptionGate } from "@/app/components/guest/gateText"
+import { getGradingQuota } from "@/app/_libs/plan"
 import { GUEST_DB_PLACEHOLDER, GUEST_ID } from "@/app/_libs/viewer"
 
 export const metadata = { title: "学びレッスン" }
@@ -27,12 +28,15 @@ export default async function LessonsPage({
   searchParams,
 }: {
   params: Promise<{ userId: string }>
-  searchParams?: Promise<{ gate?: string }>
+  searchParams?: Promise<{ gate?: string; plan?: string }>
 }) {
   const { userId } = await params
   // ゲスト閲覧 (2026-09-06): 一覧は見せる (本人の状態は無い)。行を押すと ?gate= で同じ画面の上にシート
   const guest = userId === GUEST_ID
-  const gateOpen = guest && !!(await searchParams)?.gate
+  const sp = (await searchParams) ?? {}
+  const gateOpen = guest && !!sp.gate
+  // 契約なし・契約切れ (要件整理 v2.7 §2 表・CR-1-03): 動画の入口からここへ戻され、同じ画面の上に「再開する」のシート
+  let subGate: { text: { title: string; items: { title: string; detail: string }[] }; label: string } | null = null
   let dbUser: { id: string } | null = { id: GUEST_DB_PLACEHOLDER }
   if (!guest) {
     const supabase = await createServerSupabaseClient()
@@ -48,6 +52,10 @@ export default async function LessonsPage({
       select: { id: true },
     })
     if (!dbUser) redirect("/login")
+    if (sp.gate && sp.plan === "1") {
+      const quota = await getGradingQuota(dbUser.id)
+      if (quota.needsSubscription) subGate = subscriptionGate(quota.planStatus)
+    }
   }
 
   const [inventory, state] = await Promise.all([
@@ -66,7 +74,8 @@ export default async function LessonsPage({
 
   return (
     <div>
-      {gateOpen && <GateSheet key={String((await searchParams)?.gate)} title={GATE_TEXT.lesson.title} items={[...GATE_TEXT.lesson.items]} laterMode="hide" returnTo={`/${userId}/lessons`} />}
+      {gateOpen && <GateSheet key={String(sp.gate)} title={GATE_TEXT.lesson.title} items={[...GATE_TEXT.lesson.items]} laterMode="hide" returnTo={`/${userId}/lessons`} />}
+      {subGate && <GateSheet key={`plan-${sp.gate}`} title={subGate.text.title} items={[...subGate.text.items]} laterMode="hide" primaryHref="/start" primaryLabel={subGate.label} noLater />}
       {/* 原本 .back */}
       <Link
         href={`/${userId}/library?tab=basics`}

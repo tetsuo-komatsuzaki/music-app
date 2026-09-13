@@ -1,0 +1,96 @@
+[
+ {
+  "key": "free",
+  "name": "home",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91",
+  "errors": [
+   "error: ent>}>\n            <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>\n              <RedirectBoundary>\n                <RedirectErrorBoundary router={{...}}>\n                  <InnerLayoutRouter url=\"/b142e99e-...\" tree={[...]} params={{userId:\"b1...\"}} ...>\n                    <SegmentViewNode type=\"page\" pagePath=\"[userId]/p...\">\n                      <SegmentTrieNode>\n                      <HomePage>\n                        <HomeClient guide={{active:true, ...}} personalReco={null} questProgress={null} ...>\n                          <div className=\"home-modul...\">\n                            <LoadableComponent>\n                            <h1\n+                             className=\"ds-module__j9kwyG__t\"\n-                             className=\"ds-module__j9kwyG__t rv-on\"\n                              style={{\n+                               paddingTop: 6\n+                               whiteSpace: \"nowrap\"\n+                               fontSize: 19\n-                               padding-top: \"6px\"\n-                               white-space-collapse: \"collapse\"\n-                               text-wrap-mode: \"nowrap\"\n-           "
+  ]
+ },
+ {
+  "key": "free",
+  "name": "settings",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "errors": []
+ },
+ {
+  "key": "free",
+  "name": "library",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/library",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math"
+  ]
+ },
+ {
+  "key": "free",
+  "name": "other_settings",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "errors": []
+ },
+ {
+  "key": "expired",
+  "name": "home",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0",
+  "errors": []
+ },
+ {
+  "key": "expired",
+  "name": "settings",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/settings",
+  "errors": []
+ },
+ {
+  "key": "expired",
+  "name": "library",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/library",
+  "errors": []
+ },
+ {
+  "key": "expired",
+  "name": "other_settings",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/settings",
+  "errors": []
+ },
+ {
+  "key": "cancel",
+  "name": "home",
+  "url": "http://localhost:3101/onboarding",
+  "errors": []
+ },
+ {
+  "key": "cancel",
+  "name": "settings",
+  "url": "http://localhost:3101/onboarding",
+  "errors": []
+ },
+ {
+  "key": "cancel",
+  "name": "library",
+  "url": "http://localhost:3101/onboarding",
+  "errors": []
+ },
+ {
+  "key": "cancel",
+  "name": "other_settings",
+  "url": "http://localhost:3101/onboarding",
+  "errors": []
+ },
+ {
+  "key": "guest",
+  "name": "root",
+  "url": "http://localhost:3101/guest",
+  "errors": []
+ },
+ {
+  "key": "guest",
+  "name": "guest",
+  "url": "http://localhost:3101/guest",
+  "errors": []
+ },
+ {
+  "key": "guest",
+  "name": "guest_library",
+  "url": "http://localhost:3101/guest/library?try=1",
+  "errors": []
+ }
+]

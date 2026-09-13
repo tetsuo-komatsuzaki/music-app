@@ -1,0 +1,117 @@
+[
+ {
+  "name": "r4c_anon_native_guest_exit",
+  "key": "guest",
+  "native": true,
+  "linkText": "ゲストにもどる",
+  "info": {
+   "found": true,
+   "href": "/guest",
+   "rect": {
+    "top": 827,
+    "left": 295,
+    "w": 83,
+    "h": 19
+   },
+   "inView": true,
+   "topEl": "A. \"ゲストにもどる\"",
+   "coveredBySelf": true
+  },
+  "before": "http://localhost:3101/start",
+  "clickErr": null,
+  "landed": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 iPhone アプリで登録 App Store で「アルコ」をダウンロード アカウ",
+  "errs": []
+ },
+ {
+  "name": "r4c_user_native_home_exit",
+  "key": "free",
+  "native": true,
+  "linkText": "ホームにもどる",
+  "info": {
+   "found": true,
+   "href": "/",
+   "rect": {
+    "top": 827,
+    "left": 295,
+    "w": 83,
+    "h": 19
+   },
+   "inView": true,
+   "topEl": "A. \"ホームにもどる\"",
+   "coveredBySelf": true
+  },
+  "before": "http://localhost:3101/start",
+  "clickErr": null,
+  "landed": "http://localhost:3101/d89a5742-c0d4-418b-bcd5-16e5345a25af",
+  "text": "Arcoda 音を調えています・・・ Arcoda ホーム ライブラリ カルテ",
+  "errs": []
+ },
+ {
+  "name": "r4c_user_web_guest_exit",
+  "key": "free",
+  "native": false,
+  "linkText": "ゲストにもどる",
+  "info": {
+   "found": true,
+   "href": "/guest",
+   "rect": {
+    "top": 502,
+    "left": 89,
+    "w": 223,
+    "h": 55
+   },
+   "inView": true,
+   "topEl": "A.start-module__sCVzTa__retry \"ゲストにもどる\"",
+   "coveredBySelf": true
+  },
+  "before": "http://localhost:3101/start",
+  "clickErr": null,
+  "landed": "http://localhost:3101/guest",
+  "text": "",
+  "errs": []
+ },
+ {
+  "name": "r4c_expired_native_home_exit",
+  "key": "expired",
+  "native": true,
+  "linkText": "ホームにもどる",
+  "info": {
+   "found": true,
+   "href": "/",
+   "rect": {
+    "top": 827,
+    "left": 295,
+    "w": 83,
+    "h": 19
+   },
+   "inView": true,
+   "topEl": "A. \"ホームにもどる\"",
+   "coveredBySelf": true
+  },
+  "before": "http://localhost:3101/start",
+  "clickErr": null,
+  "landed": "http://localhost:3101/6bba9623-5ca3-4fa9-9730-ef94f40a0757",
+  "text": "Arcoda 音を調えています・・・ Arcoda ホーム ライブラリ カルテ",
+  "errs": []
+ },
+ {
+  "name": "r4c_A2_web_guest_upload",
+  "tabClicked": true,
+  "boxClicked": true,
+  "open": {
+   "open": true,
+   "title": "楽譜を取り込むには、登録が必要です",
+   "buttons": [
+    "iPhone アプリで登録",
+    "ログイン",
+    "あとで"
+   ]
+  },
+  "afterLater": {
+   "open": false,
+   "buttons": []
+  },
+  "url": "http://localhost:3101/guest/library?tab=mine"
+ }
+]

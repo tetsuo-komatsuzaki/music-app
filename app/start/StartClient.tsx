@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { openAuthBrowser } from "@/app/_libs/arcodaAuthBrowser"
 import { isNativeApp } from "@/app/_libs/isNativeApp"
-import { appStoreUrl } from "@/app/_libs/billingMode"
+import { appStoreUrl, isAppleBilling } from "@/app/_libs/billingMode"
 import { useIsAppleFlowHere } from "@/app/_hooks/useIsNativeApp"
 import { fetchProducts, purchase, restorePurchases, isStoreAvailable, type StoreProduct } from "@/app/_libs/appleStore"
 import { getDeviceKey } from "@/app/_libs/deviceKey"
@@ -106,69 +106,88 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
     const opts = isNativeApp()
       ? { redirectTo: "arcoda://auth-callback", skipBrowserRedirect: true }
       : { redirectTo: `${location.origin}/auth/callback`, skipBrowserRedirect: true }
-    const { data, error } = session === "none" || session === "anon"
-      ? await supabase.auth.linkIdentity({ provider: "apple", options: opts })
-      : await supabase.auth.signInWithOAuth({ provider: "apple", options: opts })
+    // どのセッションでも「いまのアカウントに Apple を結ぶ」(linkIdentity)。signInWithOAuth だと別アカウントに乗り換わり、
+    // 購入が元の記録と切り離される (CR-1-15)。Supabase 側で手動の identity 結合を有効にしておくこと
+    const { data, error } = await supabase.auth.linkIdentity({ provider: "apple", options: opts })
     if (error || !data?.url) { say("Apple でのサインインを開けませんでした", true); return }
     const opened = await openAuthBrowser(data.url)
     if (!opened) window.location.href = data.url
-  }, [sel, session, say])
+  }, [sel, say])
 
   /** 3. 購入 → 即反映 */
-  const doPurchase = useCallback(async (uid: string) => {
-    void recordGuestEvent("purchase_cancel", "generic", "/start") // 既定は「途中」。成功したら purchase_ok を追加で記録
+  /** 購入 → 即反映。移動したら true */
+  const doPurchase = useCallback(async (uid: string): Promise<boolean> => {
     const r = await purchase(sel, uid)
-    if (r.status === "cancel") { say("購入をやめました。いつでも再開できます"); return }
-    if (r.status === "pending") { say("承認を待っています"); return }
-    if (r.status === "error") { say(r.message, true); return }
+    if (r.status === "cancel") { void recordGuestEvent("purchase_cancel", "generic", "/start"); say("購入をやめました。いつでも再開できます"); return false }
+    if (r.status === "pending") { say("承認を待っています"); return false }
+    if (r.status === "error") { say(r.message, true); return false }
     say("反映しています…")
-    const res = await fetch("/api/apple/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jws: r.jws }) })
+    let res: Response
+    try {
+      res = await fetch("/api/apple/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jws: r.jws }) })
+    } catch {
+      // 通信そのものの失敗 (機内モードなど)。購入は Apple 側で成立しているので「復元」を案内する (CR-4-01)
+      say("通信できませんでした。電波のある場所で、購入を復元をお試しください", true)
+      return false
+    }
     if (!res.ok) {
       const d = await res.json().catch(() => ({}))
       say(d?.error === "conflict" ? "この契約は別のアカウントに結ばれています" : "確認できませんでした。購入を復元をお試しください", true)
-      return
+      return false
     }
     void recordGuestEvent("purchase_ok", "generic", "/start")
     router.replace("/")
+    return true
   }, [sel, say, router])
 
-  const doRestore = useCallback(async () => {
+  /** 復元。移動したら true */
+  const doRestore = useCallback(async (): Promise<boolean> => {
     const r = await restorePurchases()
-    if (r.status === "error") { say(r.message, true); return }
-    if (r.status === "none") { void recordGuestEvent("restore_none", "generic", "/start"); say("この Apple アカウントに契約はありません", true); return }
-    const res = await fetch("/api/apple/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jws: r.transactions.map((t) => t.jws) }) })
+    if (r.status === "error") { say(r.message, true); return false }
+    if (r.status === "none") { void recordGuestEvent("restore_none", "generic", "/start"); say("この Apple アカウントに契約はありません", true); return false }
+    let res: Response
+    try {
+      res = await fetch("/api/apple/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jws: r.transactions.map((t) => t.jws) }) })
+    } catch {
+      say("通信できませんでした。電波のある場所でもう一度お試しください", true)
+      return false
+    }
     const d = await res.json().catch(() => ({}))
-    if (res.status === 409 || d?.result === "conflict") { say("この契約は別のアカウントに結ばれています。そのアカウントでログインしてください", true); return }
-    if (d?.result !== "ok") { void recordGuestEvent("restore_none", "generic", "/start"); say("この Apple アカウントに契約はありません", true); return }
+    if (res.status === 409 || d?.result === "conflict") { say("この契約は別のアカウントに結ばれています。そのアカウントでログインしてください", true); return false }
+    if (d?.result !== "ok") { void recordGuestEvent("restore_none", "generic", "/start"); say("この Apple アカウントに契約はありません", true); return false }
     void recordGuestEvent("restore_ok", "generic", "/start")
     // 見つかったときはトーストではなく確認ダイアログ (殻では iOS のアラートになる)。読み終えてから移る
     window.alert(["契約が見つかりました", "この Apple アカウントのアルコプラスを、このアカウントに結びました。"].join(String.fromCharCode(10)))
     router.replace(onboarded ? "/" : "/onboarding")
+    return true
   }, [say, router, onboarded])
 
   const onStart = useCallback(async () => {
     if (!appleHere || busy || loadState !== "ok") return
     setBusy(true)
+    let navigated = false
     try {
       const uid = await ensureSession()
       if (!uid) return
       if (!hasApple) { await linkApple("purchase"); return }
-      await doPurchase(uid)
+      // 移動したら busy のまま (着地前に CTA を押せる状態に戻さない・CR-3-03)
+      if (await doPurchase(uid)) navigated = true
     } finally {
-      setBusy(false)
+      if (!navigated) setBusy(false)
     }
   }, [appleHere, busy, loadState, ensureSession, hasApple, linkApple, doPurchase])
 
   const onRestore = useCallback(async () => {
     if (!appleHere || busy) return
     setBusy(true)
+    let navigated = false
     try {
       const uid = await ensureSession()
       if (!uid) return
       if (!hasApple) { await linkApple("restore"); return }
-      await doRestore()
+      if (await doRestore()) navigated = true
     } finally {
-      setBusy(false)
+      if (!navigated) setBusy(false)
     }
   }, [appleHere, busy, ensureSession, hasApple, linkApple, doRestore])
 
@@ -180,22 +199,36 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
     void recordGuestEvent("signin_ok", "generic", "/start")
     setBusy(true)
     const run = resumeStep === "purchase" ? doPurchase(authUserId) : doRestore()
-    void run.finally(() => setBusy(false))
-  }, [resumeStep, hasApple, authUserId, appleHere, loadState, doPurchase, doRestore])
+    // 続きは 1 回だけ。移動しなかった (キャンセル・失敗) ときだけ URL の ?step= を消す。
+    // 移動したときに消すと、後発のナビゲーションが先行 (/ や /onboarding) を取り消してしまう (CR-2-02)
+    void run
+      .then((navigated) => { if (!navigated) { router.replace("/start"); setBusy(false) } })
+      .catch(() => { say("うまくいきませんでした。もう一度お試しください", true); router.replace("/start"); setBusy(false) })
+  }, [resumeStep, hasApple, authUserId, appleHere, loadState, doPurchase, doRestore, router])
 
   // ハイドレーション前: 中身を描かない (Web の案内が一瞬出るのを避ける)
   if (!entered) return <div className={styles.frame}><div className={styles.glow} /></div>
 
-  // Web (ブラウザ): 売らない。App Store への案内だけ
+  // Web (ブラウザ): 売らない。App Store への案内だけ。
+  // stripe モード (アプリ公開前の本番) では「準備中」(CR-1-04: Stripe の新規導線は止める決定なので、存在しないアプリへ送らない)
   if (!appleHere) {
-    const url = appStoreUrl()
+    const url = isAppleBilling() ? appStoreUrl() : null
     return (
       <div className={styles.frame}>
         <div className={styles.glow} />
         <div className={styles.webNote}>
-          <h3>アルコプラスは<br />iPhone アプリではじめられます</h3>
-          <p>App Store で「アルコ」をダウンロードしてください。</p>
-          {url ? <a href={url}>App Store を開く</a> : <Link href={`/${GUEST_ID}`} className={styles.retry}>ゲストにもどる</Link>}
+          {isAppleBilling() ? (
+            <>
+              <h3>アルコプラスは<br />iPhone アプリではじめられます</h3>
+              <p>App Store で「アルコ」をダウンロードしてください。</p>
+            </>
+          ) : (
+            <>
+              <h3>アルコプラスの<br />新しいお申し込みは準備中です</h3>
+              <p>はじまったらお知らせします。</p>
+            </>
+          )}
+          {url ? <a href={url}>App Store を開く</a> : session === "user" ? <Link href="/" className={styles.retry}>ホームにもどる</Link> : <Link href={`/${GUEST_ID}`} className={styles.retry}>ゲストにもどる</Link>}
         </div>
       </div>
     )
@@ -203,6 +236,8 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
 
   const yearly = products?.yearly
   const monthly = products?.monthly
+  // 「N ヶ月分お得」は Apple の価格から計算する (固定の 2 を書かない・CR-1-19d)
+  const savedMonths = yearly?.price && monthly?.price ? Math.round(12 - yearly.price / monthly.price) : null
   const priceCls = loadState === "ok" ? styles.p : `${styles.p} ${styles.hidden}`
   const selLabel = sel === "yearly" ? "年額" : "月額"
   const selPrice = products ? `${products[sel].displayPrice}/${unitOf(products[sel].period)}` : ""
@@ -220,7 +255,7 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
 
       <div className={styles.plans}>
         <button type="button" className={`${styles.plan} ${sel === "yearly" ? styles.sel : ""}`} onClick={() => setSel("yearly")}>
-          <span className={styles.badge}>2ヶ月分お得</span>
+          {savedMonths != null && savedMonths >= 1 && <span className={styles.badge}>{savedMonths}ヶ月分お得</span>}
           <div><div className={styles.t}>年額</div><div className={styles.s}>{perMonth(yearly) ? `月あたり ${perMonth(yearly)!.replace("¥", "")}円で毎日採点できます` : "毎日採点できます"}</div></div>
           <div className={priceCls}>{yearly ? <>{yearly.displayPrice}<small>/{unitOf(yearly.period)}</small></> : <>—</>}</div>
           <span className={styles.chk} />
@@ -247,7 +282,7 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
 
       <div className={styles.dock}>
         <button type="button" className={`${styles.cta} ${busy ? styles.busy : ""}`} disabled={loadState !== "ok" || busy} onClick={() => void onStart()}>
-          <AppleMark /><span>{selLabel}プランで Apple ではじめる</span>
+          <AppleMark /><span>{introEligible ? "2 週間無料ではじめる" : `${selLabel}プランで Apple ではじめる`}</span>
         </button>
         <div className={styles.fine}>
           {introEligible
@@ -255,10 +290,10 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
             : <>{selPrice || "選んだプランの料金"} の定期請求。いつでも解約できます。</>}
         </div>
         <div className={styles.legal}>
-          <button type="button" onClick={() => void onRestore()}>購入を復元</button>
+          <button type="button" onClick={() => void onRestore()} disabled={busy}>購入を復元</button>
           <Link href="/terms">利用規約</Link>
           <Link href="/privacy">プライバシーポリシー</Link>
-          <Link href={`/${GUEST_ID}`}>ゲストにもどる</Link>
+          {session === "user" ? <Link href="/">ホームにもどる</Link> : <Link href={`/${GUEST_ID}`}>ゲストにもどる</Link>}
         </div>
       </div>
 

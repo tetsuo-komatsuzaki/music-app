@@ -4,7 +4,8 @@ import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { resolveViewer } from "@/app/_libs/resolveViewer"
 import { GUEST_DB_PLACEHOLDER } from "@/app/_libs/viewer"
 import GuestGate from "@/app/components/guest/GuestGate"
-import { GATE_TEXT } from "@/app/components/guest/gateText"
+import { GATE_TEXT, subscriptionGate } from "@/app/components/guest/gateText"
+import { getGradingQuota } from "@/app/_libs/plan"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
@@ -293,6 +294,14 @@ export default async function PracticeDetailPage({
   if (guest) {
     const g = GATE_TEXT.item(item.title)
     return <GuestGate title={g.title} items={g.items}>{body}</GuestGate>
+  }
+  // 契約なし・契約切れ (要件整理 v2.7 §2 表・CR-1-03): 教材もゲート「再開する」
+  if (viewer.dbUserId) {
+    const quota = await getGradingQuota(viewer.dbUserId)
+    if (quota.needsSubscription) {
+      const g = subscriptionGate(quota.planStatus)
+      return <GuestGate title={g.text.title} items={g.text.items} primaryHref="/start" primaryLabel={g.label} noLater>{body}</GuestGate>
+    }
   }
   return body
 }

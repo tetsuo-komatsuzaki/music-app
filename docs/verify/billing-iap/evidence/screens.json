@@ -1,0 +1,1043 @@
+[
+ {
+  "name": "apple_free_home",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91",
+  "text": "Arcoda 音を調えています・・・ Arcoda ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_settings",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-freeさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "pageerror: Error: Rendered more hooks than during the previous render.",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_%5BuserId%5D_settings_Settings_module_04fz6v2.css was preloaded using link preloa"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_library",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. T"
+  ],
+  "hydration": 1,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_onboarding",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_karte",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/karte",
+  "text": "404 This page could not be found.",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_practice",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_free_other_settings",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスをはじめる 最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円 ホーム ライブラリ カルテ",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_home",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_library",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_onboarding",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_karte",
+  "url": "http://localhost:3101/bd45c331-ff6a-41a3-970a-b0257a57d69f/karte",
+  "text": "404 This page could not be found.",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_practice",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_trial_other_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_home",
+  "url": "http://localhost:3101/0546105f-ceb3-45b7-bb29-83c4abe4fbcc",
+  "text": "",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_library",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_onboarding",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_karte",
+  "url": "http://localhost:3101/0546105f-ceb3-45b7-bb29-83c4abe4fbcc/karte",
+  "text": "404 This page could not be found.",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_practice",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_active_other_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_home",
+  "url": "http://localhost:3101/16fbc319-4e21-4a9d-ae6f-834c0ce622dc",
+  "text": "",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_library",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_onboarding",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_karte",
+  "url": "http://localhost:3101/16fbc319-4e21-4a9d-ae6f-834c0ce622dc/karte",
+  "text": "404 This page could not be found.",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_practice",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_cancel_other_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "error: Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. C"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_home",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0",
+  "text": "Arcoda 音を調えています・・・ Arcoda ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_settings",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 契約切れ 採点と基礎練が止まっています。記録は残っています。 再開する ホーム ライブラリ カルテ",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happe"
+  ],
+  "hydration": 1,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_library",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. T"
+  ],
+  "hydration": 1,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_onboarding",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_karte",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/karte",
+  "text": "404 This page could not be found.",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_practice",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_other_settings",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 契約切れ 採点と基礎練が止まっています。記録は残っています。 再開する ホーム ライブラリ カルテ",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_home",
+  "url": "http://localhost:3101/784d6443-207c-4db7-8de7-33a8ea5222f4",
+  "text": "",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_library",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_onboarding",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_karte",
+  "url": "http://localhost:3101/784d6443-207c-4db7-8de7-33a8ea5222f4/karte",
+  "text": "404 This page could not be found.",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_practice",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_internal_other_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_login_landed",
+  "url": "http://localhost:3101/b22170aa-8d20-4c9a-99d2-b2dec0073891"
+ },
+ {
+  "name": "anon_root",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happe"
+  ],
+  "hydration": 1,
+  "hscroll": true
+ },
+ {
+  "name": "anon_guest_home",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "anon_guest_library",
+  "url": "http://localhost:3101/guest/library?try=1",
+  "text": "Arcoda ログイン 登録なしで 1 回だけためせます。曲をえらんでください ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバン",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. T"
+  ],
+  "hydration": 1,
+  "hscroll": false
+ },
+ {
+  "name": "anon_song_gate_try",
+  "url": "http://localhost:3101/guest/scores/cmq2kczlb000204kyn696mqma",
+  "text": "Arcoda ログイン ‹ ライブラリ かっこう ♡ 演奏 ふりかえり 練習後カルテ 楽譜 ひろげる = 100 3 5 7 9 10 12 この曲に出てくる記号 ▼ 開く・2 譜面に書き込む お手本 ♩100 テンポ メトロ 録音して採点 ARCODA かっこうを、登録なしで 1 回だけ採点してみられます + 録音して採点 ・ 音程とリズムを 1 音ずつ + この 1 回は登録なし ・ 弾いてから決められる + 続けるには登録 ・ 最初の 2 週間は無料、その後 月 1,280 円 登録なしで 1 回ためす はじめる ログイン ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_after_try_click",
+  "url": "http://localhost:3101/guest/scores/cmq2kczlb000204kyn696mqma",
+  "text": "Arcoda ログイン ‹ ライブラリ かっこう ♡ 演奏 ふりかえり 練習後カルテ 楽譜 ひろげる = 100 3 5 7 9 10 12 この曲に出てくる記号 ▼ 開く・2 譜面に書き込む お手本 ♩100 テンポ メトロ 録音して採点 ARCODA かっこうを、登録なしで 1 回だけ採点してみられます + 録音して採点 ・ 音程とリズムを 1 音ずつ + この 1 回は登録なし ・ 弾いてから決められる + 続けるには登録 ・ 最初の 2 週間は無料、その後 月 1,280 円 準備しています… はじめる ログイン ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_own_settings_direct",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [
+   "pageerror: Error: Rendered more hooks than during the previous render.",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_%5BuserId%5D_settings_Settings_module_04fz6v2.css was preloaded using link preloa"
+  ],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "anon_onboarding_direct",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_back_to_guest",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "web_apple_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 iPhone アプリで登録 App Store で「アルコ」をダウンロード アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "web_apple_signup",
+  "url": "http://localhost:3101/signUp",
+  "text": "アルコは iPhone アプリではじめられます App Store で「アルコ」をダウンロードして、アプリの中で登録してください。 すでにアカウントをお持ちの方はログイン",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "web_apple_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン G Googleでログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "web_apple_start",
+  "url": "http://localhost:3101/start",
+  "text": "アルコプラスは iPhone アプリではじめられます App Store で「アルコ」をダウンロードしてください。 ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "web_apple_song_gate",
+  "url": "http://localhost:3101/guest/scores/cmq2kczlb000204kyn696mqma",
+  "text": "Arcoda ログイン ‹ ライブラリ かっこう ♡ 演奏 ふりかえり 練習後カルテ 楽譜 ひろげる = 100 3 5 7 9 10 12 この曲に出てくる記号 ▼ 開く・2 譜面に書き込む お手本 ♩100 テンポ メトロ 録音して採点 ARCODA かっこうを、登録なしで 1 回だけ採点してみられます + 録音して採点 ・ 音程とリズムを 1 音ずつ + この 1 回は登録なし ・ 弾いてから決められる + 続けるには登録 ・ 最初の 2 週間は無料、その後 月 1,280 円 iPhone アプリで登録 ログイン あとで ホーム ライブラリ カルテ",
+  "errors": [
+   "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+   "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "web_apple_free_settings",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスは iPhone アプリではじめられます。 ホーム ライブラリ カルテ",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "web_apple_active_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not"
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_start_nointro",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。 選んだプランの料金で、今日から再開できます。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "start_nointro_check",
+  "hasFreeLine": false
+ },
+ {
+  "name": "apple_expired_start_cancel_toast",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。 選んだプランの料金で、今日から再開できます。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "apple_expired_start_restore_none",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。 選んだプランの料金で、今日から再開できます。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w320_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "k_w320_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w320_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w320_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_components_ArcoMotion_module_0m8j-26.css was preloaded using link preload but not",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_w768_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds ",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_font200_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "k_font200_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_font200_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_font200_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_dark_guest",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録なしで 1 回ためす アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "k_dark_start",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_dark_login",
+  "url": "http://localhost:3101/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または Apple でログイン パスワードを忘れた方はこちら はじめる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "k_dark_settings",
+  "url": "http://localhost:3101/onboarding",
+  "text": "arcoda きみの音を、きみの曲に。 スタート",
+  "errors": [
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_onboarding_0-880op._.css was preloaded using link preload but not used within a f",
+   "warning: The resource http://localhost:3101/_next/static/chunks/app_12ee4zm._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_start2",
+  "url": "http://localhost:3101/start",
+  "text": "あの憧れの曲まで、 毎日アルコと。 弾くたびに採点。最初の 2 週間は無料で、 そのあとは選んだプランの料金です。 2ヶ月分お得 年額 月あたり 1,067円で毎日採点できます ¥12,800/年 月額 1か月ごとに請求 ¥1,280/月 アルコプラスでできること 採点が無制限になる 自分の楽譜を取り込んで採点できる 録音を 30 本まで残せる 年額プランで Apple ではじめる 最初の 2 週間は無料。その後 ¥12,800/年 の定期請求。いつでも解約できます。 購入を復元 利用規約 プライバシーポリシー ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "anon_back_link",
+  "found": true,
+  "href": "/guest"
+ },
+ {
+  "name": "anon_back_to_guest2",
+  "url": "http://localhost:3101/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 iPhone アプリで登録 App Store で「アルコ」をダウンロード アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [
+   "error: Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. C"
+  ],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "stripe_web_guest",
+  "url": "http://localhost:3102/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録して始める アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "stripe_web_signup",
+  "url": "http://localhost:3102/signUp",
+  "text": "はじめまして、アルコだよ きみの音を、きみの曲に。 上達が、目に見える。だから続く。 G Googleで続ける または ユーザー名 メールアドレス パスワード 8文字以上で入力してください パスワード アカウントを作成する 利用規約 および プライバシーポリシーに同意します すでにアカウントをお持ちの方はログイン",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "stripe_web_login",
+  "url": "http://localhost:3102/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または G Googleでログイン パスワードを忘れた方はこちら 新規登録",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "stripe_web_start",
+  "url": "http://localhost:3102/start",
+  "text": "アルコプラスの 新しいお申し込みは準備中です はじまったらお知らせします。 ゲストにもどる",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "stripe_web_free_settings",
+  "url": "http://localhost:3102/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスの新しいお申し込みは準備中です。はじまったらお知らせします。 ホーム ライブラリ カルテ",
+  "errors": [
+   "warning: The resource http://localhost:3102/_next/static/chunks/app_0mpf3r0._.css was preloaded using link preload but not used within a few seconds "
+  ],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "stripe_web_free_library",
+  "url": "http://localhost:3102/b142e99e-c535-4596-b00d-d8256c6e3b91/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "stripe_native_guest",
+  "url": "http://localhost:3102/guest",
+  "text": "Arcoda ログイン ARCODA バイオリンの練習を録音すると、 音程とリズムをその場で採点。 先生がいなくても、弾くたびに何が良くなったかが残ります。 登録して始める アカウントがある人はログイン できること 録音して採点 音程とリズムを1音ずつ見る 毎日の基礎練 苦手に合わせて4枚を毎日組む 成長カルテ 回数ではなく、変化が主役 見本 登録すると、ここにあなたのいま練習している曲が入ります いま練習している曲 きらきら星 ☆1 ・ 直近 82点 挑戦中 → まずは通しで弾けるようになろう！ 弾ける マスター 0/3 学びレッスン 1/2 エチュード まだ 通して弾く 1/3回 きらきら星のための基礎練 01 音階 調にあわせて → 02 フィンガリング ポジションにあわせて → 03 ボーイング 弓の奏法にあわせて → 04 エチュード 学びポイントに効く → 見本 見本 登録すると、ここにあなたのおすすめ練習が入ります あなた専用のおすすめ練習 音程 ポジション移動 わざ フィンガリング 音の高さがずれやすいところに効く練習 ラからドへの移動 成功率 62% 1オクターブ（イ長調・レガート） ★1・A 長調 練習する → 1オクターブ（ト長調・レガート） ★1・G 長調 練習する → 見本 見本の曲・教材・タブは押せます。押すと遷移先の画面でご案内が出ます ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": true
+ },
+ {
+  "name": "stripe_native_login",
+  "url": "http://localhost:3102/login",
+  "text": "また会えたね、アルコだよ さあ、今日も音を鳴らそう メールアドレス パスワード ログイン または G Googleでログイン パスワードを忘れた方はこちら 新規登録",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "stripe_native_free_settings",
+  "url": "http://localhost:3102/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスの新しいお申し込みは準備中です。はじまったらお知らせします。 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hydration": 0,
+  "hscroll": false
+ },
+ {
+  "name": "onb_trial_home",
+  "url": "http://localhost:3101/bd45c331-ff6a-41a3-970a-b0257a57d69f",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-trialさん 無料期間はあと 12 日 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_trial_settings",
+  "url": "http://localhost:3101/bd45c331-ff6a-41a3-970a-b0257a57d69f/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスをはじめる 最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_trial_library",
+  "url": "http://localhost:3101/bd45c331-ff6a-41a3-970a-b0257a57d69f/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a "
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_trial_practice",
+  "url": "http://localhost:3101/bd45c331-ff6a-41a3-970a-b0257a57d69f/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_active_home",
+  "url": "http://localhost:3101/0546105f-ceb3-45b7-bb29-83c4abe4fbcc",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-activeさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [
+   "error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client"
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_active_settings",
+  "url": "http://localhost:3101/0546105f-ceb3-45b7-bb29-83c4abe4fbcc/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 契約中 アルコの採点は無制限で使えます。次回の更新日は 2026年10月27日 です。 契約を管理 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_active_library",
+  "url": "http://localhost:3101/0546105f-ceb3-45b7-bb29-83c4abe4fbcc/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a "
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_active_practice",
+  "url": "http://localhost:3101/0546105f-ceb3-45b7-bb29-83c4abe4fbcc/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_cancel_home",
+  "url": "http://localhost:3101/16fbc319-4e21-4a9d-ae6f-834c0ce622dc",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-cancelさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [
+   "error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client"
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_cancel_settings",
+  "url": "http://localhost:3101/16fbc319-4e21-4a9d-ae6f-834c0ce622dc/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 更新しない予定 2026年10月27日 まで使えます。そのあと採点は止まります。続けるには契約を管理から。 契約を管理 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_cancel_library",
+  "url": "http://localhost:3101/16fbc319-4e21-4a9d-ae6f-834c0ce622dc/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_cancel_practice",
+  "url": "http://localhost:3101/16fbc319-4e21-4a9d-ae6f-834c0ce622dc/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_internal_home",
+  "url": "http://localhost:3101/784d6443-207c-4db7-8de7-33a8ea5222f4",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-internalさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_internal_settings",
+  "url": "http://localhost:3101/784d6443-207c-4db7-8de7-33a8ea5222f4/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 運営 運営用のアカウントです。採点は無制限で使えます。 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_internal_library",
+  "url": "http://localhost:3101/784d6443-207c-4db7-8de7-33a8ea5222f4/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [
+   "pageerror: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a "
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_internal_practice",
+  "url": "http://localhost:3101/784d6443-207c-4db7-8de7-33a8ea5222f4/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_expired_home",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-expiredさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [
+   "error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client"
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_expired_settings",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 契約切れ 採点と基礎練が止まっています。記録は残っています。 再開する ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_expired_library",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_expired_practice",
+  "url": "http://localhost:3101/e6db69b5-8480-45c0-b54c-29553c4e15c0/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_free_home",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91",
+  "text": "Arcoda こんにちは、きみさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 ✦ さいしょの1曲 ♪ きらきら星 ☆1 ・ きみのレベルにぴったり → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ お気に入り ♡ を押すと、曲や教材をここに集められます こんにちは、verify-billing-freeさん 小さな1回が、いちばん大きい練習だよ。 ―― アルコからひとこと MY RANK ★ はじまりの奏者 Lv. 1 つぎのランクまで あと10曲 記録の分析 → わざの詳細 → ✦ さいしょの1曲 アメイジング・グレイス ☆1 ・ スラーの練習になるよ → ☆が小さいほど やさしい曲だよ さっそく始めよう ほかの曲を選ぶ 次の曲にチャレンジ 同じ★1で、まだ達成していない曲だよ ♪ きらきら星 W.A.Mozart ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ホフマンの舟唄 Jacques Offenbach ・ 新しいわざ「スラー」に挑戦できる曲 ★1 → ♪ ちょうちょ スペイン民謡 ・ きみの★1にちょうどいい曲だよ ★1 → お気に入り ♡ を押すと、曲や教材をここに集められます ホーム ライブラリ カルテ ホーム スキップ まずは1回、弾いてみよう。 さいしょの1曲をタップ!",
+  "errors": [
+   "error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client"
+  ],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_free_settings",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/settings",
+  "text": "Arcoda 設定 アプリ設定 プラン アルコプラス 未加入 アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。 アルコプラスをはじめる 最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_free_library",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/library",
+  "text": "Arcoda ライブラリ 弾くものは、ぜんぶここに。 曲 基礎練 マイ楽譜 すべて ★1 ★2 ★3 ★4 童謡・わらべうた アルプス一万尺 公式 ★1 かっこう 公式 ★1 きらきら星 公式 ★1 W.A.Mozart しゃぼん玉 公式 ★1 せいくらべ 公式 ★1 ちょうちょ 公式 ★1 スペイン民謡 ぶんぶんぶん 公式 ★1 むすんでひらいて 公式 ★1 ロンドン橋 公式 ★1 歌をわすれたカナリア 公式 ★2 子守歌 公式 ★1 子守歌 公式 ★1 七つの子 公式 ★1 証城寺のたぬきばやし 公式 ★2 唱歌・叙情歌 おぼろ月夜 公式 ★1 さくらさくら 公式 ★1 ふるさと 公式 ★1 ほたるの光 公式 ★1 もみじ 公式 ★1 花 公式 ★2 春がきた 公式 ★1 春の小川 公式 ★1 赤とんぼ 公式 ★1 早春賦 公式 ★1 野ばら 公式 ★2 クラシック名曲 ☆2_ホフマンの舟唄 公式 ★2 J.Offebbach G線上のアリア 公式 ★2 J.S.Bach アマリリス 公式 ★2 H.Ghys ヴァイオリン協奏曲 公式 ★3 O.Rieding オーゼの死 公式 ★1 E.Grieg ガボット 公式 ★3 J.B.Lully ガボット 公式 ★3 J.Becker ガボット 公式 ★3 J.S.Bach ガボット 公式 ★3 A.Corelli ガボット「ミニヨンより」 公式 ★3 T.A.Dorsey トルコ行進曲 公式 ★2 L.V.Beethoven ノクターン「夏の夜の夢」 公式 ★2 Chopin ふたりのてきだん兵 公式 ★2 R.Schumann ホフマンの舟唄 公式 ★1 Jacques Offenbach ポルカ 公式 ★2 I.Berkovich メヌエット 公式 ★3 J.S.Bach メヌエット 公式 ★2 J.S.Bach メヌエット 公式 ★3 L.Boccherini メヌエット_ト長調 公式 ★3 L.V.Beethoven メヌエット（「ドン・ジョバンニ」より） 公式 ★2 W.A.Mozart ユレモスク 公式 ★",
+  "errors": [],
+  "hasUpload": false
+ },
+ {
+  "name": "onb_free_practice",
+  "url": "http://localhost:3101/b142e99e-c535-4596-b00d-d8256c6e3b91/practice",
+  "text": "Arcoda 練習メニュー 基礎練 音階 456項目 アルペジオ 144項目 フィンガリング 32項目 ボウイング 120項目 ポジション移動 120項目 重音 57項目 エチュード エチュード 243項目 練習曲 練習曲一覧 70曲 学びのレッスン 学びのレッスン クリア 0 / 23 ホーム ライブラリ カルテ",
+  "errors": [],
+  "hasUpload": false
+ }
+]

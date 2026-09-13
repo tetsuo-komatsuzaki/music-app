@@ -2,7 +2,7 @@
 export const GUEST_EVENT_KINDS = [
   "visit", "gate_shown", "gate_signup", "gate_login", "gate_later",
   // ▼ 課金の流れ (2026-09-12 要件整理 v2.7 §4): 1 回ためし → アルコプラスをはじめる → サインイン → 購入 → 復元
-  "try_start", "try_result", "start_screen", "signin_ok", "signin_cancel", "purchase_ok", "purchase_cancel", "restore_ok", "restore_none",
+  "try_start", "try_result", "start_screen", "signin_ok", "purchase_ok", "purchase_cancel", "restore_ok", "restore_none",
 ] as const
 export type GuestEventKind = (typeof GUEST_EVENT_KINDS)[number]
 export const GUEST_PLACES = ["home", "returning", "song", "item", "lesson", "karte", "teacher", "upload", "contact", "generic"] as const

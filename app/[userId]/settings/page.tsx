@@ -35,9 +35,11 @@ export default async function SettingsPage({
 
   // プラン欄: restrictionStart=null で猶予経路を殺し「純粋な契約状態」だけを見る
   // (Stripe 未構成の間は billingEnabled=false で欄ごと非表示)
-  const isPlus = resolveEffectivePlan({
-    plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, restrictionStart: null,
-  }) === "plus"
+  // 無料期間中 (trial) も「契約あり」としてカードに渡す。false だと trialing のカードが「未加入」に落ちる (O-1・本番で発生)
+  const eff = resolveEffectivePlan({
+    plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, restrictionStart: null, planGrant: dbUser.planGrant,
+  })
+  const isPlus = eff === "plus" || eff === "trial"
 
   // 先生がいる生徒だけ「先生からの通知」設定を出す
   let hasTeacher = false

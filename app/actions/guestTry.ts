@@ -73,8 +73,15 @@ export async function getGuestTryState(): Promise<GuestTryState> {
   if (!user || !user.is_anonymous) return empty
   const dbUser = await prisma.user.findUnique({ where: { supabaseUserId: user.id }, select: { id: true, role: true } })
   if (!dbUser || dbUser.role !== "guest") return { ...empty, authUserId: user.id }
+  // queued は 15 分以内だけ「使用済み」に数える (getGradingQuota と同じ規則・CR-2-06)
   const perf = await prisma.performance.findFirst({
-    where: { userId: dbUser.id, analysisStatus: { in: ["queued", "processing", "done", "retrying"] } },
+    where: {
+      userId: dbUser.id,
+      OR: [
+        { analysisStatus: { in: ["processing", "done", "retrying"] } },
+        { analysisStatus: "queued", createdAt: { gt: new Date(Date.now() - 15 * 60 * 1000) } },
+      ],
+    },
     orderBy: { createdAt: "desc" },
     select: { scoreId: true, pitchAccuracy: true, timingAccuracy: true },
   })
