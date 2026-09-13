@@ -49,28 +49,28 @@ Resolved = dict[str, Any]   # {string_id, position, finger, confidence, is_ancho
 _STRING_GAP_POSITIONS = 4
 
 
-def _candidates_for_finger(step: str, octave: int, finger: int, midi: int,
-                           alter: int = 0) -> list[tuple[str, int]]:
+def _candidates_for_finger(step: str, octave: int, finger: int,
+                           midi: int) -> list[tuple[str, int]]:
     """指定の指で鳴らせる (弦, ポジション) の候補。物理的に出せない弦は除く。"""
     out: list[tuple[str, int]] = []
     for s, open_midi in _OPEN_MIDI.items():
         if midi <= open_midi:
             continue
-        pos = position_by_letter(step, octave, finger, s, alter)
+        pos = position_by_letter(step, octave, finger, s)
         if pos is not None:
             out.append((s, pos))
     return out
 
 
-def _candidates_any_finger(step: str, octave: int, midi: int,
-                           alter: int = 0) -> list[tuple[str, int, int]]:
+def _candidates_any_finger(step: str, octave: int,
+                           midi: int) -> list[tuple[str, int, int]]:
     """指を問わず鳴らせる (弦, ポジション, 指) の候補。"""
     out: list[tuple[str, int, int]] = []
     for s, open_midi in _OPEN_MIDI.items():
         if midi <= open_midi:
             continue
         for f in (1, 2, 3, 4):
-            pos = position_by_letter(step, octave, f, s, alter)
+            pos = position_by_letter(step, octave, f, s)
             if pos is not None:
                 out.append((s, pos, f))
     return out

@@ -677,7 +677,7 @@ def _resolve_string_finger_position(
     if annotated_finger is not None:
         inferred = infer_with_finger(
             midi_pitch, annotated_finger, prev_string, prev_position,
-            step=step, octave=octave, alter=alter,
+            step=step, octave=octave,
         )
         if inferred is not None:
             s, pos, conf = inferred
@@ -687,12 +687,12 @@ def _resolve_string_finger_position(
 
     # 3. 弦のみ → 弦+音名からポジション導出
     if annotated_string_id is not None:
-        pos = derive_position(midi_pitch, annotated_string_id, None, step, octave, alter)
+        pos = derive_position(midi_pitch, annotated_string_id, None, step, octave)
         return annotated_string_id, None, pos, "estimated", True
 
     # 4. 両方なし → 音高のみから推定 (55-83=1stポジ既定 / 84+=音名算術×音脈補正)
     inferred_po = infer_pitch_only(
-        midi_pitch, prev_string, prev_position, step=step, octave=octave, alter=alter
+        midi_pitch, prev_string, prev_position, step=step, octave=octave
     )
     if inferred_po is None:
         return None, None, None, None, False
