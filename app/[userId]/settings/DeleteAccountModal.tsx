@@ -12,11 +12,13 @@ import styles from "./Settings.module.css"
 interface Props {
   open: boolean
   onClose: () => void
+  /** 契約の提供元 "apple" | "stripe" | null。注記の出し分けに使う (CR-L2-10) */
+  provider?: string | null
 }
 
 const CONFIRM_WORD = "退会"
 
-export default function DeleteAccountModal({ open, onClose }: Props) {
+export default function DeleteAccountModal({ open, onClose, provider = null }: Props) {
   const [step, setStep] = useState<"confirm" | "verify">("confirm")
   const [password, setPassword] = useState("")
   const [word, setWord] = useState("")
@@ -88,9 +90,14 @@ export default function DeleteAccountModal({ open, onClose }: Props) {
               <br />
               <strong>この操作は取り消せません。</strong>
             </p>
-            {hasApple && (
+            {(provider === "apple" || (provider == null && hasApple)) && (
               <p className={styles.modalText} data-testid="delete-apple-note">
                 Apple の契約は自動では止まりません。退会のあと、iPhone の設定 › サブスクリプション から解約してください。
+              </p>
+            )}
+            {provider === "stripe" && (
+              <p className={styles.modalText} data-testid="delete-web-note">
+                Web で契約中のアルコプラスは、退会と同時に解約されます。以後の請求はありません。
               </p>
             )}
             <div className={styles.modalActions}>

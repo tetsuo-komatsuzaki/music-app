@@ -68,6 +68,13 @@ async function applySubscription(sub: Stripe.Subscription, dbUserIdHint: string 
   const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id
   const fields = subscriptionToUserFields(sub)
 
+  // Apple に移った人 (billingProvider = apple) には Stripe のイベントを書かない (CR-L4-02: 再送や解約イベントで Apple の契約が消える)
+  const current = await prisma.user.findFirst({ where: { stripeCustomerId: customerId }, select: { id: true, billingProvider: true } })
+  if (current?.billingProvider === "apple") {
+    console.warn(JSON.stringify({ event: "stripe.webhook.skip_apple_user", userId: current.id, subId: sub.id, status: sub.status }))
+    return
+  }
+
   const byCustomer = await prisma.user.updateMany({
     where: { stripeCustomerId: customerId },
     data: fields,

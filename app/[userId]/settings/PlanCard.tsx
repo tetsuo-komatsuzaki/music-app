@@ -34,7 +34,7 @@ type View = { chip: string; chipTone: "master" | "warn" | "muted"; text: string;
 function viewOf(p: PlanCardProps, endDate: string | null): View {
   if (p.planGrant === "internal") return { chip: "運営", chipTone: "master", text: "運営用のアカウントです。採点は無制限で使えます。", action: "none" }
   const st = p.planStatus
-  if (p.isPlus && st === "trialing") return { chip: "無料期間中", chipTone: "master", text: `無料期間中は 1 日 8 本・10 分まで採点できます。${endDate ? `無料期間は ${endDate} までです。` : ""}`, action: "manage" }
+  if (p.isPlus && st === "trialing") return { chip: "無料期間中", chipTone: "master", text: `無料期間中は 1 日 8 回・10 分まで採点できます。${endDate ? `無料期間は ${endDate} までです。` : ""}`, action: "manage" }
   if (p.isPlus && st === "past_due") return { chip: "お支払いに問題があります", chipTone: "warn", text: "カード情報をご確認ください。このままだと採点が使えなくなります。", action: "manage" }
   if (p.isPlus && p.autoRenew === false) return { chip: "更新しない予定", chipTone: "muted", text: `${endDate ? `${endDate} まで使えます。` : ""}そのあと採点は止まります。続けるには契約を管理から。`, action: "manage" }
   if (p.isPlus) return { chip: "契約中", chipTone: "master", text: `アルコの採点は無制限で使えます。${endDate ? `次回の更新日は ${endDate} です。` : ""}`, action: "manage" }
@@ -63,10 +63,10 @@ export default function PlanCard(props: PlanCardProps) {
     muted: { color: "var(--text-sub)", background: "transparent", border: "1px solid rgba(150,175,225,.3)" },
   }[v.chipTone]
 
-  // 「契約を管理」: Apple の契約者 → iOS は管理シート・Web は account.apple.com。Stripe の契約者 → Customer Portal
+  // 「契約を管理」: Stripe の契約者 → Customer Portal (apple モードでも)。Apple の契約者 → iOS は管理シート・Web は account.apple.com
   const manage = async () => {
     setError(null)
-    if (provider === "apple" || (apple && provider !== "stripe")) {
+    if (provider !== "stripe" && (provider === "apple" || apple)) {
       if (native) {
         const ok = await showManageSubscriptions()
         if (!ok) window.open(APPLE_MANAGE_URL, "_blank")
@@ -104,7 +104,9 @@ export default function PlanCard(props: PlanCardProps) {
             style={{ ...btn, color: "var(--text-body)", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.16)", opacity: pending ? 0.5 : 1 }}>
             {pending ? "開いています…" : "契約を管理"}
           </button>
-          {!native && (provider === "apple" || apple) && (
+          {provider === "stripe" ? (
+            <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>変更・解約は契約の管理ページで行います。退会すると、この契約は同時に解約されます。</p>
+          ) : !native && (provider === "apple" || apple) && (
             <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>変更・解約は Apple のアカウントページで行います。iPhone の設定 › サブスクリプションからもできます。</p>
           )}
         </>
@@ -119,7 +121,7 @@ export default function PlanCard(props: PlanCardProps) {
               {v.chip === "契約切れ" ? "再開する" : "アルコプラスをはじめる"}
             </Link>
             {v.chip !== "契約切れ" && (
-              <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円</p>
+              <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>はじめての方は最初の 2 週間は無料、その後 月 1,280 円・年 12,800 円</p>
             )}
           </>
         ) : (

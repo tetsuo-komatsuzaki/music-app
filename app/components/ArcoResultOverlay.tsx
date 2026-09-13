@@ -262,7 +262,7 @@ export default function ArcoResultOverlay({
               この {perf.pitchAccuracy != null && perf.timingAccuracy != null ? Math.round((perf.pitchAccuracy + perf.timingAccuracy) / 2) : "—"} 点を残してつづける
             </Link>
             {/* 先が支払い (はじめる手続き) だと分かる 1 行 (2026-09-13 Tetsuo 承認・検証ループ §7) */}
-            <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 8 }}>はじめる手続き・最初の 2 週間は無料</div>
+            <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 8 }}>はじめる手続き・はじめての方は最初の 2 週間は無料</div>
             <div style={{ textAlign: "center", fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>残さない場合は右上の × で閉じる</div>
           </div>
         ) : (

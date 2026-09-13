@@ -27,7 +27,7 @@ export const GATE_TEXT = {
     items: [
       { title: "録音して採点", detail: "音程とリズムを 1 音ずつ" },
       { title: "この 1 回は登録なし", detail: "弾いてから決められる" },
-      { title: "続けるには登録", detail: "最初の 2 週間は無料、その後 月 1,280 円" },
+      { title: "続けるには登録", detail: "はじめての方は最初の 2 週間は無料、その後 月 1,280 円" },
     ],
   }),
   // ▼ 1 回ためし: 使用済み
@@ -35,7 +35,7 @@ export const GATE_TEXT = {
     title: "続けるには、はじめる手続きが必要です",
     items: [
       { title: lastScore != null ? `さっきの ${lastScore} 点` : `${title}の採点`, detail: "はじめると、あなたの記録として残る" },
-      { title: "毎日の採点と基礎練", detail: "最初の 2 週間は無料、その後 月 1,280 円" },
+      { title: "毎日の採点と基礎練", detail: "はじめての方は最初の 2 週間は無料、その後 月 1,280 円" },
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   }),
@@ -44,7 +44,7 @@ export const GATE_TEXT = {
     title: "アルコプラスをはじめると、採点と基礎練が使えます",
     items: [
       { title: "録音して採点", detail: "音程とリズムを 1 音ずつ" },
-      { title: "毎日の基礎練", detail: "最初の 2 週間は無料、その後 月 1,280 円" },
+      { title: "毎日の基礎練", detail: "はじめての方は最初の 2 週間は無料、その後 月 1,280 円" },
       { title: "成長カルテ", detail: "弾くたびに変化が残る" },
     ],
   } as GateText,

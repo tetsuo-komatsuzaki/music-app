@@ -1,6 +1,6 @@
 import { resolveViewer } from "@/app/_libs/resolveViewer"
 import Link from "next/link"
-import { HelpCircle, ScrollText, Lock, Mail, type LucideIcon } from "lucide-react"
+import { HelpCircle, ScrollText, Lock, Receipt, Mail, type LucideIcon } from "lucide-react"
 import styles from "./Support.module.css"
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"
@@ -33,6 +33,12 @@ export default async function SupportPage({
       Icon: Lock,
       title: "プライバシーポリシー",
       desc: "個人情報の取り扱い",
+    },
+    {
+      href: `/${authUserId}/support/tokushoho`,
+      Icon: Receipt,
+      title: "特定商取引法に基づく表記",
+      desc: "アルコプラスの販売条件",
     },
     {
       href: `/${authUserId}/support/contact`,

@@ -15,10 +15,12 @@ export default function AccountInfo({
   initialName,
   currentEmail,
   accountDeletionEnabled,
+  billingProvider = null,
 }: {
   initialName: string
   currentEmail: string
   accountDeletionEnabled: boolean
+  billingProvider?: string | null
 }) {
   const [name, setName] = useState(initialName)
   const [savedName, setSavedName] = useState(initialName)
@@ -264,7 +266,7 @@ export default function AccountInfo({
         </section>
       )}
 
-      <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} />
+      <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} provider={billingProvider} />
     </>
   )
 }

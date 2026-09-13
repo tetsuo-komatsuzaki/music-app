@@ -24,6 +24,7 @@
 // - Stripe が正・User テーブルは写し (webhook が plan/planStatus を書く)。
 
 import { prisma } from "@/app/_libs/prisma"
+import { isAppleBilling } from "@/app/_libs/billingMode"
 
 /**
  * 無料の 1 日あたり 曲の録音時間 (秒)。第4版の「1 日 10 分」そのもの。
@@ -57,11 +58,12 @@ import { PLAN_GRANT_INTERNAL, GUEST_TRIAL_GRADINGS } from "./planConstants"
  * 未加入 (Stripe のサブスクが無い) の人に録音させないか。
  *
  * 恒久的な「無料プラン」は存在しないので、本来はこれが true が正。
- * **既定は false。** true にすると、まだ加入していない既存アカウント全員
- * (開発・検証用を含む) がその場で録音できなくなる。
- * 発動するときは RESTRICTION_START に日付を入れて移行の猶予を先に用意すること。
+ * 2026-09-13 法務対応 (CR-L2-02): Apple 課金モード (NEXT_PUBLIC_BILLING_MODE=apple) では自動で true。
+ * 規約 第5条「契約者に提供・恒久的な無料プランなし」と 第5条の4「請求不成立で停止」を、ローンチの env 切替と同時に事実にするため。
+ * Stripe モード (ローンチ前の本番・開発) では従来どおり false で、既存アカウントは録音できる。
+ * apple に切り替える前に、開発・検証用のアカウントへ planGrant=internal を付けること (REQ-018)。
  */
-export const REQUIRE_SUBSCRIPTION = false
+export const REQUIRE_SUBSCRIPTION = isAppleBilling()
 
 /**
  * 無料期間中の量の上限の発動スイッチ。

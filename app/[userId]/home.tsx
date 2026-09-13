@@ -234,7 +234,7 @@ export default function HomeClient({
       {(planView?.kind === "expired" || planView?.kind === "unsubscribed") && (
         <div data-testid="home-expired-banner" style={{ marginTop: 10, background: "var(--card-b)", border: "1px solid rgba(232,178,60,.34)", borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>{planView.kind === "expired" ? "アルコプラスが終了しています" : "アルコプラスをはじめると、採点と基礎練が使えます"}</div>
-          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 2, lineHeight: 1.5 }}>{planView.kind === "expired" ? "採点と基礎練が止まっています。記録は残っています。" : "最初の 2 週間は無料、その後 月 1,280 円"}</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 2, lineHeight: 1.5 }}>{planView.kind === "expired" ? "採点と基礎練が止まっています。記録は残っています。" : "はじめての方は最初の 2 週間は無料、その後 月 1,280 円"}</div>
           <Link href="/start" style={{ display: "inline-block", marginTop: 8, background: "#b8862e", color: "#fff", borderRadius: 9, padding: "8px 20px", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>{planView.kind === "expired" ? "再開する" : "はじめる"}</Link>
         </div>
       )}

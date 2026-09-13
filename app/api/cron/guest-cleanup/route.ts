@@ -8,6 +8,9 @@ import { supabaseAdmin } from "@/app/_libs/supabaseAdmin"
 
 export const runtime = "nodejs"
 
+/** Apple の通知原文の保管年数 (プライバシーポリシー第6条と一致させる) */
+const APPLE_NOTIFICATION_RETENTION_YEARS = 7
+
 async function removeStorageFolder(bucket: string, prefix: string): Promise<void> {
   const { data } = await storageAdmin.storage.from(bucket).list(prefix, { limit: 1000 })
   if (!data || data.length === 0) return
@@ -34,12 +37,25 @@ export async function GET(request: Request) {
   for (const u of expired) {
     try {
       await removeStorageFolder("performances", u.supabaseUserId)
+      // Auth を先に消す (CR-L4-08): DB を先に消して Auth が失敗すると、次回の走査に載らず匿名ユーザーが残り続ける。
+      // Auth が既に無い (not found) ときは DB の削除へ進む
+      const { error: authErr } = await supabaseAdmin.auth.admin.deleteUser(u.supabaseUserId)
+      if (authErr && !/not\s*found/i.test(authErr.message)) throw authErr
       await prisma.user.delete({ where: { id: u.id } })
-      await supabaseAdmin.auth.admin.deleteUser(u.supabaseUserId)
       removed++
     } catch (e) {
       console.error("[cron/guest-cleanup] failed:", u.id, e instanceof Error ? e.message : e)
     }
   }
-  return NextResponse.json({ ok: true, candidates: expired.length, removed })
+  // Apple の通知の原文は受信から 7 年で削除 (プライバシーポリシー第6条・2026-09-13)。帳簿書類の保存期間に合わせた
+  let notificationsPurged = 0
+  try {
+    const cutoff = new Date()
+    cutoff.setFullYear(cutoff.getFullYear() - APPLE_NOTIFICATION_RETENTION_YEARS)
+    const r = await prisma.appleNotification.deleteMany({ where: { createdAt: { lt: cutoff } } })
+    notificationsPurged = r.count
+  } catch (e) {
+    console.error("[cron/guest-cleanup] notification purge failed:", e instanceof Error ? e.message : e)
+  }
+  return NextResponse.json({ ok: true, candidates: expired.length, removed, notificationsPurged })
 }

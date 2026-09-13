@@ -1,0 +1,32 @@
+id,観点,確認内容,方法,結果
+L-01,特商法,11 条の表示事項がすべて載っている,本文読み合わせ,合格 (R1 critic 空振り欄で欄の存在を確認・R1 fix で電話の但書と Web 契約者の欄を整理)
+L-02,特商法,価格が税込で月・年とも書かれ App Store の表示を正としている,本文,合格
+L-03,特商法,解約の期限 24 時間前と退会で止まらないことが書かれている,本文,合格 (R1 fix で無料期間も 24 時間前に統一)
+L-04,特商法,返金は Apple 判断・日割りなし,本文,合格
+L-05,規約,自動更新・無料期間・解約・返金・請求失敗の各条がある,本文,合格
+L-06,規約,Web 契約者の解約経路と退会時の扱いが書かれている,本文,合格 (第5条の5・第13条)
+L-07,規約,ゲストの 30 日保管と繰り返し利用の禁止,本文 + GUEST_RETENTION_DAYS,合格 (起点を「1 回ためすを始めてから」に修正)
+L-08,規約,責任上限・未成年・管轄が書かれている (管轄は【 】),本文,合格 (第17条を消契法 8 条 3 項の型に修正)
+L-09,ポリシー,Apple から受け取る情報・契約情報・お便り・ゲスト識別子の記載,本文 + deviceKey.ts,合格
+L-10,ポリシー,委託先に Google Cloud と Apple を含む・越境移転,本文,合格 (国名は Tetsuo 確認待ち CR-L1-18)
+L-11,ポリシー,お知らせメールの停止手段が実在する,設定の「お知らせメール」スイッチ,合格 (evidence/settings_marketing_off.png・DB で optOutAt を確認・再読み込み後も反映)
+L-12,ポリシー,Apple 通知の保持の記述が実装と一致,AppleNotification モデル + cron,合格 (7 年削除を cron に追加)
+L-13,到達,/start の法務行に 3 本のリンク,StartClient.tsx,合格
+L-14,到達,サポート一覧に特商法がある,support/page.tsx,合格 (evidence/support_list.png)
+L-15,到達,/tokushoho と /[userId]/support/tokushoho が開く,tsc + dev で 200,合格 (curl 200・evidence/support_tokushoho.png)
+L-16,到達,ログインの Apple・Google ボタンに同意の一文,login/page.tsx,合格 (evidence/login_consent.png)
+L-17,到達,登録画面の同意チェックが規約とポリシーにリンク,signUp/page.tsx,合格 (既存)
+L-18,実装,Stripe 契約者の退会で subscriptions.cancel が呼ばれ・失敗なら退会が止まる,requestAccountDeletion.ts + billingProviderOf.test.ts,合格 (R3 fix: 条件を shouldCancelStripeOnDeletion に。列が空の Stripe 契約者でも true を単体テストで固定。実 Stripe での再現は未実施)
+L-19,実装,Apple 契約者の退会完了メールに解約案内が入る,requestAccountDeletion.ts,合格 (コード確認・メール実送は未実施)
+L-20,実装,退会モーダルが契約の提供元で別の案内を出す,DeleteAccountModal.tsx + resolveBillingProvider,合格 (R3 fix: 提供元を列と stripeSubscriptionId から導出。resolveBillingProvider の単体テスト 4 件。画面は dev の ENABLE_ACCOUNT_DELETION 未設定のため未撮影)
+L-21,実装,setMarketingOff が optOutAt を書き・再開で optInAt を書く,updateNotificationPref.ts,合格 (DB で両方向を確認)
+L-22,FAQ,料金・無料期間・返金・ゲストの 4 問が法務文面と矛盾しない,help/page.tsx,合格 (evidence/help_faq.png・R2 fix で括弧を除去し Web 契約者の行を追加)
+L-23,App Store,説明文の URL と価格・無料期間の文が規約と一致,app-store-listing.md,合格
+L-24,運用,【 】が残る間は本番に出さない (コミットしても deploy しない),報告,合格 (99_report に明記)
+L-25,到達,listing の 5 URL (terms/privacy/tokushoho/support/help/lp) が本番相当で開く,dev で curl,合格 (/support/help は 307 → /guest/support/help 200。本番は R2 fix 反映後に再確認)
+L-26,整合,REQUIRE_SUBSCRIPTION と規約 第5条・第5条の4 の整合,plan.ts,合格 (apple モードで自動 true に変更。ローンチ前チェックに planGrant=internal を明記)
+L-27,実装,Stripe 解約失敗 → 退会が止まる,requestAccountDeletion.ts,合格 (R3 fix 後は分岐に到達する。失敗時は中断・resource_missing は続行。実 Stripe 障害の再現は未実施)
+L-28,到達,「プロフィール画面から退会」の到達,profile/AccountInfo.tsx,合格 (文面 4 か所をプロフィールに修正)
+L-29,整合,UI の固定価格と StoreKit 正の整合,gateText/Recorder/home/PlanCard,合格 (「はじめての方は」を付けた。円額は価格ポイント確定後に一括見直し・listing §4)
+L-30,規約,R7 括弧の grep (新規 UI 文言),gateText.ts・help/page.tsx,合格 (日本語直後の括弧は 0 件)
+L-31,データ,既存の Stripe 契約者の billingProvider を 'stripe' に埋める migration がある,prisma/migrations/20260913120000_stripe_billing_provider_backfill,合格 (SQL 作成・本番適用は手動で未実施)

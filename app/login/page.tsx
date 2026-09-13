@@ -160,6 +160,10 @@ export default function LoginPage() {
         <span className={styles.vr} aria-hidden />
         <Link href={isAppleBilling() ? "/start" : "/signUp"}>{isAppleBilling() ? "はじめる" : "新規登録"}</Link>
       </p>
+      {/* 2026-09-13 法務対応: Apple・Google のログインは同意のチェックを通らないので、ここで規約とポリシーを示す */}
+      <p className={styles.links} style={{ fontSize: 11, opacity: .8 }}>
+        つづけると <Link href="/terms">利用規約</Link> と <Link href="/privacy">プライバシーポリシー</Link> に同意したことになります
+      </p>
     </div>
   )
 }

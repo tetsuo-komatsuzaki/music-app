@@ -32,6 +32,8 @@ export type SubscriptionUserFields = {
   planStatus: string
   planCurrentPeriodEnd: Date | null
   stripeSubscriptionId: string
+  /** 2026-09-13 (CR-L3-01): Stripe の経路でも提供元を書く。既存行は migration 20260913120000 でバックフィル */
+  billingProvider: "stripe"
 }
 
 /**
@@ -54,6 +56,7 @@ export function subscriptionToUserFields(sub: {
     // 2026-09-12: トライアルを削除したので「再トライアル不可」の判定には使わなくなったが、
     // 加入歴そのものは他でも参照しうるので null にはしない。
     stripeSubscriptionId: sub.id,
+    billingProvider: "stripe",
   }
 }
 

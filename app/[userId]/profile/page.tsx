@@ -7,6 +7,7 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { prisma } from "@/app/_libs/prisma"
 import { redirect } from "next/navigation"
 import AccountInfo from "./AccountInfo"
+import { billingNoteProvider } from "@/app/_libs/billingProviderOf"
 import styles from "../settings/Settings.module.css"
 
 export const metadata = { title: "プロフィール" }
@@ -24,7 +25,7 @@ export default async function ProfilePage({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: dbUserId },
-    select: { name: true },
+    select: { name: true, billingProvider: true, stripeSubscriptionId: true, planStatus: true },
   })
   if (!dbUser) redirect("/login")
 
@@ -35,6 +36,7 @@ export default async function ProfilePage({
         initialName={dbUser.name ?? ""}
         currentEmail={authUser?.email ?? ""}
         accountDeletionEnabled={process.env.ENABLE_ACCOUNT_DELETION === "true"}
+        billingProvider={billingNoteProvider(dbUser)}
       />
     </div>
   )

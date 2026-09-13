@@ -6,6 +6,8 @@ import { prisma } from "@/app/_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { Resend } from "resend"
 import { revokeAppleToken } from "@/app/_libs/apple/appleRevoke"
+import { getStripe } from "@/app/_libs/stripe"
+import { resolveBillingProvider, shouldCancelStripeOnDeletion, isStripeLiveStatus } from "@/app/_libs/billingProviderOf"
 
 // =========================================================
 // 退会フロー (同期削除、Auth-first)
@@ -82,10 +84,28 @@ export async function requestAccountDeletion(
     return { success: false, error: "「退会」と入力してください" }
   }
 
-  // Sign in with Apple のトークン失効 (5.1.1(v))。失敗しても退会は続ける
-  if (providers.includes("apple")) {
-    const ok = await revokeAppleToken(dbUser.appleRefreshToken)
-    if (!ok) console.warn(JSON.stringify({ event: "apple_revoke_skipped", userId: dbUser.id }))
+  // Web (Stripe) の契約は退会と同時に解約する (2026-09-13 法務対応・規約第5条の5・特商法)。
+  // 退会後は Customer Portal に入れず本人が止める手段が無くなるので、解約できなければ退会を中断する (CR-L2-03)。
+  // 既に解約済み (Stripe が resource_missing または status canceled を返す) のときだけ続行する。
+  // 条件は DB の列に頼らない (2026-09-13 より前の Stripe 契約者は billingProvider が空・CR-L3-01。
+  // Web で契約した後に Apple でも契約した人は planStatus が Apple の値に上書きされる・CR-L4-01)。生死は Stripe に聞く
+  if (shouldCancelStripeOnDeletion(dbUser) && dbUser.stripeSubscriptionId) {
+    try {
+      const stripe = getStripe()
+      const sub = await stripe.subscriptions.retrieve(dbUser.stripeSubscriptionId)
+      if (isStripeLiveStatus(sub.status)) {
+        await stripe.subscriptions.cancel(dbUser.stripeSubscriptionId)
+      } else {
+        console.log(JSON.stringify({ event: "stripe_cancel_on_deletion_not_live", userId: dbUser.id, status: sub.status }))
+      }
+    } catch (e) {
+      const err = e as { code?: string; message?: string }
+      const already = err?.code === "resource_missing" || /already (been )?canceled/i.test(err?.message ?? "")
+      console.error(JSON.stringify({ event: already ? "stripe_cancel_on_deletion_already" : "stripe_cancel_on_deletion_failed", userId: dbUser.id, subscriptionId: dbUser.stripeSubscriptionId, error: err?.message ?? String(e) }))
+      if (!already) {
+        return { success: false, error: "契約の解約に失敗しました。時間をおいて再試行するか、先に「契約を管理」から解約してください" }
+      }
+    }
   }
 
   // === deletedAt セット ===
@@ -95,6 +115,10 @@ export async function requestAccountDeletion(
   })
 
   const userEmail = authUser.email  // Auth 削除前に保持
+  const appleRefreshToken = dbUser.appleRefreshToken  // DB 削除前に保持 (失効は Auth 削除の後・CR-L2-11)
+  const appleContractNote = resolveBillingProvider(dbUser) === "apple"
+    ? "\n\nApp Store で契約したアルコプラスは、退会では止まりません。まだ解約していない場合は、iPhone の設定 › サブスクリプションから解約してください。"
+    : ""
 
   // === Auth 削除 (Auth-first) ===
   const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(authUser.id)
@@ -112,6 +136,12 @@ export async function requestAccountDeletion(
       timestamp: new Date().toISOString(),
     }))
     return { success: false, error: "退会申請に失敗しました。時間をおいて再試行してください" }
+  }
+
+  // Sign in with Apple のトークン失効 (5.1.1(v))。Auth 削除が成功した後に行う (失敗して巻き戻る場合に連携だけ切れないように)。失効の失敗は退会を止めない
+  if (providers.includes("apple")) {
+    const ok = await revokeAppleToken(appleRefreshToken)
+    if (!ok) console.warn(JSON.stringify({ event: "apple_revoke_skipped", userId: dbUser.id }))
   }
 
   // === Storage 削除 ===
@@ -158,9 +188,9 @@ export async function requestAccountDeletion(
     await resend.emails.send({
       from: process.env.ARCODA_NOREPLY_EMAIL!,
       to: userEmail,
-      subject: "Arcoda 退会完了のお知らせ",
-      text: `Arcoda の退会処理が完了しました。
-すべてのデータを削除いたしました (Supabase の自動バックアップには保持期間中残存する場合があります)。
+      subject: "アルコ 退会完了のお知らせ",
+      text: `アルコ (Arcoda) の退会処理が完了しました。
+すべてのデータを削除いたしました (Supabase の自動バックアップには保持期間中残存する場合があります)。${appleContractNote}
 
 ご利用ありがとうございました。
 

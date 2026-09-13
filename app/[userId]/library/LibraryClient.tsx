@@ -120,7 +120,7 @@ export default function LibraryClient({
               {[
                 ["自分の楽譜を取り込む", "その曲も採点できる"],
                 ["採点が無制限", "1日8本の上限が外れる"],
-                ["最初の 2 週間は無料", "いつでも解約できる"],
+                ["はじめての方は最初の 2 週間は無料", "いつでも解約できる"],
               ].map(([t, sub]) => (
                 <div key={t} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, color: "var(--text-sub)" }}>
                   <span style={{ color: "var(--gold)", fontWeight: 900, flex: "none" }}>+</span>

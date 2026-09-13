@@ -295,6 +295,7 @@ export default function StartClient({ session, hasApple, authUserId, onboarded, 
           <button type="button" onClick={() => void onRestore()} disabled={busy}>購入を復元</button>
           <Link href="/terms">利用規約</Link>
           <Link href="/privacy">プライバシーポリシー</Link>
+          <Link href="/tokushoho">特定商取引法に基づく表記</Link>
           {session === "user" ? <Link href="/">ホームにもどる</Link> : <Link href={`/${GUEST_ID}`}>ゲストにもどる</Link>}
         </div>
       </div>

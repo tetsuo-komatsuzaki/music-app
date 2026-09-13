@@ -682,8 +682,8 @@ function Scr11D() {
           aria-label="メールアドレス"
           data-testid="onb-mail"
         />
-        <OptionCard label="受け取る" desc="いつでもやめられる" checkbox checked={optIn} onClick={() => setOptIn((v) => !v)} />
-        <div className={styles.predictBody} style={{ padding: 0, textAlign: "left" }}>メールはお便り以外に使いません。書かなくても先に進めます</div>
+        <OptionCard label="受け取る" desc="設定でいつでも止められる" checkbox checked={optIn} onClick={() => setOptIn((v) => !v)} />
+        <div className={styles.predictBody} style={{ padding: 0, textAlign: "left" }}>メールはお便り以外に使いません。書かなくても先に進めます。くわしくは <a href="/privacy" target="_blank" rel="noopener" style={{ color: "inherit", textDecoration: "underline" }}>プライバシーポリシー</a></div>
       </div>
       <CtaButton label="次へ" divider disabled={!valid} onClick={next} />
       <div style={{ position: "absolute", left: 0, right: 0, bottom: "1.2%", textAlign: "center", zIndex: 7 }}>

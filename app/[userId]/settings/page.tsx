@@ -2,6 +2,7 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { prisma } from "@/app/_libs/prisma"
 import { resolveEffectivePlan } from "@/app/_libs/plan"
+import { resolveBillingProvider } from "@/app/_libs/billingProviderOf"
 import { isBillingConfigured } from "@/app/_libs/stripe"
 import { redirect } from "next/navigation"
 import SettingsClient from "./SettingsClient"
@@ -26,6 +27,7 @@ export default async function SettingsPage({
     where: { id: dbUserId },
     select: {
       name: true, teacherEmailOff: true, createdAt: true, role: true,
+      marketingEmail: true, marketingOptInAt: true, marketingOptOutAt: true,
       // ▼ 課金 Phase 2 (2026-08-07): プラン欄
       plan: true, planStatus: true, planCurrentPeriodEnd: true, billingProvider: true, planGrant: true, appleAutoRenew: true, stripeSubscriptionId: true,
     },
@@ -54,6 +56,8 @@ export default async function SettingsPage({
       userId={dbUserId}
       hasTeacher={hasTeacher}
       teacherEmailOff={dbUser.teacherEmailOff}
+      // お知らせメール (2026-09-13 法務対応): お便り用のアドレスを持つ人にだけ停止・再開のスイッチを出す
+      marketing={dbUser.marketingEmail ? { email: dbUser.marketingEmail, off: !dbUser.marketingOptInAt || !!dbUser.marketingOptOutAt } : undefined}
       // 課金設計 (project_pricing_plan): アルコプラスは生徒向け。先生には生徒プランの
       // 加入導線を出さない (先生プランは別軸・料金未定)。teacher は billing を渡さず非表示。
       billing={dbUser.role === "teacher" ? undefined : {
@@ -61,7 +65,7 @@ export default async function SettingsPage({
         isPlus,
         planStatus: dbUser.planStatus,
         periodEnd: dbUser.planCurrentPeriodEnd?.toISOString() ?? null,
-        provider: dbUser.billingProvider,
+        provider: resolveBillingProvider(dbUser), // 列が空の Stripe 契約者も stripe と判定 (CR-L3-01)
         planGrant: dbUser.planGrant,
         autoRenew: dbUser.appleAutoRenew,
       }}

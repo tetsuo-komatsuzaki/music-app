@@ -1,0 +1,160 @@
+[
+ {
+  "name": "01_login",
+  "title": "ログイン",
+  "file": "docs/verify/legal/evidence/screens/01_login.jpg",
+  "notes": [
+   "Apple・Google ボタンの下に「つづけると 利用規約 と プライバシーポリシー に同意したことになります」を追加"
+  ]
+ },
+ {
+  "name": "02_settings_apple",
+  "title": "設定・Apple の契約者",
+  "file": "docs/verify/legal/evidence/screens/02_settings_apple.jpg",
+  "notes": [
+   "「お知らせメール」の欄とスイッチを新設。オンボーディングでお便りに同意した人にだけ出る",
+   "プランカードの案内は従来どおり"
+  ]
+ },
+ {
+  "name": "03_support",
+  "title": "サポート",
+  "file": "docs/verify/legal/evidence/screens/03_support.jpg",
+  "notes": [
+   "「特定商取引法に基づく表記」の項目を追加"
+  ]
+ },
+ {
+  "name": "04_tokushoho",
+  "title": "特定商取引法に基づく表記 (新設)",
+  "file": "docs/verify/legal/evidence/screens/04_tokushoho.jpg",
+  "notes": [
+   "ページを新設。/tokushoho とサポート内の両方から開ける",
+   "電話番号は省略規定 (Tetsuo 決定)"
+  ]
+ },
+ {
+  "name": "05_help",
+  "title": "ヘルプ・FAQ",
+  "file": "docs/verify/legal/evidence/screens/05_help.jpg",
+  "notes": [
+   "退会 FAQ に Apple と Web の契約の扱いを追記",
+   "料金 FAQ を括弧なしに・Web 契約者の行を追加",
+   "無料期間中の解約・返金・ためした録音の削除の 3 問を追加",
+   "「Arcodaってなに?」→「アルコってなに?」"
+  ]
+ },
+ {
+  "name": "06_delete_apple",
+  "title": "退会モーダル・Apple の契約者",
+  "file": "docs/verify/legal/evidence/screens/06_delete_apple.jpg",
+  "notes": [
+   "契約の提供元 (Apple) で注記を出し分け。以前はサインイン方法で判定していた"
+  ]
+ },
+ {
+  "name": "07_delete_stripe",
+  "title": "退会モーダル・Web の契約者",
+  "file": "docs/verify/legal/evidence/screens/07_delete_stripe.jpg",
+  "notes": [
+   "Web (Stripe) の契約者には「退会と同時に解約されます。以後の請求はありません」。billingProvider が空でも加入歴から判定・契約が生きている人だけ"
+  ]
+ },
+ {
+  "name": "08_settings_stripe",
+  "title": "設定・Web の契約者",
+  "file": "docs/verify/legal/evidence/screens/08_settings_stripe.jpg",
+  "notes": [
+   "「契約を管理」は Stripe の契約者なら apple モードでも Customer Portal を開く (以前は Apple の管理ページに送っていた)。注記も Stripe 向けの文に"
+  ]
+ },
+ {
+  "name": "09_delete_none",
+  "title": "退会モーダル・契約なし",
+  "file": "docs/verify/legal/evidence/screens/09_delete_none.jpg",
+  "notes": [
+   "契約が無い人には契約の注記を出さない (以前は仮定形の注記が出ていた)"
+  ]
+ },
+ {
+  "name": "10_home_free",
+  "title": "ホーム・契約なし",
+  "file": "docs/verify/legal/evidence/screens/10_home_free.jpg",
+  "notes": [
+   "帯の文に「はじめての方は」を付けた (無料期間は Apple ID ごとに 1 回なので条件つきに)",
+   "apple モードでは契約なしの人にこの帯が出る (REQUIRE_SUBSCRIPTION を apple モードに連動)"
+  ],
+  "marked": 1
+ },
+ {
+  "name": "11_settings_free",
+  "title": "設定・契約なし",
+  "file": "docs/verify/legal/evidence/screens/11_settings_free.jpg",
+  "notes": [
+   "プランカードの注記に「はじめての方は」"
+  ]
+ },
+ {
+  "name": "12_song_gate_free",
+  "title": "曲の画面・契約なしのゲート",
+  "file": "docs/verify/legal/evidence/screens/12_song_gate_free.jpg",
+  "notes": [
+   "ゲートの説明行に「はじめての方は」(songTry・songUsed・subscribe の 3 種とも同じ文)",
+   "契約なしの人は録音できず、このゲートが出る (apple モード)"
+  ],
+  "marked": 1
+ },
+ {
+  "name": "13_settings_trial",
+  "title": "設定・無料期間中",
+  "file": "docs/verify/legal/evidence/screens/13_settings_trial.jpg",
+  "notes": [
+   "「1 日 8 本」→「1 日 8 回」(規約・特商法と語をそろえた)"
+  ]
+ },
+ {
+  "name": "14_onboarding_mail",
+  "title": "オンボーディング・お便り",
+  "file": "docs/verify/legal/evidence/screens/14_onboarding_mail.jpg",
+  "notes": [
+   "「いつでもやめられる」→「設定でいつでも止められる」",
+   "プライバシーポリシーへのリンクを追加"
+  ]
+ },
+ {
+  "name": "15_guest_help",
+  "title": "ゲスト閲覧のヘルプ (/support/help の行き先)",
+  "file": "docs/verify/legal/evidence/screens/15_guest_help.jpg",
+  "notes": [
+   "App Store の「サポート URL」https://arcodaviolin.com/support/help をゲスト閲覧のヘルプへ redirect (以前は 404)。curl: /support/help → 307 → /guest/support/help 200"
+  ],
+  "marked": 0
+ },
+ {
+  "name": "16_lp_footer",
+  "title": "LP のフッター",
+  "file": "docs/verify/legal/evidence/screens/16_lp_footer.jpg",
+  "notes": [
+   "利用規約・アプリのプライバシーポリシー・特定商取引法へのリンクを追加。名称と運営者名は判断待ち"
+  ],
+  "marked": 1
+ },
+ {
+  "name": "17_terms",
+  "title": "利用規約 (/terms)",
+  "file": "docs/verify/legal/evidence/screens/17_terms.jpg",
+  "notes": [
+   "課金条項 第5条〜第5条の5、免責条項の書き換え、退会と契約の分離、Apple 条項 など全面改定。全文は「アルコ 課金の法務文面」のページ"
+  ],
+  "marked": 1
+ },
+ {
+  "name": "18_privacy",
+  "title": "プライバシーポリシー (/privacy)",
+  "file": "docs/verify/legal/evidence/screens/18_privacy.jpg",
+  "notes": [
+   "Apple サインイン・契約情報・お便り・ゲスト識別子・委託先・越境移転・保持期間を改定"
+  ],
+  "marked": 1
+ }
+]
