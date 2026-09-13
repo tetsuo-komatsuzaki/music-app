@@ -49,26 +49,28 @@ Resolved = dict[str, Any]   # {string_id, position, finger, confidence, is_ancho
 _STRING_GAP_POSITIONS = 4
 
 
-def _candidates_for_finger(step: str, octave: int, finger: int, midi: int) -> list[tuple[str, int]]:
+def _candidates_for_finger(step: str, octave: int, finger: int, midi: int,
+                           alter: int = 0) -> list[tuple[str, int]]:
     """指定の指で鳴らせる (弦, ポジション) の候補。物理的に出せない弦は除く。"""
     out: list[tuple[str, int]] = []
     for s, open_midi in _OPEN_MIDI.items():
         if midi <= open_midi:
             continue
-        pos = position_by_letter(step, octave, finger, s)
+        pos = position_by_letter(step, octave, finger, s, alter)
         if pos is not None:
             out.append((s, pos))
     return out
 
 
-def _candidates_any_finger(step: str, octave: int, midi: int) -> list[tuple[str, int, int]]:
+def _candidates_any_finger(step: str, octave: int, midi: int,
+                           alter: int = 0) -> list[tuple[str, int, int]]:
     """指を問わず鳴らせる (弦, ポジション, 指) の候補。"""
     out: list[tuple[str, int, int]] = []
     for s, open_midi in _OPEN_MIDI.items():
         if midi <= open_midi:
             continue
         for f in (1, 2, 3, 4):
-            pos = position_by_letter(step, octave, f, s)
+            pos = position_by_letter(step, octave, f, s, alter)
             if pos is not None:
                 out.append((s, pos, f))
     return out
@@ -163,6 +165,15 @@ def resolve_sequence(notes: list[dict[str, Any]]) -> list[Optional[Resolved]]:
     # ── 第1段: アンカーを立てる ──
     anchor_idx: list[int] = []
     for i, nt in enumerate(notes):
+        # 楽譜に弦と運指の両方が書かれた音は、解決済みの値を種として受け取る
+        # (2026-09-13 Tetsuo指示)。以前は呼び手が列から抜いていたため、
+        # 注釈した音がアンカーにならず、さらに列に穴が開いて前後の判断まで狂っていた。
+        fixed = nt.get("resolved")
+        if fixed is not None:
+            out[i] = {"string_id": fixed.get("string_id"), "position": fixed.get("position"),
+                      "finger": fixed.get("finger"), "confidence": "annotated", "is_anchor": True}
+            anchor_idx.append(i)
+            continue
         f = nt.get("finger")
         if f is None:
             continue

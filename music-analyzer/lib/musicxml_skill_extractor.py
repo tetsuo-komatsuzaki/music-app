@@ -226,19 +226,28 @@ def _solve_with_anchors(notes: List["SkillInfoNote"], src: List[tuple]) -> None:
     # 遅延 import: lib パッケージ初期化中の相互参照を避ける
     from .position_pass import resolve_sequence
 
-    targets = [
-        row for row in src
-        if not notes[row[0]].is_chord and notes[row[0]].position_confidence != "annotated"
-    ]
+    # 注釈のある音も列に残す (2026-09-13 Tetsuo指示)。以前は列から抜いていたため、
+    # 注釈した音がアンカーにならず、さらに列に穴が開いて隣り合わせの関係が壊れ、
+    # 注釈していない音の答えまで変わっていた (3オクターブ音階で40音中11音)。
+    targets = [row for row in src if not notes[row[0]].is_chord]
     if not targets:
         return
-    solved = resolve_sequence(
-        [{"midi": m, "step": st, "octave": oc, "finger": fg} for (_, m, st, oc, fg) in targets]
-    )
+    seq = []
+    for (i, m, st, oc, fg) in targets:
+        n = notes[i]
+        if n.position_confidence == "annotated":
+            # 楽譜に弦と運指の両方がある。推定させず、種として渡す
+            seq.append({"midi": m, "step": st, "octave": oc, "finger": fg,
+                        "resolved": {"string_id": n.string_id, "position": n.position, "finger": n.finger}})
+        else:
+            seq.append({"midi": m, "step": st, "octave": oc, "finger": fg})
+    solved = resolve_sequence(seq)
     for row, r in zip(targets, solved):
         if r is None:
             continue
         n = notes[row[0]]
+        if n.position_confidence == "annotated":
+            continue                    # 楽譜の書き込みが最優先。上書きしない
         n.string_id = r["string_id"]
         n.finger = r["finger"]
         n.position = r["position"]
@@ -646,12 +655,14 @@ def _resolve_string_finger_position(
 
     midi_pitch = _extract_midi_pitch(note_elem)
     step, octave = _extract_step_octave(note_elem)
+    # ♭は1つ下の枠になるので、ポジション算出に alter を渡す (2026-09-13 Tetsuo確定)
+    alter = _extract_alter(note_elem) or 0
 
     # 1. 両方注釈あり → 最優先で採用
     if annotated_string_id is not None and annotated_finger is not None:
         pos = (
             derive_position(
-                midi_pitch, annotated_string_id, annotated_finger, step, octave
+                midi_pitch, annotated_string_id, annotated_finger, step, octave, alter
             )
             if midi_pitch is not None
             else None
@@ -666,7 +677,7 @@ def _resolve_string_finger_position(
     if annotated_finger is not None:
         inferred = infer_with_finger(
             midi_pitch, annotated_finger, prev_string, prev_position,
-            step=step, octave=octave,
+            step=step, octave=octave, alter=alter,
         )
         if inferred is not None:
             s, pos, conf = inferred
@@ -676,12 +687,12 @@ def _resolve_string_finger_position(
 
     # 3. 弦のみ → 弦+音名からポジション導出
     if annotated_string_id is not None:
-        pos = derive_position(midi_pitch, annotated_string_id, None, step, octave)
+        pos = derive_position(midi_pitch, annotated_string_id, None, step, octave, alter)
         return annotated_string_id, None, pos, "estimated", True
 
     # 4. 両方なし → 音高のみから推定 (55-83=1stポジ既定 / 84+=音名算術×音脈補正)
     inferred_po = infer_pitch_only(
-        midi_pitch, prev_string, prev_position, step=step, octave=octave
+        midi_pitch, prev_string, prev_position, step=step, octave=octave, alter=alter
     )
     if inferred_po is None:
         return None, None, None, None, False

@@ -329,9 +329,12 @@ function subGroupItems(
 // 族カード + シートで選ばせるカテゴリ (2026-08-25 Tetsuo確定)。
 // 一覧には「族」だけを出し、調・奏法・弦・指の形といった変種は練習前シートの中で選ぶ。
 // ボーイング120件→23族 / フィンガリング32件→4族 に畳まれる (グループはbackfill済み)。
+// ポジション移動を追加 (2026-09-13 Tetsuo確定)。系統ごとに1枚のカードにし、
+// 弦と番号はシートの中で選ぶ。族にしないと、同じ調・同じポジション集合の弦ちがいが
+// 代表判定で互いを隠し、120件のうち64件が一覧から消えていた。
 function isFamilyCategory(c: string): boolean {
   return c === "scale" || c === "scales" || c === "arpeggio" || c === "arpeggios"
-    || c === "bowing" || c === "fingering"
+    || c === "bowing" || c === "fingering" || c === "position_shift"
 }
 
 // 族カードの2行目。調が族を分ける軸なら「N調」、そうでなければ「N種類」。

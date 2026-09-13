@@ -219,19 +219,28 @@ def diatonic_index(step: str, octave: int) -> Optional[int]:
 
 
 def position_by_letter(
-    step: str, octave: int, finger: int, string_id: str
+    step: str, octave: int, finger: int, string_id: str, alter: int = 0
 ) -> Optional[int]:
     """音名算術によるポジション算出（一意・帯不要）。
 
     1指の音名 = 対象音名 − (finger−1) 文字
     ポジション = 開放弦音名から 1指音名までの文字数
     範囲外 (1 未満 / MAX_POSITION 超) は None。
+
+    ♭の補正 (2026-09-13 Tetsuo確定):
+      ♯は指を伸ばして同じ枠の中で上げるのでポジションは変わらないが、
+      ♭は半音下がるぶん**1つ下の枠**になる。
+      例: E線の A♭5 を指1 → 文字では E,F,G,A で第3だが、
+          実際は G♯5 と同じ場所なので第2。
+      alter を渡さなければ 0 (=補正なし) として、従来どおりに振る舞う。
     """
     di = diatonic_index(step, octave)
     open_di = _OPEN_DIATONIC.get(string_id)
     if di is None or open_di is None or finger < 1:
         return None
     pos = (di - (finger - 1)) - open_di
+    if alter < 0:
+        pos -= 1
     if pos == 0 and finger == 1:
         # ハーフポジション: 開放弦と同じ文字の変化音を指1で押さえるケース
         # (例: G線の G#3 を指1)。1st ポジション扱いに繰り上げる。
@@ -309,6 +318,7 @@ def infer_with_finger(
     prev_position: Optional[int] = None,
     step: Optional[str] = None,
     octave: Optional[int] = None,
+    alter: int = 0,
 ) -> Optional[tuple[str, Optional[int], str]]:
     """指番号 + 音名から (string_id, position, confidence) を導出する（音名算術）。
 
@@ -337,7 +347,7 @@ def infer_with_finger(
     for s, open_midi in _OPEN_MIDI.items():
         if midi_pitch <= open_midi:
             continue  # 物理ガード: 開放弦以下の音はその弦で鳴らない
-        pos = position_by_letter(step, octave, finger, s)
+        pos = position_by_letter(step, octave, finger, s, alter)
         if pos is not None:
             candidates.append((s, pos))
 
@@ -364,6 +374,7 @@ def infer_pitch_only(
     prev_position: Optional[int] = None,
     step: Optional[str] = None,
     octave: Optional[int] = None,
+    alter: int = 0,
 ) -> Optional[tuple[str, Optional[int], int, str]]:
     """指番号なしの音の弦・ポジション・指を推定する（音名算術）。
 
@@ -392,7 +403,7 @@ def infer_pitch_only(
         if midi_pitch <= open_midi:
             continue
         for f in (4, 3, 2, 1):
-            pos = position_by_letter(step, octave, f, s)
+            pos = position_by_letter(step, octave, f, s, alter)
             if pos is not None:
                 candidates.append((s, pos, f))
     if not candidates:
@@ -417,6 +428,7 @@ def derive_position(
     finger: Optional[int],
     step: Optional[str] = None,
     octave: Optional[int] = None,
+    alter: int = 0,
 ) -> Optional[int]:
     """弦 (+任意で指) が既知のとき、音名算術でポジションを導出する。
     指が不明なら各指 (4→1) で最も低いポジションを返す。"""
@@ -429,6 +441,7 @@ def derive_position(
         return None
     fingers = [finger] if finger in (1, 2, 3, 4) else [4, 3, 2, 1]
     positions = [
-        p for f in fingers if (p := position_by_letter(step, octave, f, string_id)) is not None
+        p for f in fingers
+        if (p := position_by_letter(step, octave, f, string_id, alter)) is not None
     ]
     return min(positions) if positions else None
