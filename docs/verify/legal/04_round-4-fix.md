@@ -14,13 +14,13 @@
 | CR-L4-06 | S4 | 修正 | memory project_teacher_embed_email_pending_tests.md に CR-L3-07 (先生ロールの needsSubscription) を記録 |
 | CR-L4-07 | S3 | 実機確認へ | SCR-11d のリンクは target=_blank のまま。殻で同じ WebView に読み込まれるかは実機でしか分からないので memory project_billing_verify_manual_pending.md の 10 番に追加。消えるなら Capacitor Browser に変える |
 | CR-L4-08 | S4 | 修正 | cron guest-cleanup: Auth を先に消し (not found は続行)、その後 DB を消す。Auth の失敗で匿名ユーザーが永久に残らない |
-| CR-L4-09 | S4 | 修正 | billingNoteProvider を追加: 退会モーダルの注記は Stripe の契約が生きている人だけ "stripe"。profile/page.tsx はこれを渡す。設定の「契約を管理」は解約済みでも Customer Portal (履歴を見られる) のまま |
+| CR-L4-09 | S4 | 修正 | billingNoteProvider を追加: 退会モーダルの注記は Stripe の契約が生きている人だけ "stripe"。profile/page.tsx はこれを渡す。設定の「契約を管理」は R5 で見直し (PlanCard は契約中しか manage を出していなかった・CR-L5-06) |
 
 ## 2. Tetsuo の決定
 - 特商法の電話番号は省略規定 (TokushohoContent: 「ご請求があった場合に、遅滞なく電子メールにてお知らせします」)。批評家は妥当と判定 (V4-15)。
 
 ## 3. 確認
 - tsc: エラーなし。eslint: 変更ファイルにエラーなし (PlanCard の planStatus 未使用は既存の警告)。
-- vitest: billingProviderOf 14 件・stripe 7 件・plan/planGrant 22 件 green。
+- vitest: billingProviderOf 10 件・stripe 12 件・plan 17 件・planGrant 6 件 green (R5 で実測に修正)。
 - dev (apple モード・ENABLE_ACCOUNT_DELETION=true) で修正画面を撮影: docs/verify/legal/evidence/screens/ (ページ「法務対応の修正画面」)。
 - 未実施: 実 Stripe での retrieve → cancel、Web 契約者が /start を開いたときの redirect の画面 (コードで確認)。

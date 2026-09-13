@@ -23,7 +23,6 @@ export default function DeleteAccountModal({ open, onClose, provider = null }: P
   const [password, setPassword] = useState("")
   const [word, setWord] = useState("")
   const [hasPassword, setHasPassword] = useState<boolean | null>(null)
-  const [hasApple, setHasApple] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,7 +33,6 @@ export default function DeleteAccountModal({ open, onClose, provider = null }: P
     supabase.auth.getUser().then(({ data }) => {
       const providers = (data.user?.app_metadata?.providers as string[] | undefined) ?? []
       setHasPassword(providers.includes("email"))
-      setHasApple(providers.includes("apple"))
     }).catch(() => setHasPassword(true))
   }, [open])
 
@@ -90,7 +88,8 @@ export default function DeleteAccountModal({ open, onClose, provider = null }: P
               <br />
               <strong>この操作は取り消せません。</strong>
             </p>
-            {(provider === "apple" || (provider == null && hasApple)) && (
+            {/* 注記は契約の提供元で出す。Apple でサインインしただけで契約が無い人には出さない (CR-L5-09) */}
+            {provider === "apple" && (
               <p className={styles.modalText} data-testid="delete-apple-note">
                 Apple の契約は自動では止まりません。退会のあと、iPhone の設定 › サブスクリプション から解約してください。
               </p>

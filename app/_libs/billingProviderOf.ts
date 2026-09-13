@@ -34,7 +34,15 @@ export function shouldCancelStripeOnDeletion(u: BillingProviderInput): boolean {
   return !!u.stripeSubscriptionId
 }
 
-/** Stripe の subscription.status が「生きている」か (trialing / active / past_due) */
+/**
+ * Stripe の subscription.status が終端か (canceled / incomplete_expired)。
+ * 退会で「残してよい」のはこの 2 つだけ。unpaid は請求書が生成され続け、支払えば active に戻るので残してはいけない (CR-L5-01)。
+ */
+export function isStripeTerminalStatus(status: string | null | undefined): boolean {
+  return status === "canceled" || status === "incomplete_expired"
+}
+
+/** Stripe の subscription.status が「生きている」か (trialing / active / past_due)。契約中の注記の出し分けに使う */
 export function isStripeLiveStatus(status: string | null | undefined): boolean {
   return STRIPE_LIVE_STATUSES.has(status ?? "")
 }

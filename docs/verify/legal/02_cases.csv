@@ -30,3 +30,7 @@ L-28,到達,「プロフィール画面から退会」の到達,profile/AccountI
 L-29,整合,UI の固定価格と StoreKit 正の整合,gateText/Recorder/home/PlanCard,合格 (「はじめての方は」を付けた。円額は価格ポイント確定後に一括見直し・listing §4)
 L-30,規約,R7 括弧の grep (新規 UI 文言),gateText.ts・help/page.tsx,合格 (日本語直後の括弧は 0 件)
 L-31,データ,既存の Stripe 契約者の billingProvider を 'stripe' に埋める migration がある,prisma/migrations/20260913120000_stripe_billing_provider_backfill,合格 (SQL 作成・本番適用は手動で未実施)
+L-32,実装,契約中の人は /start に入れない (二重契約の防止),app/start/page.tsx,合格 (resolveEffectivePlan が free 以外ならホームへ redirect。step 付きも同じ・R5 fix)
+L-33,整合,「最初の 2 週間は無料」に条件が付いている,gateText ×3・Recorder・home・PlanCard・ArcoResultOverlay・LibraryClient,合格 (8 か所すべて「はじめての方は」・grep で確認)
+L-34,実装,Stripe 契約者の PlanCard が契約を管理へ行ける (契約中以外も),app/[userId]/settings/PlanCard.tsx,合格 (R5 fix: unpaid/incomplete は「お支払いに問題があります」、契約切れも manage。画面は未撮影)
+L-35,実装,退会時の Stripe 解約は終端以外すべてを対象にし・Auth 削除の後に行う,requestAccountDeletion.ts + billingProviderOf.test.ts,合格 (isStripeTerminalStatus のテスト 2 本。実 Stripe での再現は未実施)

@@ -24,9 +24,10 @@ export default async function StartPage({ searchParams }: { searchParams?: Promi
     if (!user.is_anonymous) {
       const dbUser = await prisma.user.findUnique({ where: { supabaseUserId: user.id }, select: { id: true, plan: true, planStatus: true, createdAt: true, planGrant: true } })
       if (dbUser) {
-        // 契約中の人 (Web の Stripe 契約者を含む) は二重に契約させない (CR-L4-01)。購入・復元から戻る途中 (step あり) は通す
+        // 契約中の人 (Web の Stripe 契約者・運営アカウントを含む) は二重に契約させない (CR-L4-01)。
+        // 購入・復元から戻る途中 (step あり) も、契約が付いていれば用は済んでいるのでホームへ (CR-L5-08)
         const eff = resolveEffectivePlan({ plan: dbUser.plan, planStatus: dbUser.planStatus, createdAt: dbUser.createdAt, restrictionStart: null, planGrant: dbUser.planGrant })
-        if (eff !== "free" && !sp.step) redirect(`/${user.id}`)
+        if (eff !== "free") redirect(`/${user.id}`)
         const onb = await prisma.onboardingProfile.findUnique({ where: { userId: dbUser.id }, select: { completedAt: true } })
         onboarded = !!onb?.completedAt
       }

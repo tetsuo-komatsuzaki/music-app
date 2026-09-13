@@ -38,7 +38,9 @@ function viewOf(p: PlanCardProps, endDate: string | null): View {
   if (p.isPlus && st === "past_due") return { chip: "お支払いに問題があります", chipTone: "warn", text: "カード情報をご確認ください。このままだと採点が使えなくなります。", action: "manage" }
   if (p.isPlus && p.autoRenew === false) return { chip: "更新しない予定", chipTone: "muted", text: `${endDate ? `${endDate} まで使えます。` : ""}そのあと採点は止まります。続けるには契約を管理から。`, action: "manage" }
   if (p.isPlus) return { chip: "契約中", chipTone: "master", text: `アルコの採点は無制限で使えます。${endDate ? `次回の更新日は ${endDate} です。` : ""}`, action: "manage" }
-  if (st === "expired" || st === "canceled") return { chip: "契約切れ", chipTone: "muted", text: "採点と基礎練が止まっています。記録は残っています。", action: "start" }
+  // Stripe の契約者は、契約が止まっていても Customer Portal へ行けるようにする (支払いの更新・請求書・解約。規約 第5条の5・CR-L5-06)
+  if (p.provider === "stripe" && (st === "unpaid" || st === "incomplete")) return { chip: "お支払いに問題があります", chipTone: "warn", text: "お支払いが完了していないため、採点が止まっています。契約の管理ページでお支払い方法をご確認ください。", action: "manage" }
+  if (st === "expired" || st === "canceled") return { chip: "契約切れ", chipTone: "muted", text: "採点と基礎練が止まっています。記録は残っています。", action: p.provider === "stripe" ? "manage" : "start" }
   return { chip: "未加入", chipTone: "muted", text: "アルコの採点が無制限になり、自分の楽譜を取り込んで、その曲も採点できるようになります。", action: "start" }
 }
 
@@ -105,7 +107,7 @@ export default function PlanCard(props: PlanCardProps) {
             {pending ? "開いています…" : "契約を管理"}
           </button>
           {provider === "stripe" ? (
-            <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>変更・解約は契約の管理ページで行います。退会すると、この契約は同時に解約されます。</p>
+            <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>お支払い方法の変更・解約・請求書の確認は契約の管理ページで行います。退会すると、この契約は同時に解約されます。</p>
           ) : !native && (provider === "apple" || apple) && (
             <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>変更・解約は Apple のアカウントページで行います。iPhone の設定 › サブスクリプションからもできます。</p>
           )}

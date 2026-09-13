@@ -27,7 +27,7 @@
 ## 3. 確認
 - tsc: エラーなし。
 - eslint: 変更行にエラーなし。ArcoResultOverlay.tsx の「Cannot access refs during render」2 件は 111 行目 (ドラッグハンドルの ref) の既存エラーで、今回の変更 (265 行目の文言) とは無関係 (git diff で確認)。
-- vitest: billingProviderOf 10 件・stripe 7 件 green (2 ファイル 17 件。webhook 自体のテストファイルは無い・CR-L4-04 で訂正)。
+- vitest: billingProviderOf 10 件・stripe 12 件 green (webhook 自体のテストファイルは無い・CR-L4-04 で訂正。件数は R5 で実測に修正)。
 - 未実施 (人にしか確かめられない): 実 Stripe での退会時解約、本番へのバックフィル migration の適用。
 
 ## 4. Tetsuo の決定 (2026-09-13)

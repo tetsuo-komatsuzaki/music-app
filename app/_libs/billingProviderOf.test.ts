@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { resolveBillingProvider, shouldCancelStripeOnDeletion, isStripeLiveStatus, billingNoteProvider } from "./billingProviderOf"
+import { resolveBillingProvider, shouldCancelStripeOnDeletion, isStripeLiveStatus, isStripeTerminalStatus, billingNoteProvider } from "./billingProviderOf"
 
 describe("resolveBillingProvider", () => {
   it("列の値を正とする", () => {
@@ -32,6 +32,18 @@ describe("isStripeLiveStatus", () => {
   it("trialing / active / past_due だけが生きている", () => {
     for (const st of ["trialing", "active", "past_due"]) expect(isStripeLiveStatus(st)).toBe(true)
     for (const st of ["canceled", "unpaid", "incomplete", "incomplete_expired", "paused", null, undefined]) expect(isStripeLiveStatus(st)).toBe(false)
+  })
+})
+
+describe("isStripeTerminalStatus", () => {
+  it("終端は canceled と incomplete_expired だけ", () => {
+    expect(isStripeTerminalStatus("canceled")).toBe(true)
+    expect(isStripeTerminalStatus("incomplete_expired")).toBe(true)
+  })
+  it("unpaid・paused・incomplete は終端ではない (退会時に解約する)", () => {
+    for (const st of ["unpaid", "paused", "incomplete", "trialing", "active", "past_due", null, undefined]) {
+      expect(isStripeTerminalStatus(st)).toBe(false)
+    }
   })
 })
 

@@ -84,8 +84,9 @@ async function applySubscription(sub: Stripe.Subscription, dbUserIdHint: string 
   // 予備経路: customerId 未保存 (checkout 前の保存が失敗した等) → metadata / client_reference_id で復旧
   const dbUserId = dbUserIdHint ?? sub.metadata?.dbUserId
   if (dbUserId) {
+    // 予備経路でも Apple に移った人は書かない (CR-L5-07)
     await prisma.user.updateMany({
-      where: { id: dbUserId },
+      where: { id: dbUserId, NOT: { billingProvider: "apple" } },
       data: { ...fields, stripeCustomerId: customerId },
     })
     return

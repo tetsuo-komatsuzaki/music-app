@@ -92,7 +92,7 @@ App Store Connect の EULA 欄は空欄にして Apple の標準 EULA (Licensed 
 【氏名】 / 【電話番号】 / 【連絡先メールアドレス】
 
 ### デモアカウント
-- 審査用アカウントの「契約済み」は、その アカウントで Sandbox の購入を実際に完了させて作る (planGrant=internal では PlanCard が「運営」表示になり「契約を管理」が出ない)。
+- 審査用アカウントの「契約済み」は、そのアカウントで Sandbox の購入を実際に完了させて作る (planGrant=internal では PlanCard が「運営」表示になり「契約を管理」が出ない。加えて契約中扱いなので /start に入れず購入の流れを見せられない)。
 - 新規の登録は Sign in with Apple のみ。既存アカウントは /login のメール・パスワードのフォームでもサインインできる (殻でもフォームは出る。Google ボタンだけ殻では出さない)。デモアカウント: メール 【審査用メールアドレス】 / パスワード 【審査用パスワード】 (契約済みの状態) をこのフォームで使う。
 
 ### メモ (英語)
@@ -125,7 +125,7 @@ Sandbox: the demo account above already has an active subscription (created by c
 - Web の Stripe 契約者が残る間は STRIPE_SECRET_KEY 等の env と /api/stripe/portal を残す (消すと設定の「契約を管理」が動かず、特商法・規約 第5条の5 が事実でなくなる)。
 - listing の 5 つの URL (terms / privacy / tokushoho / support/help / lp) を本番で curl して 200 を確認する。
 - 本番 env: ENABLE_ACCOUNT_DELETION=true、APPLE_TEAM_ID / APPLE_KEY_ID / APPLE_PRIVATE_KEY / APPLE_SERVICES_ID (退会時のトークン失効)、CRON_SECRET (ゲスト削除と通知原文の削除)。無いと規約第13条・ポリシー第6条が事実でなくなる。
-- App Store Connect の日本の価格ポイントに ¥1,280 と ¥12,800 があることを確認してから、3 文書の円額を確定する。円額はアプリ内の 5 か所 (gateText ×3・Recorder・ホームの帯・PlanCard) とヘルプ FAQ に固定で書いてあり、「最初の 2 週間は無料」の文は結果カードと LibraryClient を含めて 8 か所にあるので、価格ポイントや無料期間が変われば一括で直す。
+- App Store Connect の日本の価格ポイントに ¥1,280 と ¥12,800 があることを確認してから、3 文書の円額を確定する。円額はアプリ内の 6 か所 (gateText ×3・Recorder・ホームの帯・PlanCard) とヘルプ FAQ・規約・特商法に書いてあり、「最初の 2 週間は無料」の文は結果カードと LibraryClient を含めて 8 か所にあるので、価格ポイントや無料期間が変われば grep して一括で直す。
 - 委託先の契約主体と所在国を確認 (Supabase のリージョン、Google Cloud の契約主体、日本向け App Store の販売主体 iTunes K.K.)。ポリシー第8条・第9条の国名を合わせる。
 - 【 】をすべて埋める: 事業者名・代表者・運営責任者・住所・連絡先メール・電話・施行日・管轄裁判所・iOS 対応バージョン・審査用アカウント。
 - お便りメールの配信を始める前に: 送信者名・住所・解除方法を各メールに載せる (特定電子メール法第4条)。設定の「お知らせメール」スイッチは実装済み。

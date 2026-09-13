@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js"
 import { Resend } from "resend"
 import { revokeAppleToken } from "@/app/_libs/apple/appleRevoke"
 import { getStripe } from "@/app/_libs/stripe"
-import { resolveBillingProvider, shouldCancelStripeOnDeletion, isStripeLiveStatus } from "@/app/_libs/billingProviderOf"
+import { resolveBillingProvider, shouldCancelStripeOnDeletion, isStripeTerminalStatus } from "@/app/_libs/billingProviderOf"
 
 // =========================================================
 // 退会フロー (同期削除、Auth-first)
@@ -85,25 +85,27 @@ export async function requestAccountDeletion(
   }
 
   // Web (Stripe) の契約は退会と同時に解約する (2026-09-13 法務対応・規約第5条の5・特商法)。
-  // 退会後は Customer Portal に入れず本人が止める手段が無くなるので、解約できなければ退会を中断する (CR-L2-03)。
-  // 既に解約済み (Stripe が resource_missing または status canceled を返す) のときだけ続行する。
-  // 条件は DB の列に頼らない (2026-09-13 より前の Stripe 契約者は billingProvider が空・CR-L3-01。
-  // Web で契約した後に Apple でも契約した人は planStatus が Apple の値に上書きされる・CR-L4-01)。生死は Stripe に聞く
+  // ここでは状態を見るだけ (retrieve)。Stripe に届かない・状態が読めないなら退会を中断する (CR-L2-03)。
+  // 実際の解約 (取り消せない) は Auth 削除が成功した後に行う。先に解約して Auth 削除が失敗すると、
+  // アカウントは残るのに契約だけ消え、Web では契約し直せないため (CR-L5-02)。
+  // 判定は DB の列に頼らない (2026-09-13 より前の Stripe 契約者は billingProvider が空・CR-L3-01。
+  // Web で契約した後に Apple でも契約した人は planStatus が Apple の値に上書きされる・CR-L4-01)。
+  // 残してよいのは終端 (canceled / incomplete_expired) だけ。unpaid は請求書が生成され続けるので解約する (CR-L5-01)
+  let stripeSubscriptionToCancel: string | null = null
   if (shouldCancelStripeOnDeletion(dbUser) && dbUser.stripeSubscriptionId) {
     try {
-      const stripe = getStripe()
-      const sub = await stripe.subscriptions.retrieve(dbUser.stripeSubscriptionId)
-      if (isStripeLiveStatus(sub.status)) {
-        await stripe.subscriptions.cancel(dbUser.stripeSubscriptionId)
+      const sub = await getStripe().subscriptions.retrieve(dbUser.stripeSubscriptionId)
+      if (isStripeTerminalStatus(sub.status)) {
+        console.log(JSON.stringify({ event: "stripe_cancel_on_deletion_terminal", userId: dbUser.id, status: sub.status }))
       } else {
-        console.log(JSON.stringify({ event: "stripe_cancel_on_deletion_not_live", userId: dbUser.id, status: sub.status }))
+        stripeSubscriptionToCancel = dbUser.stripeSubscriptionId
       }
     } catch (e) {
       const err = e as { code?: string; message?: string }
-      const already = err?.code === "resource_missing" || /already (been )?canceled/i.test(err?.message ?? "")
-      console.error(JSON.stringify({ event: already ? "stripe_cancel_on_deletion_already" : "stripe_cancel_on_deletion_failed", userId: dbUser.id, subscriptionId: dbUser.stripeSubscriptionId, error: err?.message ?? String(e) }))
-      if (!already) {
-        return { success: false, error: "契約の解約に失敗しました。時間をおいて再試行するか、先に「契約を管理」から解約してください" }
+      const gone = err?.code === "resource_missing"
+      console.error(JSON.stringify({ event: gone ? "stripe_check_on_deletion_missing" : "stripe_check_on_deletion_failed", userId: dbUser.id, subscriptionId: dbUser.stripeSubscriptionId, error: err?.message ?? String(e) }))
+      if (!gone) {
+        return { success: false, error: "契約の状態を確認できませんでした。時間をおいて再試行するか、先に「契約を管理」から解約してください" }
       }
     }
   }
@@ -136,6 +138,21 @@ export async function requestAccountDeletion(
       timestamp: new Date().toISOString(),
     }))
     return { success: false, error: "退会申請に失敗しました。時間をおいて再試行してください" }
+  }
+
+  // Stripe の解約 (取り消せない) はここで行う。Auth 削除が済んでいるので、失敗しても退会は止めずに記録し、完了メールで知らせる (CR-L5-02)
+  let stripeCancelFailedNote = ""
+  if (stripeSubscriptionToCancel) {
+    try {
+      await getStripe().subscriptions.cancel(stripeSubscriptionToCancel)
+    } catch (e) {
+      const err = e as { code?: string; message?: string }
+      const already = err?.code === "resource_missing" || /already (been )?canceled/i.test(err?.message ?? "")
+      console.error(JSON.stringify({ event: already ? "stripe_cancel_after_auth_already" : "stripe_cancel_after_auth_failed", userId: dbUser.id, subscriptionId: stripeSubscriptionToCancel, error: err?.message ?? String(e) }))
+      if (!already) {
+        stripeCancelFailedNote = "\n\nWeb でご契約のアルコプラスの解約処理に失敗しました。お手数ですが、下記のお問い合わせ先までご連絡ください。こちらで解約の手続きをいたします。"
+      }
+    }
   }
 
   // Sign in with Apple のトークン失効 (5.1.1(v))。Auth 削除が成功した後に行う (失敗して巻き戻る場合に連携だけ切れないように)。失効の失敗は退会を止めない
@@ -190,7 +207,7 @@ export async function requestAccountDeletion(
       to: userEmail,
       subject: "アルコ 退会完了のお知らせ",
       text: `アルコ (Arcoda) の退会処理が完了しました。
-すべてのデータを削除いたしました (Supabase の自動バックアップには保持期間中残存する場合があります)。${appleContractNote}
+すべてのデータを削除いたしました (Supabase の自動バックアップには保持期間中残存する場合があります)。${appleContractNote}${stripeCancelFailedNote}
 
 ご利用ありがとうございました。
 
