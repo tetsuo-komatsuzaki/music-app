@@ -264,6 +264,8 @@ MIN_DURATION_SEC = 3
 SEARCH_RANGE_BEATS = 1.5
 SEARCH_RANGE_MIN_SEC = 0.5
 SEARCH_STEP_SEC = 0.01
+# 2026-09-13 P1-4(b): 全音で数えると重いので、粗く走査してから詰める
+SEARCH_COARSE_STEP_SEC = 0.05
 
 # 2026-09-13 P1-4(a): 探索幅の拡大。監査で、正しい位置が幅の外にある録音が見つかった
 # (実演奏B: 必要 -2.9s に対し幅 ±1.0s。届かないので先頭15音が 1/15 しか合わない)。
@@ -542,91 +544,126 @@ _FRAME_INTERVAL_SEC = HOP_LENGTH / 44100.0
 
 
 def find_start_position(notes_only, valid_time, valid_f0, first_sound_time, beat_sec=None):
+    """楽譜を何秒ずらすと録音に重なるかを決める。
+
+    2026-09-13 P1-4(b): 採点の対象を「楽譜の先頭15音」から「録音に入る全音符」へ。
+    先頭15音だけでは、遅い曲で位置が決まらない。実演奏A (1拍1.765s) は先頭15音が
+    楽譜19秒ぶん=曲の7.5%しかなく、1.26秒ずらしても同じ音に当たるため、
+    「楽譜の1音目は録音に音が出る1.26秒前に鳴る」という成り立たない位置が選ばれていた。
+    先頭15音では現行位置が11/15で最高だが、全音では23.5%に対し他の位置が47.8%。
+
+    速度のため二段階にする。粗く0.05秒刻みで全体を見てから、勝った位置の周りを
+    0.01秒刻みで詰める。刻みの細かさは従来と同じ。
+    """
     first_note_start = float(notes_only[0]["start_time_sec"])
     check_notes = notes_only[:min(15, len(notes_only))]
     anchor = first_sound_time - first_note_start
 
     best_shift = anchor
     best_matches = 0
-
-    near_matches = 0          # 従来の幅の中での最良 (診断用)
+    near_matches = 0          # 従来の幅の中での最良
     rejected_far = 0          # 余裕を満たさず見送った遠い候補の数
     rejected_silent = 0       # 物理制約で弾いた候補の数
+    head_matches = 0          # 先頭15音での一致 (診断用。判定には使わない)
 
-    def _sounds_enough(candidate):
-        """1音目の区間のうち、音が鳴っているフレームの割合が下限以上か。
+    if len(valid_time) == 0 or len(check_notes) < 2:
+        _ALIGN_DIAG.update({"anchor_sec": round(float(anchor), 4), "shift_sec": round(float(anchor), 4),
+                            "shift_minus_anchor_sec": 0.0, "matches": 0, "scored_notes": 0,
+                            "head15_matches": 0, "near_best_matches": 0,
+                            "rejected_far": 0, "rejected_silent": 0})
+        print(f"  Start position: shift={anchor:.4f}s (探索できず)")
+        return anchor
 
-        2026-09-13 P1-4(d)。音が鳴っていない区間に音符を置く位置は物理的にありえない。
-        しきい値は保守的 (0.3)。上げすぎると正しい位置まで弾く。
-        """
-        nt = check_notes[0]
-        t0 = float(nt["start_time_sec"]) + candidate
-        t1 = float(nt["end_time_sec"]) + candidate
-        if t1 <= t0:
+    # 採点対象。録音の中に入る音符だけを数える (部分録音で、録音の外へ押し出す位置が
+    # 有利にならないよう、割合ではなく実数で数える)
+    t_lo, t_hi = float(valid_time[0]), float(valid_time[-1])
+    starts = np.array([float(n["start_time_sec"]) for n in notes_only])
+    ends = np.array([float(n["end_time_sec"]) for n in notes_only])
+    pitches = np.array([float(n["pitches"][0]) for n in notes_only])
+    margins = (ends - starts) * 0.1
+    n_notes = len(starts)
+
+    def count_matches(candidate, idx=None):
+        rng = range(n_notes) if idx is None else idx
+        m = 0
+        for i in rng:
+            t0 = starts[i] + candidate
+            t1 = ends[i] + candidate
+            if t1 < t_lo or t0 > t_hi:
+                continue
+            lo = int(np.searchsorted(valid_time, t0 + margins[i], "left"))
+            hi = int(np.searchsorted(valid_time, t1 - margins[i], "right"))
+            if hi - lo >= MIN_VALID_FRAMES:
+                med = float(np.median(valid_f0[lo:hi]))
+                if med > 0 and abs(1200.0 * np.log2(med / pitches[i])) <= PITCH_TOLERANCE_CENTS:
+                    m += 1
+        return m
+
+    def sounds_enough(candidate):
+        """1音目の区間のうち音が鳴っている割合が下限以上か (P1-4(d))。"""
+        t0 = starts[0] + candidate
+        t1 = ends[0] + candidate
+        if t1 <= t0 or _FRAME_INTERVAL_SEC <= 0:
             return True
-        inside = np.sum((valid_time >= t0) & (valid_time <= t1))
-        # valid_time は有効フレームの時刻。フレーム間隔は hop/sr で一定なので、
-        # 全フレームの平均間隔から「区間にあるはずのフレーム数」を出す
-        if _FRAME_INTERVAL_SEC <= 0:
-            return True
-        expected_frames = (t1 - t0) / _FRAME_INTERVAL_SEC
-        if expected_frames <= 0:
-            return True
-        return (inside / expected_frames) >= FIRST_NOTE_SOUND_RATIO_MIN
+        lo = int(np.searchsorted(valid_time, t0, "left"))
+        hi = int(np.searchsorted(valid_time, t1, "right"))
+        expected = (t1 - t0) / _FRAME_INTERVAL_SEC
+        return expected <= 0 or ((hi - lo) / expected) >= FIRST_NOTE_SOUND_RATIO_MIN
 
-    if len(valid_time) > 0 and len(check_notes) >= 2:
-        # 2026-08-27: 拍基準。速い曲ほど広がる逆転を解消
-        _range_near = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS, SEARCH_RANGE_MIN_SEC)
-        # 2026-09-13 P1-4(a): 従来の幅の外も探す。ただし採用には余裕を課す
-        _range = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS_WIDE, SEARCH_RANGE_MIN_SEC_WIDE,
-                     _range_near)
-        steps = int(_range / SEARCH_STEP_SEC)
-        for abs_off in range(0, steps + 1):
-            for sign in ([0] if abs_off == 0 else [-1, 1]):
-                candidate = anchor + abs_off * sign * SEARCH_STEP_SEC
-                is_far = abs(candidate - anchor) > _range_near
-                matches = 0
-                for nt in check_notes:
-                    t0 = float(nt["start_time_sec"]) + candidate
-                    t1 = float(nt["end_time_sec"]) + candidate
-                    dur = t1 - t0
-                    margin = dur * 0.1
-                    mask = (valid_time >= t0 + margin) & (valid_time <= t1 - margin)
-                    if np.sum(mask) >= MIN_VALID_FRAMES:
-                        med = float(np.median(valid_f0[mask]))
-                        ep = float(nt["pitches"][0])
-                        if med > 0 and abs(1200.0 * np.log2(med / ep)) <= PITCH_TOLERANCE_CENTS:
-                            matches += 1
-                if not is_far and matches > near_matches:
-                    near_matches = matches
-                if matches <= best_matches:
-                    continue
-                # 遠い候補は「出発点の近傍での最良より SEARCH_FAR_MARGIN 以上多い」ときだけ
-                if is_far and matches < near_matches + SEARCH_FAR_MARGIN:
-                    rejected_far += 1
-                    continue
-                # 物理制約は従来の幅の外だけに掛ける。中は挙動を変えない。
-                # ゲートが壊れている録音では有効フレームが少なく、中にも掛けると
-                # 正しい候補まで落ちる (実演奏B で実測)。
-                if is_far and not _sounds_enough(candidate):
-                    rejected_silent += 1
-                    continue
-                best_matches = matches
-                best_shift = candidate
+    _range_near = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS, SEARCH_RANGE_MIN_SEC)
+    _range = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS_WIDE, SEARCH_RANGE_MIN_SEC_WIDE, _range_near)
+    # 遠い位置を採るのに要る差。音数に比例させる (全音で数えると一致数の桁が変わるため)
+    far_margin = max(SEARCH_FAR_MARGIN, int(0.05 * n_notes))
 
-    n_check = len(check_notes)
-    print(f"  Start position: shift={best_shift:.4f}s ({best_matches}/{n_check} matches)")
+    def scan(step, lo_off, hi_off, idx=None, scale=1.0):
+        nonlocal best_shift, best_matches, near_matches, rejected_far, rejected_silent
+        offs = np.arange(lo_off, hi_off + 1e-9, step)
+        # 出発点に近い順に見る。同点は出発点側が残る
+        order = sorted(range(len(offs)), key=lambda k: (abs(offs[k]), offs[k]))
+        for k in order:
+            candidate = anchor + float(offs[k])
+            is_far = abs(candidate - anchor) > _range_near
+            m = int(round(count_matches(candidate, idx) * scale))
+            if not is_far and m > near_matches:
+                near_matches = m
+            if m <= best_matches:
+                continue
+            if is_far and m < near_matches + far_margin:
+                rejected_far += 1
+                continue
+            if is_far and not sounds_enough(candidate):
+                rejected_silent += 1
+                continue
+            best_matches = m
+            best_shift = candidate
+
+    # 粗い走査も全音で数える。音符を間引く案は実測で不採用: 山が浅い録音
+    # (実演奏B) で粗い勝者が変わり、そこで詰めるため答えが動いた。
+    scan(SEARCH_COARSE_STEP_SEC, -_range, _range)
+    # 粗い勝者の周りを、全音・従来の刻みで詰め直す
+    around = best_shift - anchor
+    best_matches = 0
+    near_matches = 0
+    scan(SEARCH_STEP_SEC, around - SEARCH_COARSE_STEP_SEC, around + SEARCH_COARSE_STEP_SEC)
+
+    head_idx = list(range(min(15, n_notes)))
+    head_matches = count_matches(best_shift, head_idx)
+
+    print(f"  Start position: shift={best_shift:.4f}s "
+          f"({best_matches}/{n_notes} notes matched, 先頭15音では {head_matches}/{len(head_idx)})")
     if abs(best_shift - anchor) > 0.3:
         print(f"  [align] 採用位置は最初の音から {best_shift - anchor:+.3f}s 離れている "
-              f"(近傍の最良 {near_matches}/{n_check}・遠い候補を見送り {rejected_far} 件・"
+              f"(近傍の最良 {near_matches}・遠い候補を見送り {rejected_far} 件・"
               f"無音で却下 {rejected_silent} 件)")
     _ALIGN_DIAG.update({
         "anchor_sec": round(float(anchor), 4),
         "shift_sec": round(float(best_shift), 4),
         "shift_minus_anchor_sec": round(float(best_shift - anchor), 4),
         "matches": int(best_matches),
-        "check_notes": int(n_check),
+        "scored_notes": int(n_notes),
+        "head15_matches": int(head_matches),
         "near_best_matches": int(near_matches),
+        "far_margin": int(far_margin),
         "rejected_far": int(rejected_far),
         "rejected_silent": int(rejected_silent),
     })
