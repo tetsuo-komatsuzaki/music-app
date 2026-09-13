@@ -655,14 +655,12 @@ def _resolve_string_finger_position(
 
     midi_pitch = _extract_midi_pitch(note_elem)
     step, octave = _extract_step_octave(note_elem)
-    # ♭は1つ下の枠になるので、ポジション算出に alter を渡す (2026-09-13 Tetsuo確定)
-    alter = _extract_alter(note_elem) or 0
 
     # 1. 両方注釈あり → 最優先で採用
     if annotated_string_id is not None and annotated_finger is not None:
         pos = (
             derive_position(
-                midi_pitch, annotated_string_id, annotated_finger, step, octave, alter
+                midi_pitch, annotated_string_id, annotated_finger, step, octave
             )
             if midi_pitch is not None
             else None
